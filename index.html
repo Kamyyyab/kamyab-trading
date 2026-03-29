@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kamyab — Trading OS</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -623,6 +623,8 @@ async function logout(){
 }
 
 /* ── DATA ── */
+const LS_KEY='kamyab_trading_v1';
+
 function getWeekKey(){
   const n=new Date();
   const mon=new Date(n);mon.setDate(n.getDate()-((n.getDay()+6)%7));
@@ -635,40 +637,56 @@ function showToast(msg,isErr){
   el.style.background=isErr?'#7a0f28':'#004038';
   el.style.color=isErr?'#ff4f6b':'#00e5b0';
   el.style.border=isErr?'1px solid #cc2040':'1px solid #007d5e';
-  el.style.opacity='1';
-  el.textContent=msg;
+  el.style.opacity='1';el.textContent=msg;
   clearTimeout(el._t);el._t=setTimeout(()=>{el.style.opacity='0';},3000);
+}
+
+function saveLocal(){
+  try{localStorage.setItem(LS_KEY+':'+(USER?USER.id:'guest'),JSON.stringify(S));}catch(e){}
+}
+
+function loadLocal(){
+  try{
+    const d=localStorage.getItem(LS_KEY+':'+(USER?USER.id:'guest'));
+    if(d)S={...S,...JSON.parse(d)};
+  }catch(e){}
 }
 
 async function loadData(){
   if(!USER)return;
+  loadLocal();
   try{
-    const res=await sb.from('trading_data').select('data').eq('user_id',USER.id).maybeSingle();
-    if(res.error)throw res.error;
-    if(res.data&&res.data.data){
-      S={...{energy:null,checks:{},violations:0,streak:0,bestStreak:0,journal:[],streakHistory:[],lastViolationWeek:null},...res.data.data};
+    const res=await Promise.race([
+      sb.from('trading_data').select('data').eq('user_id',USER.id).maybeSingle(),
+      new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),5000))
+    ]);
+    if(res&&res.data&&res.data.data){
+      const remote=res.data.data;
+      const localJ=(S.journal||[]);
+      const remoteJ=(remote.journal||[]);
+      if(remoteJ.length>=localJ.length){
+        S={...{energy:null,checks:{},violations:0,streak:0,bestStreak:0,journal:[],streakHistory:[],lastViolationWeek:null},...remote};
+        saveLocal();
+      }
     }
-    const currentWeek=getWeekKey();
-    if(S.lastViolationWeek!==currentWeek){
-      S.violations=0;S.lastViolationWeek=currentWeek;
-      await saveData();
-    }
-  }catch(e){console.error('loadData error:',e);}
+  }catch(e){console.warn('Using local data:',e.message);}
+  const currentWeek=getWeekKey();
+  if(S.lastViolationWeek!==currentWeek){S.violations=0;S.lastViolationWeek=currentWeek;saveLocal();}
 }
 
 async function saveData(){
   if(!USER)return;
+  saveLocal();
+  showToast('Saved ✓');
   try{
-    const res=await sb.from('trading_data').upsert(
-      {user_id:USER.id,data:S,updated_at:new Date().toISOString()},
-      {onConflict:'user_id',ignoreDuplicates:false}
-    );
-    if(res.error)throw res.error;
-    showToast('Saved ✓');
-  }catch(e){
-    console.error('saveData error:',e);
-    showToast('Save failed: '+e.message,true);
-  }
+    await Promise.race([
+      sb.from('trading_data').upsert(
+        {user_id:USER.id,data:S,updated_at:new Date().toISOString()},
+        {onConflict:'user_id'}
+      ),
+      new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),5000))
+    ]);
+  }catch(e){console.warn('Remote save failed, using local:',e.message);}
 }
 
 /* ── INIT ── */
@@ -1107,4 +1125,4 @@ function goPage(pg,btn){
 </script>
 </body>
 </html>
- 
+
