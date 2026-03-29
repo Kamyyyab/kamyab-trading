@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kamyab — Trading OS</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -628,30 +628,47 @@ function getWeekKey(){
   const mon=new Date(n);mon.setDate(n.getDate()-((n.getDay()+6)%7));
   return mon.toISOString().split('T')[0];
 }
+
+function showToast(msg,isErr){
+  let el=document.getElementById('toast-msg');
+  if(!el){el=document.createElement('div');el.id='toast-msg';el.style.cssText='position:fixed;bottom:24px;right:24px;padding:12px 18px;border-radius:8px;font-family:monospace;font-size:12px;z-index:9999;max-width:320px;transition:opacity .3s';document.body.appendChild(el);}
+  el.style.background=isErr?'#7a0f28':'#004038';
+  el.style.color=isErr?'#ff4f6b':'#00e5b0';
+  el.style.border=isErr?'1px solid #cc2040':'1px solid #007d5e';
+  el.style.opacity='1';
+  el.textContent=msg;
+  clearTimeout(el._t);el._t=setTimeout(()=>{el.style.opacity='0';},3000);
+}
+
 async function loadData(){
   if(!USER)return;
-  const{data}=await sb.from('trading_data').select('data').eq('user_id',USER.id).single();
-  if(data&&data.data)S={...{energy:null,checks:{},violations:0,streak:0,bestStreak:0,journal:[],streakHistory:[],lastViolationWeek:null},...data.data};
-  const currentWeek=getWeekKey();
-  if(S.lastViolationWeek!==currentWeek){
-    const hadViolations=S.violations>0;
-    S.violations=0;
-    S.lastViolationWeek=currentWeek;
-    if(hadViolations)await saveData();
-  }
-}
-async function saveData(){
-  if(!USER){console.warn('saveData: no user');return;}
   try{
-    const{error}=await sb.from('trading_data').upsert({user_id:USER.id,data:S,updated_at:new Date().toISOString()},{onConflict:'user_id'});
-    if(error){console.error('saveData error:',error);showSaveError(error.message);}
-  }catch(e){console.error('saveData exception:',e);showSaveError(e.message);}
+    const res=await sb.from('trading_data').select('data').eq('user_id',USER.id).maybeSingle();
+    if(res.error)throw res.error;
+    if(res.data&&res.data.data){
+      S={...{energy:null,checks:{},violations:0,streak:0,bestStreak:0,journal:[],streakHistory:[],lastViolationWeek:null},...res.data.data};
+    }
+    const currentWeek=getWeekKey();
+    if(S.lastViolationWeek!==currentWeek){
+      S.violations=0;S.lastViolationWeek=currentWeek;
+      await saveData();
+    }
+  }catch(e){console.error('loadData error:',e);}
 }
-function showSaveError(msg){
-  let el=document.getElementById('save-err');
-  if(!el){el=document.createElement('div');el.id='save-err';el.style.cssText='position:fixed;bottom:20px;right:20px;background:#7a0f28;color:#ff4f6b;border:1px solid #cc2040;border-radius:8px;padding:12px 16px;font-family:monospace;font-size:12px;z-index:9999;max-width:300px';document.body.appendChild(el);}
-  el.textContent='Save error: '+msg;
-  setTimeout(()=>{if(el)el.remove();},6000);
+
+async function saveData(){
+  if(!USER)return;
+  try{
+    const res=await sb.from('trading_data').upsert(
+      {user_id:USER.id,data:S,updated_at:new Date().toISOString()},
+      {onConflict:'user_id',ignoreDuplicates:false}
+    );
+    if(res.error)throw res.error;
+    showToast('Saved ✓');
+  }catch(e){
+    console.error('saveData error:',e);
+    showToast('Save failed: '+e.message,true);
+  }
 }
 
 /* ── INIT ── */
@@ -1090,3 +1107,4 @@ function goPage(pg,btn){
 </script>
 </body>
 </html>
+ 
