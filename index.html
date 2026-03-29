@@ -656,38 +656,43 @@ function loadLocal(uid){
 async function loadData(){
   if(!USER)return;
   loadLocal(USER.id);
-  try{
-    const res=await Promise.race([
-      sb.from('trading_data').select('data').eq('user_id',USER.id).maybeSingle(),
-      new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),5000))
-    ]);
-    if(res&&res.data&&res.data.data){
-      const remote=res.data.data;
-      const localJ=(S.journal||[]);
-      const remoteJ=(remote.journal||[]);
-      if(remoteJ.length>=localJ.length){
-        S={...{energy:null,checks:{},violations:0,streak:0,bestStreak:0,journal:[],streakHistory:[],lastViolationWeek:null},...remote};
-        saveLocal();
-      }
-    }
-  }catch(e){console.warn('Using local data:',e.message);}
   const currentWeek=getWeekKey();
   if(S.lastViolationWeek!==currentWeek){S.violations=0;S.lastViolationWeek=currentWeek;saveLocal();}
+  setTimeout(async()=>{
+    try{
+      const res=await Promise.race([
+        sb.from('trading_data').select('data').eq('user_id',USER.id).maybeSingle(),
+        new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),3000))
+      ]);
+      if(res&&res.data&&res.data.data){
+        const remote=res.data.data;
+        const remoteJ=(remote.journal||[]);
+        const localJ=(S.journal||[]);
+        if(remoteJ.length>localJ.length){
+          S={...S,...remote};
+          saveLocal();
+          buildChecks();renderViol();renderStreak();renderCal();renderStats();renderJournal();renderStreakHistory();updateToday();
+        }
+      }
+    }catch(e){console.warn('Remote sync skipped:',e.message);}
+  },100);
 }
 
 async function saveData(){
   if(!USER)return;
   saveLocal();
   showToast('Saved ✓');
-  try{
-    await Promise.race([
-      sb.from('trading_data').upsert(
-        {user_id:USER.id,data:S,updated_at:new Date().toISOString()},
-        {onConflict:'user_id'}
-      ),
-      new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),5000))
-    ]);
-  }catch(e){console.warn('Remote save failed, using local:',e.message);}
+  setTimeout(async()=>{
+    try{
+      await Promise.race([
+        sb.from('trading_data').upsert(
+          {user_id:USER.id,data:S,updated_at:new Date().toISOString()},
+          {onConflict:'user_id'}
+        ),
+        new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),3000))
+      ]);
+    }catch(e){console.warn('Remote save skipped:',e.message);}
+  },0);
 }
 
 /* ── INIT ── */
@@ -1126,5 +1131,4 @@ function goPage(pg,btn){
 </script>
 </body>
 </html>
-
 
