@@ -642,19 +642,20 @@ function showToast(msg,isErr){
 }
 
 function saveLocal(){
-  try{localStorage.setItem(LS_KEY+':'+(USER?USER.id:'guest'),JSON.stringify(S));}catch(e){}
+  try{if(USER)localStorage.setItem(LS_KEY+':'+USER.id,JSON.stringify(S));}catch(e){}
 }
 
-function loadLocal(){
+function loadLocal(uid){
   try{
-    const d=localStorage.getItem(LS_KEY+':'+(USER?USER.id:'guest'));
-    if(d)S={...S,...JSON.parse(d)};
+    const d=localStorage.getItem(LS_KEY+':'+uid);
+    if(d){const parsed=JSON.parse(d);S={...S,...parsed};return true;}
   }catch(e){}
+  return false;
 }
 
 async function loadData(){
   if(!USER)return;
-  loadLocal();
+  loadLocal(USER.id);
   try{
     const res=await Promise.race([
       sb.from('trading_data').select('data').eq('user_id',USER.id).maybeSingle(),
@@ -1125,4 +1126,5 @@ function goPage(pg,btn){
 </script>
 </body>
 </html>
+
 
