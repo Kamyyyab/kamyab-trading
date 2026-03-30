@@ -353,7 +353,18 @@ textarea{resize:vertical;min-height:60px;line-height:1.5;font-size:13px}
         <div class="sb-stack">
           <!-- Risk Calculator -->
           <div class="card">
-            <div class="card-lbl">Risk Calculator</div>
+            <div class="card-lbl">Futures Risk Calculator</div>
+            <div class="fg" style="margin-bottom:10px">
+              <div class="fl">Contract</div>
+              <select id="calc-contract" onchange="calcRisk()">
+                <option value="YM">YM — Dow Futures ($5/point)</option>
+                <option value="MYM">MYM — Micro Dow ($0.50/point)</option>
+                <option value="NQ">NQ — Nasdaq Futures ($20/point)</option>
+                <option value="MNQ">MNQ — Micro Nasdaq ($2/point)</option>
+                <option value="ES">ES — S&P 500 ($50/point)</option>
+                <option value="MES">MES — Micro S&P ($5/point)</option>
+              </select>
+            </div>
             <div class="calc-grid">
               <div class="fg" style="margin-bottom:0">
                 <div class="fl">Account Size ($)</div>
@@ -364,14 +375,38 @@ textarea{resize:vertical;min-height:60px;line-height:1.5;font-size:13px}
                 <input type="number" id="calc-pct" placeholder="1" step="0.1" oninput="calcRisk()">
               </div>
             </div>
-            <div class="calc-result" id="calc-result" style="display:none">
-              <div class="calc-r-lbl">Risk per trade</div>
-              <div class="calc-r-val" id="calc-dollar">$0</div>
-              <div style="display:flex;gap:16px;margin-top:8px">
-                <div><div class="fl" style="margin-bottom:2px">Target (+3R)</div><div style="font-family:var(--mo);font-size:13px;color:var(--g)" id="calc-tp3">$0</div></div>
-                <div><div class="fl" style="margin-bottom:2px">Target (+2R)</div><div style="font-family:var(--mo);font-size:13px;color:var(--g)" id="calc-tp2">$0</div></div>
-                <div><div class="fl" style="margin-bottom:2px">Max loss</div><div style="font-family:var(--mo);font-size:13px;color:var(--r)" id="calc-sl">$0</div></div>
+            <div class="fg" style="margin-top:10px;margin-bottom:0">
+              <div class="fl">Stop Loss (points)</div>
+              <input type="number" id="calc-sl-pts" placeholder="e.g. 20" oninput="calcRisk()">
+            </div>
+            <div class="calc-result" id="calc-result" style="display:none;margin-top:12px">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+                <div style="background:var(--c4);border-radius:7px;padding:10px">
+                  <div class="fl" style="margin-bottom:4px">Risk per trade</div>
+                  <div style="font-family:var(--mo);font-size:18px;font-weight:700;color:var(--r)" id="calc-dollar">$0</div>
+                </div>
+                <div style="background:var(--c4);border-radius:7px;padding:10px">
+                  <div class="fl" style="margin-bottom:4px">Contracts</div>
+                  <div style="font-family:var(--mo);font-size:18px;font-weight:700;color:var(--g)" id="calc-contracts">0</div>
+                </div>
               </div>
+              <div style="background:var(--c4);border-radius:7px;padding:10px;margin-bottom:8px">
+                <div class="fl" style="margin-bottom:4px">Stop loss value (1 contract)</div>
+                <div style="font-family:var(--mo);font-size:14px;color:var(--r)" id="calc-sl-val">$0</div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div style="background:var(--c4);border-radius:7px;padding:10px">
+                  <div class="fl" style="margin-bottom:4px">Target +2R</div>
+                  <div style="font-family:var(--mo);font-size:14px;font-weight:600;color:var(--g)" id="calc-tp2">$0</div>
+                  <div style="font-family:var(--mo);font-size:10px;color:var(--tx3);margin-top:2px" id="calc-tp2-pts">0 pts</div>
+                </div>
+                <div style="background:var(--c4);border-radius:7px;padding:10px">
+                  <div class="fl" style="margin-bottom:4px">Target +3R</div>
+                  <div style="font-family:var(--mo);font-size:14px;font-weight:600;color:var(--g)" id="calc-tp3">$0</div>
+                  <div style="font-family:var(--mo);font-size:10px;color:var(--tx3);margin-top:2px" id="calc-tp3-pts">0 pts</div>
+                </div>
+              </div>
+              <div style="font-family:var(--mo);font-size:9px;color:var(--tx3);margin-top:8px;letter-spacing:.5px" id="calc-summary"></div>
             </div>
           </div>
 
@@ -710,6 +745,8 @@ async function initApp(user){
   initTopbar();updateToday();
   if(S.calcAcc)document.getElementById('calc-acc').value=S.calcAcc;
   if(S.calcPct)document.getElementById('calc-pct').value=S.calcPct;
+  if(S.calcContract)document.getElementById('calc-contract').value=S.calcContract;
+  if(S.calcSlPts)document.getElementById('calc-sl-pts').value=S.calcSlPts;
   if(S.calcAcc||S.calcPct)calcRisk();
 }
 
@@ -756,18 +793,41 @@ function setE(lvl,sv=true){
 }
 
 /* ── RISK CALCULATOR ── */
+const CONTRACTS={
+  YM:  {name:'YM',  pointValue:5,    tickSize:1,   tickValue:5},
+  MYM: {name:'MYM', pointValue:0.5,  tickSize:1,   tickValue:0.5},
+  NQ:  {name:'NQ',  pointValue:20,   tickSize:0.25,tickValue:5},
+  MNQ: {name:'MNQ', pointValue:2,    tickSize:0.25,tickValue:0.5},
+  ES:  {name:'ES',  pointValue:50,   tickSize:0.25,tickValue:12.5},
+  MES: {name:'MES', pointValue:5,    tickSize:0.25,tickValue:1.25},
+};
+
 function calcRisk(){
   const acc=parseFloat(document.getElementById('calc-acc').value)||0;
   const pct=parseFloat(document.getElementById('calc-pct').value)||0;
+  const slPts=parseFloat(document.getElementById('calc-sl-pts').value)||0;
+  const contract=document.getElementById('calc-contract').value||'YM';
   const res=document.getElementById('calc-result');
   if(!acc||!pct){res.style.display='none';return;}
-  const risk=acc*pct/100;
-  document.getElementById('calc-dollar').textContent='$'+risk.toFixed(0);
-  document.getElementById('calc-tp3').textContent='$'+(risk*3).toFixed(0);
-  document.getElementById('calc-tp2').textContent='$'+(risk*2).toFixed(0);
-  document.getElementById('calc-sl').textContent='-$'+risk.toFixed(0);
+  const c=CONTRACTS[contract];
+  const riskDollar=acc*pct/100;
+  const slValuePerContract=slPts*c.pointValue;
+  const contracts=slPts>0?Math.floor(riskDollar/slValuePerContract):0;
+  const actualRisk=contracts>0?contracts*slValuePerContract:riskDollar;
+  const tp2pts=slPts*2, tp3pts=slPts*3;
+  const tp2dollar=contracts>0?contracts*tp2pts*c.pointValue:riskDollar*2;
+  const tp3dollar=contracts>0?contracts*tp3pts*c.pointValue:riskDollar*3;
+  document.getElementById('calc-dollar').textContent='$'+riskDollar.toFixed(0);
+  document.getElementById('calc-contracts').textContent=slPts>0?contracts+' contract'+(contracts!==1?'s':''):'Enter SL';
+  document.getElementById('calc-sl-val').textContent=slPts>0?'-$'+slValuePerContract.toFixed(2)+' per contract':'Enter SL points';
+  document.getElementById('calc-tp2').textContent='+$'+tp2dollar.toFixed(0);
+  document.getElementById('calc-tp3').textContent='+$'+tp3dollar.toFixed(0);
+  document.getElementById('calc-tp2-pts').textContent=slPts>0?tp2pts+' pts':'—';
+  document.getElementById('calc-tp3-pts').textContent=slPts>0?tp3pts+' pts':'—';
+  document.getElementById('calc-summary').textContent=slPts>0&&contracts>0?contract+' · '+contracts+' contract'+(contracts!==1?'s':'')+' · SL '+slPts+' pts · Risk $'+actualRisk.toFixed(0):'';
   res.style.display='block';
-  S.calcAcc=acc;S.calcPct=pct;saveData();
+  S.calcAcc=acc;S.calcPct=pct;S.calcContract=contract;S.calcSlPts=slPts;
+  saveLocal();
 }
 
 /* ── CHECKS ── */
@@ -1131,4 +1191,3 @@ function goPage(pg,btn){
 </script>
 </body>
 </html>
-
