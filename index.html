@@ -324,6 +324,7 @@ textarea{resize:vertical;min-height:60px;line-height:1.5;font-size:13px}
       </div>
       <div class="user-pill">
         <div class="user-name" id="user-name">—</div>
+        <button class="logout-btn" onclick="exportData()">Export</button>
         <button class="logout-btn" onclick="logout()">Sign out</button>
       </div>
     </div>
@@ -1187,6 +1188,13 @@ function goPage(pg,btn){
   if(btn)btn.classList.add('on');
   if(pg==='sta')setTimeout(renderStats,50);
   if(pg==='cal')renderCal();
+}
+function exportData(){
+  const blob = new Blob([JSON.stringify(S, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'trading-os-data.json';
+  a.click();
 }
 </script>
 </body>
