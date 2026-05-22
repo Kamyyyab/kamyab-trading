@@ -73,7 +73,7 @@ function RiskCalculator() {
   const groupContracts = Object.entries(CONTRACTS).filter(([,v]) => v.group === activeGroup)
 
   return (
-    <div style={{ background: '#161c1e', border: '1px solid #1e2d31', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+    <div style={{ background: '#161c1e', border: '1px solid #1e2d31', borderRadius: '12px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
       <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#4a6870', letterSpacing: '2px' }}>RISK CALCULATOR</div>
 
       {/* Saved accounts */}
