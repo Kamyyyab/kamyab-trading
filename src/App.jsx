@@ -94,7 +94,7 @@ function App() {
 
   if (loading) return (
     <div style={{ background: '#0a0c0d', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ color: '#4a6870', fontFamily: 'monospace', fontSize: '12px' }}>Laddar...</div>
+      <div style={{ color: '#8aacb0', fontFamily: 'monospace', fontSize: '14px', letterSpacing: '2px' }}>LADDAR...</div>
     </div>
   )
 
@@ -102,13 +102,13 @@ function App() {
 
   const navItems = [
     { id: 'home', label: 'Home', icon: (active) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? '#00e5b0' : 'none'} stroke={active ? '#00e5b0' : '#4a6870'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill={active ? '#00e5b0' : 'none'} stroke={active ? '#00e5b0' : '#6a8a90'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
         <polyline points="9,22 9,12 15,12 15,22"/>
       </svg>
     )},
     { id: 'calendar', label: 'Calendar', icon: (active) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? '#00e5b0' : '#4a6870'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={active ? '#00e5b0' : '#6a8a90'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="4" width="18" height="18" rx="2"/>
         <line x1="16" y1="2" x2="16" y2="6"/>
         <line x1="8" y1="2" x2="8" y2="6"/>
@@ -116,14 +116,14 @@ function App() {
       </svg>
     )},
     { id: 'statistics', label: 'Stats', icon: (active) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? '#00e5b0' : '#4a6870'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={active ? '#00e5b0' : '#6a8a90'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <line x1="18" y1="20" x2="18" y2="10"/>
         <line x1="12" y1="20" x2="12" y2="4"/>
         <line x1="6" y1="20" x2="6" y2="14"/>
       </svg>
     )},
     { id: 'calculator', label: 'Risk', icon: (active) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? '#00e5b0' : '#4a6870'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={active ? '#00e5b0' : '#6a8a90'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="4" y="2" width="16" height="20" rx="2"/>
         <line x1="8" y1="6" x2="16" y2="6"/>
         <line x1="8" y1="10" x2="8" y2="10" strokeWidth="3"/>
@@ -143,35 +143,76 @@ function App() {
 
       {/* Top navbar */}
       {MOBILE ? (
-        // Mobile top bar - minimal
-        <div style={{ height: '52px', background: '#101415', borderBottom: '1px solid #1e2d31', display: 'flex', alignItems: 'center', padding: '0 16px', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '28px', height: '28px', background: '#004038', border: '1px solid #007d5e', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+        // Mobile top bar — larger, more breathing room
+        <div style={{
+          height: '60px',
+          background: '#101415',
+          borderBottom: '1px solid #1e2d31',
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0 18px',
+          justifyContent: 'space-between',
+          position: 'sticky',
+          top: 0,
+          zIndex: 10,
+        }}>
+          {/* Logo + name */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '34px', height: '34px', background: '#004038', border: '1px solid #007d5e', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <rect x="1" y="5" width="6" height="10" rx="1.5" fill="#00e5b0" opacity=".25"/>
                 <rect x="1" y="8" width="6" height="7" rx="1.5" fill="#00e5b0"/>
                 <rect x="9" y="1" width="6" height="14" rx="1.5" fill="#00e5b0" opacity=".4"/>
                 <rect x="9" y="4" width="6" height="11" rx="1.5" fill="#00e5b0"/>
               </svg>
             </div>
-            <div style={{ fontFamily: 'monospace', fontSize: '13px', fontWeight: 700, color: '#00e5b0' }}>Kamyab</div>
+            <div>
+              <div style={{ fontFamily: 'monospace', fontSize: '15px', fontWeight: 700, color: '#00e5b0', lineHeight: 1.1 }}>Kamyab</div>
+              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#4a6870', letterSpacing: '1px' }}>TRADING OS</div>
+            </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: sessionOpen ? '#00e5b0' : preMarket ? '#ffc030' : '#4a6870', boxShadow: sessionOpen ? '0 0 5px #00e5b0' : 'none' }} />
-              <span style={{ fontFamily: 'monospace', fontSize: '9px', color: sessionOpen ? '#00e5b0' : preMarket ? '#ffc030' : '#4a6870' }}>
+
+          {/* Right side: session status + time + sign out */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {/* Session pill */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '5px',
+              background: sessionOpen ? 'rgba(0,229,176,0.08)' : preMarket ? 'rgba(255,192,48,0.08)' : '#141a1b',
+              border: `1px solid ${sessionOpen ? '#00e5b040' : preMarket ? '#ffc03040' : '#1e2d31'}`,
+              borderRadius: '20px', padding: '4px 9px',
+            }}>
+              <div style={{
+                width: '7px', height: '7px', borderRadius: '50%',
+                background: sessionOpen ? '#00e5b0' : preMarket ? '#ffc030' : '#4a6870',
+                boxShadow: sessionOpen ? '0 0 6px #00e5b0' : 'none',
+              }} />
+              <span style={{ fontFamily: 'monospace', fontSize: '10px', fontWeight: 600, color: sessionOpen ? '#00e5b0' : preMarket ? '#ffc030' : '#6a8a90', letterSpacing: '0.5px' }}>
                 {sessionOpen ? 'OPEN' : preMarket ? 'PRE' : 'CLOSED'}
               </span>
             </div>
-            <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#4a6870' }}>{nyTime.slice(0,5)}</div>
-            <button onClick={() => supabase.auth.signOut()}
-              style={{ background: 'none', border: '1px solid #1e2d31', borderRadius: '6px', color: '#4a6870', fontFamily: 'monospace', fontSize: '9px', padding: '4px 8px', cursor: 'pointer' }}>
+
+            {/* NY time — more readable */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+              <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#3a5458', letterSpacing: '1px' }}>NY</div>
+              <div style={{ fontFamily: 'monospace', fontSize: '12px', color: '#a8c4c8', fontWeight: 500 }}>{nyTime.slice(0, 5)}</div>
+            </div>
+
+            {/* Sign out — larger tap target */}
+            <button
+              onClick={() => supabase.auth.signOut()}
+              style={{
+                background: 'none', border: '1px solid #1e2d31', borderRadius: '8px',
+                color: '#6a8a90', fontFamily: 'monospace', fontSize: '11px',
+                padding: '6px 10px', cursor: 'pointer',
+                minWidth: '36px', minHeight: '36px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
               ↩
             </button>
           </div>
         </div>
       ) : (
-        // Desktop navbar
+        // Desktop navbar — unchanged
         <div style={{ height: '56px', background: '#101415', borderBottom: '1px solid #1e2d31', display: 'flex', alignItems: 'center', padding: '0 20px', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginRight: '8px' }}>
@@ -221,9 +262,9 @@ function App() {
       )}
 
       {/* Page content */}
-      <div style={{ padding: MOBILE ? '12px 12px 80px' : '16px' }}>
+      <div style={{ padding: MOBILE ? '16px 14px 90px' : '16px' }}>
         {page === 'home' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: MOBILE ? '16px' : '12px' }}>
             <TodayTrade journal={journal} onAddTrade={handleAddTrade} streakLogs={streakLogs} biasLogs={biasLogs} onSaveBias={handleSaveBias} />
             {MOBILE ? (
               <>
@@ -250,7 +291,7 @@ function App() {
         {page === 'calculator' && <div style={{ paddingBottom: '12px' }}><RiskCalculator /></div>}
       </div>
 
-      {/* Mobile bottom nav */}
+      {/* Mobile bottom nav — taller, clearer active state */}
       {MOBILE && (
         <div style={{
           position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 20,
@@ -265,15 +306,25 @@ function App() {
                 flex: 1,
                 background: 'none',
                 border: 'none',
-                padding: '10px 0 8px',
+                // Taller for easier tapping
+                padding: '12px 0 10px',
                 cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: '3px',
+                gap: '4px',
+                // Active top-border indicator
+                borderTop: `2px solid ${page === id ? '#00e5b0' : 'transparent'}`,
+                marginTop: '-1px', // overlap the container border
               }}>
               {icon(page === id)}
-              <span style={{ fontFamily: 'monospace', fontSize: '9px', color: page === id ? '#00e5b0' : '#4a6870', letterSpacing: '0.5px' }}>
+              <span style={{
+                fontFamily: 'monospace',
+                fontSize: '10px',
+                fontWeight: page === id ? 700 : 400,
+                color: page === id ? '#00e5b0' : '#6a8a90',
+                letterSpacing: '0.5px',
+              }}>
                 {label}
               </span>
             </button>
