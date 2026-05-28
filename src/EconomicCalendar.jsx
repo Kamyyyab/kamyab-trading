@@ -22,8 +22,7 @@ function EconomicCalendar() {
       const from   = `${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`
       const toDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7)
       const to     = `${toDate.getFullYear()}-${pad(toDate.getMonth()+1)}-${pad(toDate.getDate())}`
-      const PROXY  = 'https://api.allorigins.win/raw?url='
-
+      const PROXY = 'https://corsproxy.io/?'      
       const [econRes, earnRes] = await Promise.all([
         fetch(`${PROXY}${encodeURIComponent(`https://finnhub.io/api/v1/calendar/economic?from=${from}&to=${to}&token=${API_KEY}`)}`),
         fetch(`${PROXY}${encodeURIComponent(`https://finnhub.io/api/v1/calendar/earnings?from=${from}&to=${to}&token=${API_KEY}`)}`),
