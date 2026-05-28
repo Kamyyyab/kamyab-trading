@@ -46,7 +46,7 @@ export default function EquityCurve({ journal = [] }) {
         <div>
           <div style={{ fontFamily:M, fontSize:'8px', color:'#2a3c42', letterSpacing:'2px', marginBottom:'6px' }}>EQUITY CURVE</div>
           <div style={{ display:'flex', alignItems:'baseline', gap:'6px' }}>
-            <span style={{ fontFamily:M, fontSize:'36px', fontWeight:700, color, lineHeight:1 }}>{totalPnl>=0?'+':''}${Math.round(totalPnl).toLocaleString()}</span>
+            <span style={{ fontFamily:M, fontSize:'36px', fontWeight:700, color, lineHeight:1 }}>{totalPnl>=0?'+':''}${Math.round(totalPnl)}</span>
             <span style={{ fontSize:'12px', color:'#3a5460' }}>totalt</span>
           </div>
         </div>

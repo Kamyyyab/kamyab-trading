@@ -87,7 +87,7 @@ export default function TodayTrade({ journal=[], onAddTrade, streakLogs={}, bias
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
 
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px' }}>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(130px, 1fr))', gap:'8px' }}>
         {card('WIN RATE',    `${winRate}%`,                                        '#00e5b0', `${trades.length} trades`)}
         {card('TOTALT P&L',  `${totalPnl>=0?'+':''}$${Math.round(totalPnl)}`,     totalPnl>=0?'#00e5b0':'#ff4f6b')}
         {card('DENNA VECKA', `${weekPnl>=0?'+':''}$${Math.round(weekPnl)}`,       weekPnl>=0?'#00e5b0':'#ff4f6b')}
