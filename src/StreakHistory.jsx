@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 
-function StreakHistory({ journal, onSaveStreakLog, streakLogs = {} }) {
+function StreakHistory({ journal = [], onSaveStreakLog, streakLogs = {} }) {
   const todayStr  = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}` })()
   const todayDate = new Date()
   const [viewYear, setViewYear]   = useState(todayDate.getFullYear())

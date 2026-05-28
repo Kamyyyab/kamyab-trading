@@ -25,7 +25,7 @@ const RESULT_BG     = { win: '#003d30', win2: '#003d30', loss: '#3d0f1a', be: '#
 const RESULT_BORDER = { win: '#007d5e', win2: '#007d5e', loss: '#7a1f2e', be: '#3a5458', skip: '#5a3a00', 'no-setup': '#26383d' }
 const RESULT_COLOR  = { win: '#00e5b0', win2: '#00e5b0', loss: '#ff4f6b', be: '#8aacb0', skip: '#ffc030', 'no-setup': '#4a6870' }
 
-function Calendar({ journal, onAddTrade, onDeleteTrade }) {
+function Calendar({ journal = [], onAddTrade, onDeleteTrade }) {
   const mobile   = useIsMobile()
   const [year, setYear]   = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth())

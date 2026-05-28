@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, BarChart, Bar, Cell } from 'recharts'
 
-function Statistics({ journal }) {
+function Statistics({ journal = [] }) {
   const [filter, setFilter] = useState('Totalt')
 
   function filterTrades(trades) {
