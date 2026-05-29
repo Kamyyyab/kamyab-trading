@@ -101,6 +101,11 @@ export default function App() {
 
   function handleDeleteTrade(i) { saveData(journal.filter((_, idx) => idx !== i), null) }
 
+  function handleEditTrade(i, updated) {
+    const nj = journal.map((t, idx) => idx === i ? { ...t, ...updated } : t)
+    saveData(nj, null)
+  }
+
   function handleSaveBias(date, bias) {
     const u = { ...biasLogs }
     if (bias === null) delete u[date]; else u[date] = bias
@@ -222,7 +227,7 @@ export default function App() {
       <div style={{ padding: MOBILE ? '14px 12px 86px' : '20px 24px' }}>
         {page === 'home' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxWidth: '1400px', margin: '0 auto' }}>
-            <TodayTrade journal={journal} onAddTrade={handleAddTrade} streakLogs={streakLogs} biasLogs={biasLogs} onSaveBias={handleSaveBias} />
+            <TodayTrade journal={journal} onAddTrade={handleAddTrade} onEditTrade={handleEditTrade} streakLogs={streakLogs} biasLogs={biasLogs} onSaveBias={handleSaveBias} />
             {MOBILE ? (
               <>
                 <EquityCurve journal={journal} />
@@ -243,7 +248,7 @@ export default function App() {
             )}
           </div>
         )}
-        {page === 'calendar'   && <div style={{ maxWidth: '1400px', margin: '0 auto' }}><Calendar journal={journal} onAddTrade={handleAddTrade} onDeleteTrade={handleDeleteTrade} /></div>}
+        {page === 'calendar'   && <div style={{ maxWidth: '1400px', margin: '0 auto' }}><Calendar journal={journal} onAddTrade={handleAddTrade} onDeleteTrade={handleDeleteTrade} onEditTrade={handleEditTrade} /></div>}
         {page === 'statistics' && <div style={{ maxWidth: '900px', margin: '0 auto' }}><Statistics journal={journal} /></div>}
         {page === 'calculator' && <div style={{ maxWidth: '520px', margin: '0 auto', paddingBottom: '12px' }}><RiskCalculator /></div>}
       </div>

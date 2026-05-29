@@ -10,13 +10,14 @@ const RC={win:'#00e5b0',win2:'#00e5b0',loss:'#ff4f6b',be:'#6a8a90',skip:'#ffc030
 const inp={width:'100%',background:'#0d1214',border:'1px solid #263840',borderRadius:'8px',color:'#d0e8ec',fontSize:'15px',padding:'10px 12px',outline:'none',boxSizing:'border-box',transition:'border-color 0.15s'}
 const lbl={fontFamily:M,fontSize:'8px',color:'#5a7a84',letterSpacing:'2px',marginBottom:'5px',display:'block'}
 
-export default function Calendar({ journal=[], onAddTrade, onDeleteTrade }) {
+export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEditTrade }) {
   const mobile = useIsMobile()
   const[year,setYear]=useState(new Date().getFullYear())
   const[month,setMonth]=useState(new Date().getMonth())
   const[sel,setSel]=useState(null)
   const[showForm,setShowForm]=useState(false)
   const[lightbox,setLightbox]=useState(null)
+  const[editingTrade,setEditingTrade]=useState(null)
   const fileRef=useRef()
   const[result,setResult]=useState('')
   const[instrument,setInstrument]=useState('MYM')
@@ -51,10 +52,10 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade }) {
   }
 
   function getDayBg(status,pnl){
-    if(status==='skip')return{bg:'#0f1200',bdr:'rgba(255,192,48,0.15)',dot:'#ffc030'}
+    if(status==='skip')return{bg:'#111820',bdr:'#1e2c32',dot:'#3a5460'}
     if(status==='win'){const i=Math.min(Math.abs(pnl)/800,1);return{bg:`rgba(0,${Math.round(30+i*30)+20},${Math.round(30+i*30)},0.3)`,bdr:'rgba(0,229,176,0.2)',dot:'#00e5b0'}}
     if(status==='loss'){const i=Math.min(Math.abs(pnl)/500,1);return{bg:`rgba(${Math.round(30+i*20)+15},8,15,0.4)`,bdr:'rgba(255,79,107,0.2)',dot:'#ff4f6b'}}
-    return{bg:'#0f1200',bdr:'rgba(255,192,48,0.15)',dot:'#ffc030'}
+    return{bg:'#111820',bdr:'#1e2c32',dot:'#3a5460'}
   }
 
   const cells=[]; for(let i=0;i<off;i++)cells.push({empty:true}); for(let d=1;d<=dim;d++){const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;cells.push({day:d,ds})} while(cells.length%7!==0)cells.push({empty:true})
@@ -132,6 +133,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade }) {
                 </div>
                 <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
                   <span style={{fontFamily:M,fontSize:'14px',fontWeight:700,color:pv>=0?'#00e5b0':'#ff4f6b'}}>{pv>=0?'+':''}${Math.abs(Math.round(pv))}</span>
+                  <button onClick={()=>setEditingTrade(editingTrade===ji?null:ji)} style={{background:editingTrade===ji?"#263840":"none",border:`1px solid ${editingTrade===ji?"#3a5460":"#1e2c32"}`,borderRadius:"5px",color:editingTrade===ji?"#d0e8ec":"#5a7a84",fontFamily:M,fontSize:"8px",padding:"3px 8px",cursor:"pointer",letterSpacing:"0.5px",marginRight:"4px",transition:"all 0.15s"}}>✎</button>
                   <button onClick={()=>onDeleteTrade?.(ji)} style={{background:'none',border:'none',color:'#3a5460',cursor:'pointer',fontSize:'12px',padding:'2px',transition:'color 0.15s'}} onMouseEnter={e=>e.currentTarget.style.color='#ff4f6b'} onMouseLeave={e=>e.currentTarget.style.color='#263840'}>✕</button>
                 </div>
               </div>
