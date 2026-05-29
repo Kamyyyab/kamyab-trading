@@ -30,10 +30,10 @@ export default function EquityCurve({ journal = [] }) {
     if (!active || !payload?.length) return null
     const d = payload[0].payload
     return (
-      <div style={{ background:'#0d1214', border:'1px solid #1e2c32', borderRadius:'8px', padding:'10px 14px' }}>
-        <div style={{ fontFamily:M, fontSize:'8px', color:'#2a3c42', marginBottom:'4px', letterSpacing:'1px' }}>{d.date}</div>
+      <div style={{ background:'#161e24', border:'1px solid #263840', borderRadius:'8px', padding:'10px 14px' }}>
+        <div style={{ fontFamily:M, fontSize:'8px', color:'#5a7a84', marginBottom:'4px', letterSpacing:'1px' }}>{d.date}</div>
         <div style={{ fontFamily:M, fontSize:'14px', fontWeight:700, color:d.pnl>=0?'#00e5b0':'#ff4f6b' }}>{d.pnl>=0?'+':''}${d.pnl}</div>
-        <div style={{ fontFamily:M, fontSize:'10px', color:'#3a5460', marginTop:'2px' }}>Totalt: ${d.equity}</div>
+        <div style={{ fontFamily:M, fontSize:'10px', color:'#5a7a84', marginTop:'2px' }}>Totalt: ${d.equity}</div>
       </div>
     )
   }
@@ -41,13 +41,13 @@ export default function EquityCurve({ journal = [] }) {
   if (!chartData.length) return null
 
   return (
-    <div style={{ background:'#0d1214', border:`1px solid ${pos?'rgba(0,229,176,0.12)':'rgba(255,79,107,0.12)'}`, borderRadius:'14px', padding:'20px' }}>
+    <div style={{ background:'#161e24', border:`1px solid ${pos?'rgba(0,229,176,0.12)':'rgba(255,79,107,0.12)'}`, borderRadius:'14px', padding:'20px' }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'20px' }}>
         <div>
-          <div style={{ fontFamily:M, fontSize:'8px', color:'#2a3c42', letterSpacing:'2px', marginBottom:'6px' }}>EQUITY CURVE</div>
+          <div style={{ fontFamily:M, fontSize:'8px', color:'#5a7a84', letterSpacing:'2px', marginBottom:'6px' }}>EQUITY CURVE</div>
           <div style={{ display:'flex', alignItems:'baseline', gap:'6px' }}>
             <span style={{ fontFamily:M, fontSize:'36px', fontWeight:700, color, lineHeight:1 }}>{totalPnl>=0?'+':''}${Math.round(totalPnl)}</span>
-            <span style={{ fontSize:'12px', color:'#3a5460' }}>totalt</span>
+            <span style={{ fontSize:'12px', color:'#5a7a84' }}>totalt</span>
           </div>
         </div>
         <div style={{ display:'flex', gap:'20px' }}>
@@ -57,7 +57,7 @@ export default function EquityCurve({ journal = [] }) {
             { label:'WIN STREAK', value:`${winStreak}d`,                       color:'#00e5b0' },
           ].map((s,i)=>(
             <div key={i} style={{ textAlign:'right' }}>
-              <div style={{ fontFamily:M, fontSize:'7px', color:'#2a3c42', letterSpacing:'1.5px', marginBottom:'3px' }}>{s.label}</div>
+              <div style={{ fontFamily:M, fontSize:'7px', color:'#5a7a84', letterSpacing:'1.5px', marginBottom:'3px' }}>{s.label}</div>
               <div style={{ fontFamily:M, fontSize:'15px', fontWeight:700, color:s.color }}>{s.value}</div>
             </div>
           ))}
@@ -72,10 +72,10 @@ export default function EquityCurve({ journal = [] }) {
               <stop offset="95%" stopColor={color} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <XAxis dataKey="label" tick={{ fontFamily:M, fontSize:8, fill:'#2a3c42' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+          <XAxis dataKey="label" tick={{ fontFamily:M, fontSize:8, fill:'#5a7a84' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
           <YAxis hide domain={['auto','auto']} />
-          <ReferenceLine y={0} stroke="#182025" strokeDasharray="3 3" />
-          <Tooltip content={<CustomTooltip />} cursor={{ stroke:'#1e2c32', strokeWidth:1 }} />
+          <ReferenceLine y={0} stroke="#1e2c32" strokeDasharray="3 3" />
+          <Tooltip content={<CustomTooltip />} cursor={{ stroke:'#263840', strokeWidth:1 }} />
           <Area type="monotone" dataKey="equity" stroke={color} strokeWidth={2} fill="url(#eqGrad)" dot={false} activeDot={{ r:4, fill:color, stroke:'#060809', strokeWidth:2 }} />
         </AreaChart>
       </ResponsiveContainer>

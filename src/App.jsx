@@ -56,10 +56,10 @@ export default function App() {
   const nyTime = clock.toLocaleTimeString('sv-SE', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit' })
   const sweTime = clock.toLocaleTimeString('sv-SE', { timeZone: 'Europe/Stockholm', hour: '2-digit', minute: '2-digit' })
 
-  const statusColor = sessionOpen ? '#00e5b0' : preMarket ? '#ffc030' : '#2a3c42'
+  const statusColor = sessionOpen ? '#00e5b0' : preMarket ? '#ffc030' : '#5a7a84'
   const statusLabel = sessionOpen ? 'ÖPPEN' : preMarket ? 'PRE' : 'STÄNGD'
   const statusBg    = sessionOpen ? 'rgba(0,229,176,0.07)' : preMarket ? 'rgba(255,192,48,0.06)' : 'transparent'
-  const statusBdr   = sessionOpen ? 'rgba(0,229,176,0.18)' : preMarket ? 'rgba(255,192,48,0.14)' : '#182025'
+  const statusBdr   = sessionOpen ? 'rgba(0,229,176,0.18)' : preMarket ? 'rgba(255,192,48,0.14)' : '#1e2c32'
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -119,7 +119,7 @@ export default function App() {
 
   if (loading) return (
     <div style={{ background: '#060809', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', color: '#2a3c42', letterSpacing: '3px' }}>LADDAR...</div>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', color: '#5a7a84', letterSpacing: '3px' }}>LADDAR...</div>
     </div>
   )
 
@@ -130,7 +130,7 @@ export default function App() {
     background: 'rgba(6,8,9,0.92)',
     backdropFilter: 'blur(12px)',
     WebkitBackdropFilter: 'blur(12px)',
-    borderBottom: '1px solid #182025',
+    borderBottom: '1px solid #1e2c32',
     display: 'flex', alignItems: 'center',
     padding: '0 16px',
     justifyContent: 'space-between',
@@ -149,7 +149,7 @@ export default function App() {
       </div>
       <div>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', fontWeight: 700, color: '#00e5b0', lineHeight: 1.1 }}>Kamyab</div>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '7px', color: '#1e2c32', letterSpacing: '2px' }}>TRADING OS</div>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '7px', color: '#263840', letterSpacing: '2px' }}>TRADING OS</div>
       </div>
     </div>
   )
@@ -170,51 +170,51 @@ export default function App() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <StatusPill />
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '7px', color: '#1e2c32', letterSpacing: '1px' }}>NY</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '7px', color: '#263840', letterSpacing: '1px' }}>NY</div>
               <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#5a7a82' }}>{nyTime}</div>
             </div>
-            <button onClick={() => supabase.auth.signOut()} style={{ background: 'none', border: '1px solid #182025', borderRadius: '7px', color: '#2a3c42', fontSize: '13px', width: '30px', height: '30px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'border-color 0.15s, color 0.15s' }}
+            <button onClick={() => supabase.auth.signOut()} style={{ background: 'none', border: '1px solid #1e2c32', borderRadius: '7px', color: '#5a7a84', fontSize: '13px', width: '30px', height: '30px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'border-color 0.15s, color 0.15s' }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = '#2e4448'; e.currentTarget.style.color = '#5a7a82' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = '#182025'; e.currentTarget.style.color = '#2a3c42' }}>↩</button>
+              onMouseLeave={e => { e.currentTarget.style.borderColor = '#1e2c32'; e.currentTarget.style.color = '#5a7a84' }}>↩</button>
           </div>
         </nav>
       ) : (
         <nav style={navbarStyle}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Logo />
-            <div style={{ width: '1px', height: '18px', background: '#182025', margin: '0 8px' }} />
+            <div style={{ width: '1px', height: '18px', background: '#1e2c32', margin: '0 8px' }} />
             {NAV.map(({ id, label, path }) => (
               <button key={id} onClick={() => setPage(id)} style={{
-                background: page === id ? '#0d1214' : 'none',
-                border: `1px solid ${page === id ? '#1e2c32' : 'transparent'}`,
+                background: page === id ? '#161e24' : 'none',
+                border: `1px solid ${page === id ? '#263840' : 'transparent'}`,
                 borderRadius: '8px', padding: '6px 13px', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: '6px',
-                color: page === id ? '#d0e8ec' : '#3a5460',
+                color: page === id ? '#d0e8ec' : '#5a7a84',
                 fontSize: '13px', fontWeight: 500,
                 transition: 'all 0.15s ease',
               }}
                 onMouseEnter={e => { if (page !== id) { e.currentTarget.style.color = '#6a8a90'; e.currentTarget.style.background = '#0a1012' }}}
-                onMouseLeave={e => { if (page !== id) { e.currentTarget.style.color = '#3a5460'; e.currentTarget.style.background = 'none' }}}>
-                <Icon path={path} color={page === id ? '#00e5b0' : '#3a5460'} />
+                onMouseLeave={e => { if (page !== id) { e.currentTarget.style.color = '#5a7a84'; e.currentTarget.style.background = 'none' }}}>
+                <Icon path={path} color={page === id ? '#00e5b0' : '#5a7a84'} />
                 {label}
               </button>
             ))}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <StatusPill />
-            <div style={{ width: '1px', height: '16px', background: '#182025' }} />
+            <div style={{ width: '1px', height: '16px', background: '#1e2c32' }} />
             <div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '7px', color: '#1e2c32', letterSpacing: '1px', marginBottom: '1px' }}>SWE</div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#4a6470' }}>{sweTime}</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '7px', color: '#263840', letterSpacing: '1px', marginBottom: '1px' }}>SWE</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#5a7a84' }}>{sweTime}</div>
             </div>
             <div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '7px', color: '#1e2c32', letterSpacing: '1px', marginBottom: '1px' }}>NY</div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#4a6470' }}>{nyTime}</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '7px', color: '#263840', letterSpacing: '1px', marginBottom: '1px' }}>NY</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#5a7a84' }}>{nyTime}</div>
             </div>
-            <div style={{ width: '1px', height: '16px', background: '#182025' }} />
-            <button onClick={() => supabase.auth.signOut()} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#2a3c42', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.5px', transition: 'color 0.15s' }}
+            <div style={{ width: '1px', height: '16px', background: '#1e2c32' }} />
+            <button onClick={() => supabase.auth.signOut()} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#5a7a84', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.5px', transition: 'color 0.15s' }}
               onMouseEnter={e => e.currentTarget.style.color = '#5a7a82'}
-              onMouseLeave={e => e.currentTarget.style.color = '#2a3c42'}>logga ut</button>
+              onMouseLeave={e => e.currentTarget.style.color = '#5a7a84'}>logga ut</button>
           </div>
         </nav>
       )}
@@ -249,7 +249,7 @@ export default function App() {
       </div>
 
       {MOBILE && (
-        <nav style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40, background: 'rgba(6,8,9,0.96)', backdropFilter: 'blur(12px)', borderTop: '1px solid #182025', display: 'flex', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <nav style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40, background: 'rgba(6,8,9,0.96)', backdropFilter: 'blur(12px)', borderTop: '1px solid #1e2c32', display: 'flex', paddingBottom: 'env(safe-area-inset-bottom)' }}>
           {NAV.map(({ id, label, path }) => {
             const active = page === id
             return (
@@ -261,8 +261,8 @@ export default function App() {
                 marginTop: '-1px',
                 transition: 'border-color 0.2s',
               }}>
-                <Icon path={path} color={active ? '#00e5b0' : '#2a3c42'} />
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: active ? 600 : 400, color: active ? '#00e5b0' : '#2a3c42', letterSpacing: '0.5px', transition: 'color 0.15s' }}>{label}</span>
+                <Icon path={path} color={active ? '#00e5b0' : '#5a7a84'} />
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: active ? 600 : 400, color: active ? '#00e5b0' : '#5a7a84', letterSpacing: '0.5px', transition: 'color 0.15s' }}>{label}</span>
               </button>
             )
           })}

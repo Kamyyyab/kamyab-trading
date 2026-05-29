@@ -62,21 +62,21 @@ export default function StreakHistory({ journal=[], onSaveStreakLog, streakLogs=
   const monthName = new Date(viewYear,viewMonth,1).toLocaleDateString('sv-SE',{month:'long'})
   const noNext    = viewYear===todayDate.getFullYear()&&viewMonth>=todayDate.getMonth()
 
-  const SBG  = {clean:'#001810',violation:'#1a0610',empty:'#080b0c'}
-  const SBDR = {clean:'rgba(0,229,176,0.2)',violation:'rgba(255,79,107,0.2)',empty:'#182025'}
+  const SBG  = {clean:'#001810',violation:'#1a0610',empty:'#0d1214'}
+  const SBDR = {clean:'rgba(0,229,176,0.2)',violation:'rgba(255,79,107,0.2)',empty:'#1e2c32'}
 
   return (
-    <div style={{background:'#0d1214',border:'1px solid #182025',borderRadius:'12px',padding:'14px'}}>
+    <div style={{background:'#161e24',border:'1px solid #1e2c32',borderRadius:'12px',padding:'14px'}}>
 
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'12px'}}>
         <div style={{display:'flex',alignItems:'baseline',gap:'4px'}}>
-          <span style={{fontFamily:M,fontSize:'28px',fontWeight:700,color:currentStreak>0?'#00e5b0':'#1e2c32',lineHeight:1}}>{currentStreak}</span>
-          <span style={{fontFamily:M,fontSize:'9px',color:'#2a3c42'}}>dagars streak</span>
+          <span style={{fontFamily:M,fontSize:'28px',fontWeight:700,color:currentStreak>0?'#00e5b0':'#263840',lineHeight:1}}>{currentStreak}</span>
+          <span style={{fontFamily:M,fontSize:'9px',color:'#5a7a84'}}>dagars streak</span>
         </div>
         <div style={{display:'flex',gap:'14px'}}>
           {[{label:'LÄNGSTA',v:longestStreak,c:'#00e5b0'},{label:'CLEAN',v:cleanDays,c:'#00e5b0'},{label:'VIOLATIONS',v:violationDays,c:'#ff4f6b'}].map((s,i)=>(
             <div key={i} style={{textAlign:'center'}}>
-              <div style={{fontFamily:M,fontSize:'7px',color:'#2a3c42',letterSpacing:'1px',marginBottom:'1px'}}>{s.label}</div>
+              <div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'1px'}}>{s.label}</div>
               <div style={{fontFamily:M,fontSize:'14px',fontWeight:700,color:s.c}}>{s.v}</div>
             </div>
           ))}
@@ -87,14 +87,14 @@ export default function StreakHistory({ journal=[], onSaveStreakLog, streakLogs=
         <div style={{fontFamily:M,fontSize:'10px',color:'#d0e8ec',textTransform:'capitalize'}}>{monthName} {viewYear}</div>
         <div style={{display:'flex',gap:'4px'}}>
           {[{fn:prev,label:'‹'},{fn:next,label:'›',disabled:noNext}].map((b,i)=>(
-            <button key={i} onClick={b.fn} style={{background:'#111820',border:'1px solid #182025',borderRadius:'5px',color:b.disabled?'#1e2c32':'#5a7a82',fontSize:'12px',width:'26px',height:'26px',cursor:b.disabled?'default':'pointer',display:'flex',alignItems:'center',justifyContent:'center',transition:'border-color 0.15s,color 0.15s'}}>{b.label}</button>
+            <button key={i} onClick={b.fn} style={{background:'#161e24',border:'1px solid #1e2c32',borderRadius:'5px',color:b.disabled?'#263840':'#5a7a82',fontSize:'12px',width:'26px',height:'26px',cursor:b.disabled?'default':'pointer',display:'flex',alignItems:'center',justifyContent:'center',transition:'border-color 0.15s,color 0.15s'}}>{b.label}</button>
           ))}
         </div>
       </div>
 
       <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:'2px',marginBottom:'2px'}}>
         {['M','T','O','T','F','L','S'].map((l,i)=>(
-          <div key={i} style={{fontFamily:M,fontSize:'7px',color:i>=5?'#182025':'#1e2c32',textAlign:'center',padding:'2px 0'}}>{l}</div>
+          <div key={i} style={{fontFamily:M,fontSize:'7px',color:i>=5?'#1e2c32':'#263840',textAlign:'center',padding:'2px 0'}}>{l}</div>
         ))}
       </div>
 
@@ -117,7 +117,7 @@ export default function StreakHistory({ journal=[], onSaveStreakLog, streakLogs=
                   onMouseEnter={e=>{if(!day.isFut&&!day.isWe)e.currentTarget.style.borderColor='rgba(58,84,96,0.5)'}}
                   onMouseLeave={e=>{e.currentTarget.style.borderColor=bdr}}
                 >
-                  <div style={{fontFamily:M,fontSize:'9px',fontWeight:day.isToday?700:400,color:day.isToday?'#00e5b0':day.isWe?'#182025':'#2a3c42',lineHeight:1}}>{day.day}</div>
+                  <div style={{fontFamily:M,fontSize:'9px',fontWeight:day.isToday?700:400,color:day.isToday?'#00e5b0':day.isWe?'#1e2c32':'#5a7a84',lineHeight:1}}>{day.day}</div>
                   {hasPnl ? (
                     <div style={{fontFamily:M,fontSize:'7px',fontWeight:700,color:day.pnl>=0?'#00e5b0':'#ff4f6b',lineHeight:1}}>{day.pnl>=0?'+':''}{Math.round(day.pnl)}</div>
                   ) : (
@@ -133,10 +133,10 @@ export default function StreakHistory({ journal=[], onSaveStreakLog, streakLogs=
       </div>
 
       <div style={{display:'flex',gap:'10px',marginTop:'8px'}}>
-        {[{bg:'#001810',bdr:'rgba(0,229,176,0.2)',label:'Clean'},{bg:'#1a0610',bdr:'rgba(255,79,107,0.2)',label:'Violation'},{bg:'#080b0c',bdr:'#182025',label:'Ingen trade'}].map((l,i)=>(
+        {[{bg:'#001810',bdr:'rgba(0,229,176,0.2)',label:'Clean'},{bg:'#1a0610',bdr:'rgba(255,79,107,0.2)',label:'Violation'},{bg:'#0d1214',bdr:'#1e2c32',label:'Ingen trade'}].map((l,i)=>(
           <div key={i} style={{display:'flex',alignItems:'center',gap:'4px'}}>
             <div style={{width:'8px',height:'8px',borderRadius:'2px',background:l.bg,border:`1px solid ${l.bdr}`}} />
-            <span style={{fontFamily:M,fontSize:'8px',color:'#2a3c42'}}>{l.label}</span>
+            <span style={{fontFamily:M,fontSize:'8px',color:'#5a7a84'}}>{l.label}</span>
           </div>
         ))}
       </div>
@@ -144,14 +144,14 @@ export default function StreakHistory({ journal=[], onSaveStreakLog, streakLogs=
       {popup && (
         <>
           <div onClick={()=>setPopup(null)} style={{position:'fixed',inset:0,zIndex:98}} />
-          <div style={{position:'fixed',left:Math.min(popup.x,window.innerWidth-210),top:Math.min(popup.y,window.innerHeight-160),zIndex:99,background:'#0d1214',border:'1px solid #1e2c32',borderRadius:'10px',padding:'12px',minWidth:'180px',boxShadow:'0 16px 40px rgba(0,0,0,0.8)'}}>
-            <div style={{fontFamily:M,fontSize:'8px',color:'#2a3c42',marginBottom:'8px',letterSpacing:'1px'}}>
+          <div style={{position:'fixed',left:Math.min(popup.x,window.innerWidth-210),top:Math.min(popup.y,window.innerHeight-160),zIndex:99,background:'#161e24',border:'1px solid #263840',borderRadius:'10px',padding:'12px',minWidth:'180px',boxShadow:'0 16px 40px rgba(0,0,0,0.8)'}}>
+            <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',marginBottom:'8px',letterSpacing:'1px'}}>
               {new Date(popup.date+'T12:00:00').toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'}).toUpperCase()}
             </div>
             <div style={{display:'flex',flexDirection:'column',gap:'5px'}}>
-              <button onClick={()=>logDay(popup.date,'clean')} style={{background:popup.status==='clean'?'#001810':'#080b0c',border:`1px solid ${popup.status==='clean'?'rgba(0,229,176,0.3)':'#1e2c32'}`,borderRadius:'6px',color:'#00e5b0',fontFamily:M,fontSize:'10px',padding:'7px 10px',cursor:'pointer',textAlign:'left',transition:'all 0.15s'}}>✓ Följde regler</button>
-              <button onClick={()=>logDay(popup.date,'violation')} style={{background:popup.status==='violation'?'#1a0610':'#080b0c',border:`1px solid ${popup.status==='violation'?'rgba(255,79,107,0.3)':'#1e2c32'}`,borderRadius:'6px',color:'#ff4f6b',fontFamily:M,fontSize:'10px',padding:'7px 10px',cursor:'pointer',textAlign:'left',transition:'all 0.15s'}}>✕ Bröt regler</button>
-              {popup.status!=='empty'&&<button onClick={()=>logDay(popup.date,null)} style={{background:'none',border:'1px solid #182025',borderRadius:'6px',color:'#2a3c42',fontFamily:M,fontSize:'8px',padding:'5px 10px',cursor:'pointer',textAlign:'left'}}>Rensa</button>}
+              <button onClick={()=>logDay(popup.date,'clean')} style={{background:popup.status==='clean'?'#001810':'#0d1214',border:`1px solid ${popup.status==='clean'?'rgba(0,229,176,0.3)':'#263840'}`,borderRadius:'6px',color:'#00e5b0',fontFamily:M,fontSize:'10px',padding:'7px 10px',cursor:'pointer',textAlign:'left',transition:'all 0.15s'}}>✓ Följde regler</button>
+              <button onClick={()=>logDay(popup.date,'violation')} style={{background:popup.status==='violation'?'#1a0610':'#0d1214',border:`1px solid ${popup.status==='violation'?'rgba(255,79,107,0.3)':'#263840'}`,borderRadius:'6px',color:'#ff4f6b',fontFamily:M,fontSize:'10px',padding:'7px 10px',cursor:'pointer',textAlign:'left',transition:'all 0.15s'}}>✕ Bröt regler</button>
+              {popup.status!=='empty'&&<button onClick={()=>logDay(popup.date,null)} style={{background:'none',border:'1px solid #1e2c32',borderRadius:'6px',color:'#5a7a84',fontFamily:M,fontSize:'8px',padding:'5px 10px',cursor:'pointer',textAlign:'left'}}>Rensa</button>}
             </div>
           </div>
         </>
@@ -159,4 +159,3 @@ export default function StreakHistory({ journal=[], onSaveStreakLog, streakLogs=
     </div>
   )
 }
-

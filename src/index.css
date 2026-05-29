@@ -3,11 +3,11 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:       #060809;
-  --s1:       #0d1214;
-  --s2:       #111820;
-  --border:   #182025;
-  --border2:  #1e2c32;
+  --bg:       #080b0c;
+  --s1:       #111820;
+  --s2:       #161e24;
+  --border:   #1e2c32;
+  --border2:  #263840;
   --green:    #00e5b0;
   --green-bg: #001810;
   --green-dim:#007d5e;
@@ -17,8 +17,8 @@
   --yellow:   #ffc030;
   --yellow-bg:#1a1000;
   --t1:       #d0e8ec;
-  --t2:       #5a7a82;
-  --t3:       #2a3c42;
+  --t2:       #6a8a92;
+  --t3:       #4a6870;
   --radius:   12px;
   --radius-sm:8px;
   --transition: 0.15s ease;
