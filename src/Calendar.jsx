@@ -10,6 +10,45 @@ const RC={win:'#00e5b0',win2:'#00e5b0',loss:'#ff4f6b',be:'#6a8a90',skip:'#ffc030
 const inp={width:'100%',background:'#0d1214',border:'1px solid #263840',borderRadius:'8px',color:'#d0e8ec',fontSize:'15px',padding:'10px 12px',outline:'none',boxSizing:'border-box',transition:'border-color 0.15s'}
 const lbl={fontFamily:M,fontSize:'8px',color:'#5a7a84',letterSpacing:'2px',marginBottom:'5px',display:'block'}
 
+
+function CalendarEditForm({ trade, onSave, onCancel }) {
+  const[result,setResult]=useState(trade.result||"")
+  const[instrument,setInstrument]=useState(trade.instrument||"MYM")
+  const[pnl,setPnl]=useState(trade.pnl||"")
+  const[note,setNote]=useState(trade.note||"")
+  const[emotion,setEmotion]=useState(trade.emotion||"3")
+  const[setup,setSetup]=useState(trade.setup||"")
+  const[psychTags,setPsychTags]=useState(trade.psychTags||[])
+  const inp2={width:"100%",background:"#080b0c",border:"1px solid #263840",borderRadius:"7px",color:"#d0e8ec",fontSize:"14px",padding:"9px 10px",outline:"none",boxSizing:"border-box",transition:"border-color 0.15s"}
+  const lbl2={fontFamily:M,fontSize:"8px",color:"#5a7a84",letterSpacing:"2px",marginBottom:"4px",display:"block"}
+  function toggleTag(id){setPsychTags(p=>p.includes(id)?p.filter(x=>x!==id):[...p,id])}
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px"}}>
+        <div><span style={lbl2}>OUTCOME</span><select value={result} onChange={e=>setResult(e.target.value)} style={{...inp2,fontFamily:M}}><option value="">Välj...</option><option value="win">Win +3R</option><option value="win2">Win +2R</option><option value="loss">Loss -1R</option><option value="be">Break Even</option><option value="skip">Skip</option><option value="no-setup">No Setup</option></select></div>
+        <div><span style={lbl2}>INSTRUMENT</span><input value={instrument} onChange={e=>setInstrument(e.target.value)} style={inp2}/></div>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px"}}>
+        <div><span style={lbl2}>P&L ($)</span><input type="number" value={pnl} onChange={e=>setPnl(e.target.value)} style={inp2}/></div>
+        <div><span style={lbl2}>SETUP</span><input value={setup} onChange={e=>setSetup(e.target.value)} style={inp2}/></div>
+      </div>
+      <div>
+        <span style={lbl2}>EMOTION</span>
+        <div style={{display:"flex",gap:"3px"}}>{[1,2,3,4,5,6,7,8,9,10].map(n=><button key={n} onClick={()=>setEmotion(String(n))} style={{flex:1,padding:"6px 0",borderRadius:"4px",border:`1px solid ${emotion===String(n)?"#007d5e":"#263840"}`,background:emotion===String(n)?"#001810":"#111820",color:emotion===String(n)?"#00e5b0":"#5a7a84",fontFamily:M,fontSize:"10px",cursor:"pointer"}}>{n}</button>)}</div>
+      </div>
+      <div>
+        <span style={lbl2}>PSYKOLOGI</span>
+        <div style={{display:"flex",flexWrap:"wrap",gap:"4px"}}>{PSYCH.map(tag=>{const a=psychTags.includes(tag.id);return<button key={tag.id} onClick={()=>toggleTag(tag.id)} style={{fontFamily:M,fontSize:"9px",padding:"4px 8px",borderRadius:"4px",background:a?tag.bg:"#111820",border:`1px solid ${a?tag.c+"33":"#1e2c32"}`,color:a?tag.c:"#5a7a84",cursor:"pointer"}}>{tag.label}</button>})}</div>
+      </div>
+      <div><span style={lbl2}>NOTES</span><textarea value={note} onChange={e=>setNote(e.target.value)} style={{...inp2,resize:"vertical",minHeight:"60px",lineHeight:1.6}}/></div>
+      <div style={{display:"flex",gap:"6px"}}>
+        <button onClick={()=>onSave({result,instrument,pnl:pnl||"0",note,emotion,setup,psychTags})} style={{flex:1,background:"#00e5b0",color:"#020f08",fontFamily:M,fontSize:"10px",fontWeight:700,padding:"10px",borderRadius:"7px",border:"none",cursor:"pointer"}}>SPARA</button>
+        <button onClick={onCancel} style={{background:"transparent",color:"#5a7a84",fontFamily:M,fontSize:"9px",padding:"10px 12px",borderRadius:"7px",border:"1px solid #1e2c32",cursor:"pointer"}}>Avbryt</button>
+      </div>
+    </div>
+  )
+}
+
 export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEditTrade }) {
   const mobile = useIsMobile()
   const[year,setYear]=useState(new Date().getFullYear())
@@ -137,7 +176,8 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
                   <button onClick={()=>onDeleteTrade?.(ji)} style={{background:'none',border:'none',color:'#3a5460',cursor:'pointer',fontSize:'12px',padding:'2px',transition:'color 0.15s'}} onMouseEnter={e=>e.currentTarget.style.color='#ff4f6b'} onMouseLeave={e=>e.currentTarget.style.color='#263840'}>✕</button>
                 </div>
               </div>
-              {em>0&&<div style={{padding:'6px 12px',display:'flex',alignItems:'center',gap:'8px',borderTop:'1px solid #161e24'}}><span style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',letterSpacing:'1px',flexShrink:0}}>EMOTION</span><div style={{display:'flex',gap:'2px',flex:1}}>{[1,2,3,4,5,6,7,8,9,10].map(n=><div key={n} style={{flex:1,height:'3px',borderRadius:'2px',background:n<=em?ec:'#1e2c32'}} />)}</div><span style={{fontFamily:M,fontSize:'9px',color:ec,flexShrink:0}}>{em}/10</span></div>}
+              {editingTrade===ji&&<div style={{padding:'10px',borderTop:'1px solid #161e24'}}><CalendarEditForm trade={t} onSave={updated=>{onEditTrade?.(ji,updated);setEditingTrade(null)}} onCancel={()=>setEditingTrade(null)} /></div>}
+              {editingTrade!==ji&&em>0&&<div style={{padding:'6px 12px',display:'flex',alignItems:'center',gap:'8px',borderTop:'1px solid #161e24'}}><span style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',letterSpacing:'1px',flexShrink:0}}>EMOTION</span><div style={{display:'flex',gap:'2px',flex:1}}>{[1,2,3,4,5,6,7,8,9,10].map(n=><div key={n} style={{flex:1,height:'3px',borderRadius:'2px',background:n<=em?ec:'#1e2c32'}} />)}</div><span style={{fontFamily:M,fontSize:'9px',color:ec,flexShrink:0}}>{em}/10</span></div>}
               {t.psychTags?.length>0&&<div style={{padding:'6px 12px 8px',display:'flex',gap:'4px',flexWrap:'wrap',borderTop:'1px solid #161e24'}}>{t.psychTags.map(id=>{const tag=PSYCH.find(p=>p.id===id);return tag?<span key={id} style={{fontFamily:M,fontSize:'8px',color:tag.c,background:tag.bg,border:`1px solid ${tag.c}22`,borderRadius:'4px',padding:'2px 7px'}}>{tag.label}</span>:null})}</div>}
               {t.image&&<div style={{padding:'8px 12px',borderTop:'1px solid #161e24'}}><img src={t.image} alt="chart" onClick={()=>setLightbox(t.image)} style={{width:'100%',borderRadius:'8px',border:'1px solid #263840',display:'block',cursor:'zoom-in'}} /></div>}
               {t.note&&<div style={{padding:'10px 12px',borderTop:'1px solid #161e24'}}><div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'5px'}}>NOTES</div><div style={{fontSize:'12px',color:'#5a7a84',lineHeight:1.7,whiteSpace:'pre-wrap',wordBreak:'break-word',borderLeft:'2px solid #1e2c32',paddingLeft:'10px'}}>{t.note}</div></div>}
