@@ -168,8 +168,8 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade }) {
         <div style={{flex:1,minWidth:0}}>
           <div style={{background:'#161e24',border:'1px solid #1e2c32',borderRadius:'12px',overflow:'hidden'}}>
             <div style={{display:'grid',gridTemplateColumns:mobile?'repeat(7,1fr)':'repeat(7,1fr) 64px',background:'#0d1214',borderBottom:'1px solid #1e2c32'}}>
-              {['M','T','O','T','F','L','S'].map((d,i)=><div key={i} style={{fontFamily:M,fontSize:'8px',color:i<5?'#5a7a84':'#1e2c32',textAlign:'center',padding:mobile?'8px 2px':'9px 4px',letterSpacing:'1px'}}>{d}</div>)}
-              {!mobile&&<div style={{fontFamily:M,fontSize:'7px',color:'#2e4450',textAlign:'center',padding:'9px 4px',letterSpacing:'1px',borderLeft:'1px solid #1e2c32'}}>V</div>}
+              {['M','T','O','T','F','L','S'].map((d,i)=><div key={i} style={{fontFamily:M,fontSize:'8px',color:i<5?'#8aacb4':'#263840',textAlign:'center',padding:mobile?'8px 2px':'9px 4px',letterSpacing:'1px'}}>{d}</div>)}
+              {!mobile&&<div style={{fontFamily:M,fontSize:'7px',color:'#3a5460',textAlign:'center',padding:'9px 4px',letterSpacing:'1px',borderLeft:'1px solid #1e2c32'}}>V</div>}
             </div>
             {weeks.map((week,wi)=>{
               const wDates=week.filter(c=>c.ds).map(c=>c.ds)
@@ -191,7 +191,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade }) {
                     return(
                       <div key={ci} onClick={()=>{setSel(isSel?null:ds);resetForm()}} style={{minHeight:cellH,borderRight:'1px solid #161e24',borderBottom:'1px solid #161e24',padding:mobile?'5px 4px':'8px',background:isSel?(sc?.bg||'#161e24'):sc?.bg||(isTd?'rgba(0,229,176,0.03)':'transparent'),outline:isSel?`2px solid ${sc?.bdr||'#263840'}`:'none',outlineOffset:'-2px',cursor:'pointer',position:'relative',transition:'background 0.15s'}}>
                         {isTd&&<div style={{position:'absolute',top:0,left:0,right:0,height:'2px',background:'#007d5e'}} />}
-                        <div style={{fontFamily:M,fontSize:mobile?'9px':'11px',color:isTd?'#00e5b0':isWe?'#1e2c32':'#5a7a82',fontWeight:isTd?700:400,marginBottom:mobile?'2px':'4px'}}>{day}</div>
+                        <div style={{fontFamily:M,fontSize:mobile?'9px':'11px',color:isTd?'#00e5b0':isWe?'#2e4450':'#8aacb4',fontWeight:isTd?700:400,marginBottom:mobile?'2px':'4px'}}>{day}</div>
                         {!mobile&&aT.map((t,ti)=><div key={ti} style={{fontFamily:M,fontSize:'8px',padding:'2px 4px',borderRadius:'3px',background:RBG[t.result],color:RC[t.result],display:'inline-block',marginBottom:'2px',marginRight:'2px'}}>{{win:'W3R',win2:'W2R',loss:'-1R',be:'BE',skip:'Sk','no-setup':'N/A'}[t.result]||t.result}</div>)}
                         {mobile&&stat&&<div style={{width:'5px',height:'5px',borderRadius:'50%',background:sc?.dot}} />}
                         {aT.length>0&&<div style={{fontFamily:M,fontSize:mobile?'8px':'10px',fontWeight:700,color:dPnl>=0?'#00e5b0':'#ff4f6b',marginTop:mobile?'1px':'3px'}}>{dPnl>=0?'+':''}${Math.abs(Math.round(dPnl))}</div>}
@@ -199,7 +199,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade }) {
                     )
                   })}
                   {!mobile&&<div style={{minHeight:cellH,borderBottom:'1px solid #161e24',borderLeft:'1px solid #1e2c32',padding:'6px',display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center',gap:'2px',background:'#0d1214'}}>
-                    {wT.length>0?<><div style={{fontFamily:M,fontSize:'9px',fontWeight:700,color:wPnl>=0?'#00e5b0':'#ff4f6b'}}>{wPnl>=0?'+':''}${Math.abs(Math.round(wPnl))}</div>{wWr!==null&&<div style={{fontFamily:M,fontSize:'8px',color:wWr>=50?'#00e5b0':'#ff4f6b'}}>{wWr}%</div>}<div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84'}}>{wT.length}t</div></>:<div style={{fontFamily:M,fontSize:'9px',color:'#2e4450'}}>—</div>}
+                    {wT.length>0?<><div style={{fontFamily:M,fontSize:'9px',fontWeight:700,color:wPnl>=0?'#00e5b0':'#ff4f6b'}}>{wPnl>=0?'+':''}${Math.abs(Math.round(wPnl))}</div>{wWr!==null&&<div style={{fontFamily:M,fontSize:'8px',color:wWr>=50?'#00e5b0':'#ff4f6b'}}>{wWr}%</div>}<div style={{fontFamily:M,fontSize:'7px',color:'#7a9aa4'}}>{wT.length}t</div></>:<div style={{fontFamily:M,fontSize:'9px',color:'#3a5460'}}>—</div>}
                   </div>}
                 </div>
               )
