@@ -1,3 +1,7 @@
+if (typeof window !== 'undefined') {
+  alert("KODEN KÖRS!");
+}
+
 import { useState, useRef, useEffect } from 'react'
 
 const M = "'JetBrains Mono', monospace"
