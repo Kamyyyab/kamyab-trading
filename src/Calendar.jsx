@@ -25,11 +25,21 @@ const PSYCH = [
 
 const RBG  = { win:'#001810', win2:'#001810', loss:'#1a0610', be:'#111820', skip:'#111820', 'no-setup':'#111820' }
 const RBDR = { win:'rgba(0,229,176,0.2)', win2:'rgba(0,229,176,0.2)', loss:'rgba(255,79,107,0.2)', be:'rgba(106,138,144,0.15)', skip:'#1e2c32', 'no-setup':'#1e2c32' }
-const RC   = { win:'#00e5b0', win2:'#00e5b0', loss:'#ff4f6b', be:'#6a8a90', skip:'#5a7a84', 'no-setup':'#5a7a84' }
-const RL   = { win:'Win +3R', win2:'Win +2R', loss:'Loss −1R', be:'BE', skip:'Skip', 'no-setup':'N/A' }
+const RC = { win:'#00e5b0', win2:'#00e5b0', tp1:'#4ab89a', loss:'#ff4f6b', be:'#6a8a90', skip:'#5a7a84', 'no-setup':'#5a7a84' }
+const RL = { win:'Win +3R', win2:'Win +2R', tp1:'TP1', loss:'Loss −1R', be:'BE', skip:'Skip', 'no-setup':'N/A' }
 
 const inp = { width:'100%', background:'#080b0c', border:'1px solid #263840', borderRadius:'8px', color:'#d0e8ec', fontSize:'15px', padding:'10px 12px', outline:'none', boxSizing:'border-box', transition:'border-color 0.15s' }
 const lbl = { fontFamily:M, fontSize:'8px', color:'#5a7a84', letterSpacing:'2px', marginBottom:'5px', display:'block' }
+
+const RESULTS = [
+  { v:"win",       label:"Win +3R",   c:"#00e5b0", bg:"#001810" },
+  { v:"win2",      label:"Win +2R",   c:"#00e5b0", bg:"#001a14" },
+  { v:"tp1",       label:"TP1",       c:"#4ab89a", bg:"#001410" },
+  { v:"loss",      label:"Loss -1R",  c:"#ff4f6b", bg:"#1a0610" },
+  { v:"be",        label:"Break Even",c:"#6a8a90", bg:"#111820" },
+  { v:"skip",      label:"Skip",      c:"#5a7a84", bg:"#111820" },
+  { v:"no-setup",  label:"No Setup",  c:"#3a5460", bg:"#0d1214" },
+]
 
 // ── Shared edit form ─────────────────────────────────────────────
 function EditForm({ initial = {}, onSave, onCancel }) {
@@ -45,23 +55,24 @@ function EditForm({ initial = {}, onSave, onCancel }) {
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px' }}>
-        <div>
-          <span style={lbl}>OUTCOME</span>
-          <select value={result} onChange={e => setResult(e.target.value)} style={{...inp, fontFamily:M}}>
-            <option value="">Välj...</option>
-            <option value="win">Win +3R</option>
-            <option value="win2">Win +2R</option>
-            <option value="loss">Loss −1R</option>
-            <option value="be">Break Even</option>
-            <option value="skip">Skip</option>
-            <option value="no-setup">No Setup</option>
-          </select>
+      <div>
+        <span style={lbl}>OUTCOME</span>
+        <div style={{ display:'flex', flexWrap:'wrap', gap:'5px' }}>
+          {RESULTS.map(r => (
+            <button key={r.v} onClick={() => setResult(r.v)} style={{
+              fontFamily:M, fontSize:'10px', padding:'7px 11px', borderRadius:'6px',
+              background: result===r.v ? r.bg : '#0d1214',
+              border: `1px solid ${result===r.v ? r.c+'55' : '#263840'}`,
+              color: result===r.v ? r.c : '#5a7a84',
+              cursor:'pointer', transition:'all 0.15s',
+              WebkitTapHighlightColor:'transparent',
+            }}>{r.label}</button>
+          ))}
         </div>
-        <div>
-          <span style={lbl}>INSTRUMENT</span>
-          <input value={instr} onChange={e => setInstr(e.target.value)} style={inp} />
-        </div>
+      </div>
+      <div>
+        <span style={lbl}>INSTRUMENT</span>
+        <input value={instr} onChange={e => setInstr(e.target.value)} style={inp} />
       </div>
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px' }}>
         <div>
@@ -533,4 +544,3 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
     </div>
   )
 }
-
