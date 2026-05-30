@@ -50,7 +50,6 @@ function EditForm({ initial = {}, onSave, onCancel }) {
   const [setup,     setSetup]     = useState(initial.setup      || '')
   const [tags,      setTags]      = useState(initial.psychTags  || [])
   const [image,     setImage]     = useState(initial.image      || null)
-  const [isHovered, setIsHovered] = useState(false)
   
   const fileInputRef = useRef(null)
   const toggle = id => setTags(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id])
@@ -121,36 +120,21 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         </div>
       </div>
       
-      {/* HÄR ÄR FLIKEN FÖR BILDEN */}
-      <div>
+      {/* FIXAD BILD-FLIK SITTANDE MELLAN PSYKOLOGI OCH NOTES */}
+      <div style={{ border: '1px solid #263840', borderRadius: '8px', padding: '10px', background: '#0d1214', marginTop: '5px' }}>
         <span style={lbl}>CHART / BILD</span>
         <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageChange} style={{ display: 'none' }} />
         
         {!image ? (
-          <button type="button" onClick={() => fileInputRef.current?.click()} style={{ ...inp, background: '#0d1214', borderStyle: 'dashed', color: '#5a7a84', cursor: 'pointer', textAlign: 'center', fontSize: '12px' }}>
+          <button type="button" onClick={() => fileInputRef.current?.click()} style={{ ...inp, background: '#080b0c', borderStyle: 'dashed', color: '#00e5b0', cursor: 'pointer', textAlign: 'center', fontSize: '12px' }}>
             + LÄGG TILL BILD / SKÄRMDUMP
           </button>
         ) : (
-          <div 
-            style={{ position: 'relative', border: '1px solid #263840', borderRadius: '8px', overflow: 'hidden', background: '#080b0c' }}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <img src={image} alt="Preview" style={{ width: '100%', maxHeight: '150px', objectFit: 'contain', display: 'block' }} />
-            <div style={{ 
-              position: 'absolute', 
-              inset: 0, 
-              background: 'rgba(0,0,0,0.6)', 
-              display: 'flex', 
-              gap: '10px', 
-              justifyContent: 'center', 
-              alignItems: 'center', 
-              opacity: isHovered ? 1 : 0, 
-              transition: 'opacity 0.15s',
-              pointerEvents: isHovered ? 'auto' : 'none'
-            }}>
-              <button type="button" onClick={() => fileInputRef.current?.click()} style={{ background: '#111820', color: '#d0e8ec', border: '1px solid #263840', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontFamily: M }}>Ändra</button>
-              <button type="button" onClick={() => setImage(null)} style={{ background: 'rgba(255,79,107,0.2)', color: '#ff4f6b', border: '1px solid rgba(255,79,107,0.4)', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontFamily: M }}>Ta bort</button>
+          <div>
+            <img src={image} alt="Preview" style={{ width: '100%', maxHeight: '150px', objectFit: 'contain', display: 'block', marginBottom: '8px', borderRadius: '4px' }} />
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button type="button" onClick={() => fileInputRef.current?.click()} style={{ flex: 1, background: '#161e24', color: '#d0e8ec', border: '1px solid #263840', padding: '6px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontFamily: M }}>Byt bild</button>
+              <button type="button" onClick={() => setImage(null)} style={{ flex: 1, background: 'rgba(255,79,107,0.1)', color: '#ff4f6b', border: '1px solid rgba(255,79,107,0.3)', padding: '6px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontFamily: M }}>Ta bort</button>
             </div>
           </div>
         )}
