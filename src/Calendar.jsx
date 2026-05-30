@@ -170,8 +170,20 @@ function EditForm({ initial = {}, onSave, onCancel }) {
   )
 }
 
-export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEditTrade }) {
+export default function Calendar() {
   const mobile = useIsMobile()
+  const [journal, setJournal] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('trading_journal')
+      return saved ? JSON.parse(saved) : []
+    }
+    return []
+  })
+
+  useEffect(() => {
+    localStorage.setItem('trading_journal', JSON.stringify(journal))
+  }, [journal])
+
   const [year,  setYear]  = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth())
   const [sel,   setSel]   = useState(null)
@@ -220,8 +232,20 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
   function prevM() { if(month===0){setMonth(11);setYear(y=>y-1)}else setMonth(m=>m-1); setSel(null); setShowForm(false) }
   function nextM() { if(month===11){setMonth(0);setYear(y=>y+1)}else setMonth(m=>m+1); setSel(null); setShowForm(false) }
 
+  function onAddTrade(newTrade) {
+    setJournal(prev => [...prev, newTrade])
+  }
+
+  function onDeleteTrade(index) {
+    setJournal(prev => prev.filter((_, i) => i !== index))
+  }
+
+  function onEditTrade(index, updatedTrade) {
+    setJournal(prev => prev.map((t, i) => i === index ? { ...t, ...updatedTrade } : t))
+  }
+
   function doEdit(ji, updated) {
-    onEditTrade?.(ji, updated)
+    onEditTrade(ji, updated)
     setEditingIdx(null)
   }
 
@@ -323,7 +347,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
                 <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
                   <span style={{ fontFamily:M, fontSize:'14px', fontWeight:700, color:pv>=0?'#00e5b0':'#ff4f6b' }}>{pv>=0?'+':''}${Math.abs(Math.round(pv))}</span>
                   <button type="button" onClick={() => setEditingIdx(isEd?null:ji)} style={{ background:isEd?'#263840':'none', border:`1px solid ${isEd?'#3a5460':'#1e2c32'}`, borderRadius:'5px', color:isEd?'#d0e8ec':'#5a7a84', fontFamily:M, fontSize:'9px', padding:'3px 8px', cursor:'pointer' }}>✎</button>
-                  <button type="button" onClick={() => onDeleteTrade?.(ji)} style={{ background:'none', border:'none', color:'#3a5460', cursor:'pointer', fontSize:'14px' }}>×</button>
+                  <button type="button" onClick={() => onDeleteTrade(ji)} style={{ background:'none', border:'none', color:'#3a5460', cursor:'pointer', fontSize:'14px' }}>×</button>
                 </div>
               </div>
 
