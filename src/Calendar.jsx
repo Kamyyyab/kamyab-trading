@@ -121,6 +121,7 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         </div>
       </div>
       
+      {/* HÄR ÄR FLIKEN FÖR BILDEN */}
       <div>
         <span style={lbl}>CHART / BILD</span>
         <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageChange} style={{ display: 'none' }} />
