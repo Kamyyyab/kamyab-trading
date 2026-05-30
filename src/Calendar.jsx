@@ -360,7 +360,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
         </div>
       </div>
 
-      <div style={{ padding:'12px', display:'flex', flexDirection:'column', gap:'10px' }}>
+      <div style={{ padding:'12px', display:'flex', flexDirection:'column', gap:'10px', overflowY:'auto' }}>
         {saveError && (
           <div style={{ fontFamily:M, fontSize:'10px', color:'#ff4f6b', background:'rgba(255,79,107,0.1)', border:'1px solid rgba(255,79,107,0.3)', borderRadius:'6px', padding:'10px 12px', lineHeight:1.6 }}>
             ⚠ {saveError}
