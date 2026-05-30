@@ -163,22 +163,6 @@ function EditForm({ initial = {}, onSave, onCancel }) {
 export default function Calendar() {
   const mobile = useIsMobile()
   const [journal, setJournal] = useState([])
-
-  // HÄMTA FRÅN SUPABASE VID START
-  useEffect(() => {
-    async function fetchTrades() {
-      const { data, error } = await supabase
-        .from('trades')
-        .select('*')
-      if (!error && data) {
-        setJournal(data)
-      } else {
-        console.error("Fel vid hämtning från Supabase:", error)
-      }
-    }
-    fetchTrades()
-  }, [])
-
   const [year,  setYear]  = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth())
   const [sel,   setSel]   = useState(null)
@@ -198,6 +182,59 @@ export default function Calendar() {
     const d=new Date()
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
   })()
+
+  // FLYTTADE HIT UPP FÖR ATT UNDVIKA INITIALISERINGSKRASCH
+  function buildDesktopWeeks() {
+    const cells = []
+    for(let i=0; i<fullOffset; i++) cells.push({ empty:true })
+    for(let d=1; d<=dim; d++) {
+      const date = new Date(year, month, d)
+      const ds   = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`
+      const wd   = date.getDay()
+      cells.push({ day:d, ds, isWe:wd===0||wd===6, wd })
+    }
+    while(cells.length%7!==0) cells.push({ empty:true })
+    const weeks = []
+    for(let i=0; i<cells.length; i+=7) weeks.push(cells.slice(i,i+7))
+    return weeks
+  }
+
+  function buildMobileWeeks() {
+    const weeks = []
+    let week = []
+    const monOffset = (first.getDay()+6)%7
+    const clampedOffset = Math.min(monOffset, 4)
+    for(let i=0; i<clampedOffset; i++) week.push({ empty:true })
+
+    for(let d=1; d<=dim; d++) {
+      const date = new Date(year, month, d)
+      const wd   = date.getDay()
+      const ds   = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`
+      if(wd===0||wd===6) continue
+      week.push({ day:d, ds, isWe:false, wd })
+      if(week.length===5) { weeks.push(week); week=[] }
+    }
+    if(week.length>0) {
+      while(week.length<5) week.push({ empty:true })
+      weeks.push(week)
+    }
+    return weeks
+  }
+
+  // HÄMTA FRÅN SUPABASE VID START
+  useEffect(() => {
+    async function fetchTrades() {
+      const { data, error } = await supabase
+        .from('trades')
+        .select('*')
+      if (!error && data) {
+        setJournal(data)
+      } else {
+        console.error("Fel vid hämtning från Supabase:", error)
+      }
+    }
+    fetchTrades()
+  }, [])
 
   const allM  = journal.filter(t => { const d=new Date(t.date); return d.getFullYear()===year&&d.getMonth()===month })
   const mT    = allM.filter(t => t.result!=='skip'&&t.result!=='no-setup')
@@ -257,7 +294,7 @@ export default function Calendar() {
   // SUPABASE: RADERA TRADE
   async function onDeleteTrade(index) {
     const tradeToDelete = journal[index]
-    if (!tradeToDelete?.id) return // Kräver en primärnyckel 'id' i Supabase
+    if (!tradeToDelete?.id) return
 
     const { error } = await supabase
       .from('trades')
@@ -300,43 +337,6 @@ export default function Calendar() {
   const gridColsHdr = mobile ? 'repeat(5, 1fr)' : 'repeat(7, 1fr) 64px'
   const cellH       = mobile ? '60px' : '100px'
 
-  function buildDesktopWeeks() {
-    const cells = []
-    for(let i=0; i<fullOffset; i++) cells.push({ empty:true })
-    for(let d=1; d<=dim; d++) {
-      const date = new Date(year, month, d)
-      const ds   = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`
-      const wd   = date.getDay()
-      cells.push({ day:d, ds, isWe:wd===0||wd===6, wd })
-    }
-    while(cells.length%7!==0) cells.push({ empty:true })
-    const weeks = []
-    for(let i=0; i<cells.length; i+=7) weeks.push(cells.slice(i,i+7))
-    return weeks
-  }
-
-  function buildMobileWeeks() {
-    const weeks = []
-    let week = []
-    const monOffset = (first.getDay()+6)%7
-    const clampedOffset = Math.min(monOffset, 4)
-    for(let i=0; i<clampedOffset; i++) week.push({ empty:true })
-
-    for(let d=1; d<=dim; d++) {
-      const date = new Date(year, month, d)
-      const wd   = date.getDay()
-      const ds   = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`
-      if(wd===0||wd===6) continue
-      week.push({ day:d, ds, isWe:false, wd })
-      if(week.length===5) { weeks.push(week); week=[] }
-    }
-    if(week.length>0) {
-      while(week.length<5) week.push({ empty:true })
-      weeks.push(week)
-    }
-    return weeks
-  }
-
   const selTrades = sel ? journal.filter(t=>t.date===sel) : []
   const selPnl    = selTrades.reduce((s,t) => s+parseFloat(t.pnl||0), 0)
 
@@ -345,7 +345,7 @@ export default function Calendar() {
       <div style={{ padding:'14px', borderBottom:'1px solid #1e2c32', display:'flex', justifyContent:'space-between', alignItems:'flex-start', flexShrink:0 }}>
         <div>
           <div style={{ fontFamily:M, fontSize:'8px', color:'#5a7a84', letterSpacing:'2px', marginBottom:'3px' }}>
-            {new Date(sel+'T12:00:00').toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'}).toUpperCase()}
+            {sel ? new Date(sel+'T12:00:00').toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'}).toUpperCase() : ''}
           </div>
           {selTrades.filter(t=>t.result!=='skip'&&t.result!=='no-setup').length>0 && (
             <div style={{ fontFamily:M, fontSize:'22px', fontWeight:700, color:selPnl>=0?'#00e5b0':'#ff4f6b' }}>
