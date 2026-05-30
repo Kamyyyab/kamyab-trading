@@ -32,9 +32,9 @@ const inp = { width:'100%', background:'#080b0c', border:'1px solid #263840', bo
 const lbl = { fontFamily:M, fontSize:'8px', color:'#5a7a84', letterSpacing:'2px', marginBottom:'5px', display:'block' }
 
 const RESULTS = [
-  { v:"win",       label:"Win +3R",   c:"#00e5b0", bg:"#001810" },
-  { v:"win2",      label:"Win +2R",   c:"#00e5b0", bg:"#001a14" },
   { v:"tp1",       label:"TP1",       c:"#4ab89a", bg:"#001410" },
+  { v:"tp2",       label:"TP2",       c:"#00e5b0", bg:"#001810" },
+  { v:"tp3",       label:"TP3",       c:"#00e5b0", bg:"#001a14" },
   { v:"loss",      label:"Loss -1R",  c:"#ff4f6b", bg:"#1a0610" },
   { v:"be",        label:"Break Even",c:"#6a8a90", bg:"#111820" },
   { v:"skip",      label:"Skip",      c:"#5a7a84", bg:"#111820" },
