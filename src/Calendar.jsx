@@ -41,7 +41,6 @@ const RESULTS = [
   { v:"no-setup",  label:"No Setup",  c:"#3a5460", bg:"#0d1214" },
 ]
 
-// ── Delat formulär med fungerande bild-uppladdning ──────────────────
 function EditForm({ initial = {}, onSave, onCancel }) {
   const [result,    setResult]    = useState(initial.result     || '')
   const [instr,     setInstr]     = useState(initial.instrument || 'MYM')
@@ -51,6 +50,7 @@ function EditForm({ initial = {}, onSave, onCancel }) {
   const [setup,     setSetup]     = useState(initial.setup      || '')
   const [tags,      setTags]      = useState(initial.psychTags  || [])
   const [image,     setImage]     = useState(initial.image      || null)
+  const [isHovered, setIsHovered] = useState(false)
   
   const fileInputRef = useRef(null)
   const toggle = id => setTags(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id])
@@ -121,7 +121,6 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         </div>
       </div>
       
-      {/* Bild-sektion */}
       <div>
         <span style={lbl}>CHART / BILD</span>
         <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageChange} style={{ display: 'none' }} />
@@ -131,11 +130,24 @@ function EditForm({ initial = {}, onSave, onCancel }) {
             + LÄGG TILL BILD / SKÄRMDUMP
           </button>
         ) : (
-          <div style={{ position: 'relative', border: '1px solid #263840', borderRadius: '8px', overflow: 'hidden', background: '#080b0c' }}>
+          <div 
+            style={{ position: 'relative', border: '1px solid #263840', borderRadius: '8px', overflow: 'hidden', background: '#080b0c' }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
             <img src={image} alt="Preview" style={{ width: '100%', maxHeight: '150px', objectFit: 'contain', display: 'block' }} />
-            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', gap: '10px', justifyContent: 'center', alignItems: 'center', opacity: 0, transition: 'opacity 0.15s' }}
-                 onMouseEnter={e => e.currentTarget.style.opacity = 1}
-                 onMouseLeave={e => e.currentTarget.style.opacity = 0}>
+            <div style={{ 
+              position: 'absolute', 
+              inset: 0, 
+              background: 'rgba(0,0,0,0.6)', 
+              display: 'flex', 
+              gap: '10px', 
+              justifyContent: 'center', 
+              alignItems: 'center', 
+              opacity: isHovered ? 1 : 0, 
+              transition: 'opacity 0.15s',
+              pointerEvents: isHovered ? 'auto' : 'none'
+            }}>
               <button type="button" onClick={() => fileInputRef.current?.click()} style={{ background: '#111820', color: '#d0e8ec', border: '1px solid #263840', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontFamily: M }}>Ändra</button>
               <button type="button" onClick={() => setImage(null)} style={{ background: 'rgba(255,79,107,0.2)', color: '#ff4f6b', border: '1px solid rgba(255,79,107,0.4)', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontFamily: M }}>Ta bort</button>
             </div>
@@ -213,20 +225,13 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
     setEditingIdx(null)
   }
 
-  const allCells = (() => {
-    const cells = []
-    for(let d=1; d<=dim; d++) {
-      const date = new Date(year, month, d)
-      const wd   = date.getDay()
-      const ds   = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`
-      const isWe = wd===0||wd===6
-      if(mobile && isWe) continue
-      cells.push({ day:d, ds, isWe, wd })
-    }
-    return cells
-  })()
+  const weeks       = mobile ? buildMobileWeeks() : buildDesktopWeeks()
+  const dayLabels   = mobile ? DAY_LABELS_MOBILE : DAY_LABELS_DESKTOP
+  const gridCols    = mobile ? 'repeat(5, 1fr)' : 'repeat(7, 1fr) 64px'
+  const gridColsHdr = mobile ? 'repeat(5, 1fr)' : 'repeat(7, 1fr) 64px'
+  const cellH       = mobile ? '60px' : '100px'
 
-  const buildDesktopWeeks = () => {
+  function buildDesktopWeeks() {
     const cells = []
     for(let i=0; i<fullOffset; i++) cells.push({ empty:true })
     for(let d=1; d<=dim; d++) {
@@ -241,7 +246,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
     return weeks
   }
 
-  const buildMobileWeeks = () => {
+  function buildMobileWeeks() {
     const weeks = []
     let week = []
     const monOffset = (first.getDay()+6)%7
@@ -262,12 +267,6 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
     }
     return weeks
   }
-
-  const weeks       = mobile ? buildMobileWeeks() : buildDesktopWeeks()
-  const dayLabels   = mobile ? DAY_LABELS_MOBILE : DAY_LABELS_DESKTOP
-  const gridCols    = mobile ? 'repeat(5, 1fr)' : 'repeat(7, 1fr) 64px'
-  const gridColsHdr = mobile ? 'repeat(5, 1fr)' : 'repeat(7, 1fr) 64px'
-  const cellH       = mobile ? '60px' : '100px'
 
   const selTrades = sel ? journal.filter(t=>t.date===sel) : []
   const selPnl    = selTrades.reduce((s,t) => s+parseFloat(t.pnl||0), 0)
