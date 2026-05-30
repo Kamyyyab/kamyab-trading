@@ -1,8 +1,10 @@
-if (typeof window !== 'undefined') {
-  alert("KODEN KÖRS!");
-}
-
 import { useState, useRef, useEffect } from 'react'
+import { createClient } from '@supabase/supabase-js'
+
+// Supabase-klient initialisering
+const supabaseUrl = 'https://tgzgndyxfwnoqvtbetns.supabase.co'
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRnemduZHl4Zndub3F2dGJldG5zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NzMxMjcsImV4cCI6MjA5MDM0OTEyN30.GCNzqE0otgAdHSEDk_ipfL_g2_tmyoOaHoDDnSw8PcA'
+export const supabase = createClient(supabaseUrl, supabaseKey)
 
 const M = "'JetBrains Mono', monospace"
 
@@ -124,7 +126,6 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         </div>
       </div>
       
-      {/* FIXAD BILD-FLIK SITTANDE MELLAN PSYKOLOGI OCH NOTES */}
       <div style={{ border: '1px solid #263840', borderRadius: '8px', padding: '10px', background: '#0d1214', marginTop: '5px' }}>
         <span style={lbl}>CHART / BILD</span>
         <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageChange} style={{ display: 'none' }} />
@@ -161,17 +162,22 @@ function EditForm({ initial = {}, onSave, onCancel }) {
 
 export default function Calendar() {
   const mobile = useIsMobile()
-  const [journal, setJournal] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('trading_journal')
-      return saved ? JSON.parse(saved) : []
-    }
-    return []
-  })
+  const [journal, setJournal] = useState([])
 
+  // HÄMTA FRÅN SUPABASE VID START
   useEffect(() => {
-    localStorage.setItem('trading_journal', JSON.stringify(journal))
-  }, [journal])
+    async function fetchTrades() {
+      const { data, error } = await supabase
+        .from('trades')
+        .select('*')
+      if (!error && data) {
+        setJournal(data)
+      } else {
+        console.error("Fel vid hämtning från Supabase:", error)
+      }
+    }
+    fetchTrades()
+  }, [])
 
   const [year,  setYear]  = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth())
@@ -221,16 +227,66 @@ export default function Calendar() {
   function prevM() { if(month===0){setMonth(11);setYear(y=>y-1)}else setMonth(m=>m-1); setSel(null); setShowForm(false) }
   function nextM() { if(month===11){setMonth(0);setYear(y=>y+1)}else setMonth(m=>m+1); setSel(null); setShowForm(false) }
 
-  function onAddTrade(newTrade) {
-    setJournal(prev => [...prev, newTrade])
+  // SUPABASE: LÄGG TILL TRADE
+  async function onAddTrade(rawTrade) {
+    const payload = {
+      date: sel,
+      result: rawTrade.result,
+      instrument: rawTrade.instrument,
+      pnl: rawTrade.pnl || '0',
+      note: rawTrade.note,
+      emotion: rawTrade.emotion,
+      setup: rawTrade.setup,
+      psychTags: rawTrade.psychTags,
+      image: rawTrade.image,
+      timestamp: new Date().toISOString()
+    }
+
+    const { data, error } = await supabase
+      .from('trades')
+      .insert([payload])
+      .select()
+
+    if (!error && data) {
+      setJournal(prev => [...prev, data[0]])
+    } else {
+      console.error("Kunde inte spara i Supabase:", error)
+    }
   }
 
-  function onDeleteTrade(index) {
-    setJournal(prev => prev.filter((_, i) => i !== index))
+  // SUPABASE: RADERA TRADE
+  async function onDeleteTrade(index) {
+    const tradeToDelete = journal[index]
+    if (!tradeToDelete?.id) return // Kräver en primärnyckel 'id' i Supabase
+
+    const { error } = await supabase
+      .from('trades')
+      .delete()
+      .eq('id', tradeToDelete.id)
+
+    if (!error) {
+      setJournal(prev => prev.filter((_, i) => i !== index))
+    } else {
+      console.error("Kunde inte radera från Supabase:", error)
+    }
   }
 
-  function onEditTrade(index, updatedTrade) {
-    setJournal(prev => prev.map((t, i) => i === index ? { ...t, ...updatedTrade } : t))
+  // SUPABASE: REDIGERA TRADE
+  async function onEditTrade(index, updatedFields) {
+    const tradeToUpdate = journal[index]
+    if (!tradeToUpdate?.id) return
+
+    const { data, error } = await supabase
+      .from('trades')
+      .update(updatedFields)
+      .eq('id', tradeToUpdate.id)
+      .select()
+
+    if (!error && data) {
+      setJournal(prev => prev.map((t, i) => i === index ? data[0] : t))
+    } else {
+      console.error("Kunde inte uppdatera Supabase:", error)
+    }
   }
 
   function doEdit(ji, updated) {
@@ -308,7 +364,7 @@ export default function Calendar() {
           <div style={{ background:'#080b0c', border:'1px solid #263840', borderRadius:'10px', padding:'14px' }}>
             <div style={{ fontFamily:M, fontSize:'8px', color:'#5a7a84', letterSpacing:'2px', marginBottom:'10px' }}>NY TRADE</div>
             <EditForm
-              onSave={trade => { onAddTrade({ date:sel, ...trade, timestamp:new Date().toISOString() }); setShowForm(false) }}
+              onSave={trade => onAddTrade(trade)}
               onCancel={() => setShowForm(false)}
             />
           </div>
