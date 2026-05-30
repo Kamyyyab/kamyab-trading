@@ -93,7 +93,7 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         reader.readAsDataURL(file)
       })
 
-      const compressed = await compressImage(dataUrl)
+      const compressed = await compressImage(dataUrl, 1920, 0.95)
       setImage(compressed)
     } catch (err) {
       setImgError('Kunde inte ladda bilden. Försök med en annan fil.')
