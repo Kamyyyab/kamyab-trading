@@ -522,7 +522,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
 
         {/* Desktop side panel */}
         {!mobile && sel && (
-          <div style={{ width:'460px', flexShrink:0, background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', maxHeight:'calc(100vh - 120px)', display:'flex', flexDirection:'column' }}>
+          <div style={{ width:'460px', flexShrink:0, background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflowY:'auto' }}>
             <Panel />
           </div>
         )}
