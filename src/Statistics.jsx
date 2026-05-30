@@ -20,12 +20,12 @@ export default function Statistics({ journal = [] }) {
 
   const all    = filterTrades(journal)
   const trades = all.filter(t=>t.result!=='skip'&&t.result!=='no-setup')
-  const wins   = trades.filter(t=>t.result==='win'||t.result==='win2'||t.result==='tp1'||t.result==='tp2'||t.result==='tp3').length
+  const wins   = trades.filter(t=>['win','win2','tp1','tp2','tp3'].includes(t.result)||t.result==='tp1'||t.result==='tp2'||t.result==='tp3').length
   const losses = trades.filter(t=>t.result==='loss').length
   const wr     = trades.length>0?((wins/trades.length)*100).toFixed(1):0
   const tPnl   = trades.reduce((s,t)=>s+parseFloat(t.pnl||0),0)
 
-  const wTrades = trades.filter(t=>t.result==='win'||t.result==='win2'||t.result==='tp1'||t.result==='tp2'||t.result==='tp3')
+  const wTrades = trades.filter(t=>['win','win2','tp1','tp2','tp3'].includes(t.result)||t.result==='tp1'||t.result==='tp2'||t.result==='tp3')
   const avgRR   = wTrades.length>0?(wTrades.reduce((s,t)=>s+(t.result==='win'?3:2),0)/wTrades.length).toFixed(2):'0.00'
 
   const best  = trades.filter(t=>t.pnl).sort((a,b)=>parseFloat(b.pnl)-parseFloat(a.pnl))[0]
@@ -49,15 +49,15 @@ export default function Statistics({ journal = [] }) {
   ]
 
   const setupStats = {}
-  trades.forEach(t=>{ const k=t.setup||'Otaggad'; if(!setupStats[k])setupStats[k]={pnl:0,wins:0,total:0}; setupStats[k].pnl+=parseFloat(t.pnl||0); setupStats[k].total++; if(t.result==='win'||t.result==='win2'||t.result==='tp1'||t.result==='tp2'||t.result==='tp3')setupStats[k].wins++ })
+  trades.forEach(t=>{ const k=t.setup||'Otaggad'; if(!setupStats[k])setupStats[k]={pnl:0,wins:0,total:0}; setupStats[k].pnl+=parseFloat(t.pnl||0); setupStats[k].total++; if(['win','win2','tp1','tp2','tp3'].includes(t.result)||t.result==='tp1'||t.result==='tp2'||t.result==='tp3')setupStats[k].wins++ })
   const setupList = Object.entries(setupStats).sort(([,a],[,b])=>b.pnl-a.pnl)
 
   const psychStats = {}
-  trades.forEach(t=>{ (t.psychTags||[]).forEach(id=>{ if(!psychStats[id])psychStats[id]={wins:0,losses:0,total:0,pnl:0}; psychStats[id].total++; psychStats[id].pnl+=parseFloat(t.pnl||0); if(t.result==='win'||t.result==='win2'||t.result==='tp1'||t.result==='tp2'||t.result==='tp3')psychStats[id].wins++; if(t.result==='loss')psychStats[id].losses++ }) })
+  trades.forEach(t=>{ (t.psychTags||[]).forEach(id=>{ if(!psychStats[id])psychStats[id]={wins:0,losses:0,total:0,pnl:0}; psychStats[id].total++; psychStats[id].pnl+=parseFloat(t.pnl||0); if(['win','win2','tp1','tp2','tp3'].includes(t.result)||t.result==='tp1'||t.result==='tp2'||t.result==='tp3')psychStats[id].wins++; if(t.result==='loss')psychStats[id].losses++ }) })
   const psychList = Object.entries(psychStats).sort(([,a],[,b])=>b.total-a.total)
 
   const days = ['Måndag','Tisdag','Onsdag','Torsdag','Fredag']
-  const dayStats = days.map((day,i)=>{ const dt=trades.filter(t=>new Date(t.date).getDay()===(i+1)); const dw=dt.filter(t=>t.result==='win'||t.result==='win2'||t.result==='tp1'||t.result==='tp2'||t.result==='tp3').length; return {day,wr:dt.length>0?Math.round(dw/dt.length*100):0,total:dt.length,reliable:dt.length>=3} })
+  const dayStats = days.map((day,i)=>{ const dt=trades.filter(t=>new Date(t.date).getDay()===(i+1)); const dw=dt.filter(t=>['win','win2','tp1','tp2','tp3'].includes(t.result)||t.result==='tp1'||t.result==='tp2'||t.result==='tp3').length; return {day,wr:dt.length>0?Math.round(dw/dt.length*100):0,total:dt.length,reliable:dt.length>=3} })
 
   const card = (label,value,color,sub) => (
     <div style={{background:'#161e24',border:'1px solid #1e2c32',borderRadius:'12px',padding:'14px 16px'}}>
