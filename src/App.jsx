@@ -71,10 +71,11 @@ function SessionStatusMobile() {
   const isOpen  = nyMins >= 570 && nyMins < 960
   const isPre   = nyMins >= 240 && nyMins < 570
   const nyTime  = clock.toLocaleTimeString('sv-SE', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit' })
-  const color   = isOpen ? '#00e5b0' : isPre ? '#ffc030' : '#2a3c42'
+  const sweTime = clock.toLocaleTimeString('sv-SE', { timeZone: 'Europe/Stockholm',  hour: '2-digit', minute: '2-digit' })
+  const color   = isOpen ? '#00e5b0' : isPre ? '#ffc030' : '#5a7a84'
   const label   = isOpen ? 'ÖPPEN' : isPre ? 'PRE' : 'STÄNGD'
   const bg      = isOpen ? 'rgba(0,229,176,0.07)' : isPre ? 'rgba(255,192,48,0.06)' : 'transparent'
-  const bdr     = isOpen ? 'rgba(0,229,176,0.18)' : isPre ? 'rgba(255,192,48,0.14)' : '#182025'
+  const bdr     = isOpen ? 'rgba(0,229,176,0.18)' : isPre ? 'rgba(255,192,48,0.14)' : '#1e2c32'
 
   return (
     <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
@@ -82,9 +83,15 @@ function SessionStatusMobile() {
         <div style={{ width:'6px', height:'6px', borderRadius:'50%', background:color }} />
         <span style={{ fontFamily:M, fontSize:'10px', fontWeight:600, color, letterSpacing:'0.5px' }}>{label}</span>
       </div>
-      <div style={{ textAlign:'right' }}>
-        <div style={{ fontFamily:M, fontSize:'7px', color:'#1e2c32', letterSpacing:'1px' }}>NY</div>
-        <div style={{ fontFamily:M, fontSize:'11px', color:'#5a7a82' }}>{nyTime.slice(0,5)}</div>
+      <div style={{ display:'flex', gap:'10px' }}>
+        <div style={{ textAlign:'right' }}>
+          <div style={{ fontFamily:M, fontSize:'7px', color:'#3a5460', letterSpacing:'1px' }}>SWE</div>
+          <div style={{ fontFamily:M, fontSize:'11px', color:'#8aacb4' }}>{sweTime}</div>
+        </div>
+        <div style={{ textAlign:'right' }}>
+          <div style={{ fontFamily:M, fontSize:'7px', color:'#3a5460', letterSpacing:'1px' }}>NY</div>
+          <div style={{ fontFamily:M, fontSize:'11px', color:'#8aacb4' }}>{nyTime}</div>
+        </div>
       </div>
     </div>
   )
