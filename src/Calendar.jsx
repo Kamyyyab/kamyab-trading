@@ -326,7 +326,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
           const isEd = editingIdx===ji
 
           return (
-            <div key={i} style={{ background:'#080b0c', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden' }}>
+            <div key={i} style={{ background:'#080b0c', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px' }}>
               {/* Trade row */}
               <div style={{ padding:'11px 12px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <div style={{ display:'flex', alignItems:'center', gap:'6px', flexWrap:'wrap' }}>
