@@ -109,7 +109,7 @@ function EditForm({ initial = {}, onSave, onCancel }) {
       </div>
       <div>
         <span style={lbl}>NOTES</span>
-        <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Analys, tankar..." style={{...inp, resize:'vertical', minHeight:'60px', lineHeight:1.6}} />
+        <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Analys, tankar..." style={{...inp, resize:'vertical', minHeight:'140px', lineHeight:1.7, fontSize:'14px'}} />
       </div>
       <div style={{ display:'flex', gap:'8px' }}>
         <button type="button" onClick={() => onSave({ result, instrument:instr, pnl:pnl||'0', note, emotion, setup, psychTags:tags })}
@@ -300,7 +300,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
       </div>
 
       {/* Scrollable content */}
-      <div style={{ overflowY:'auto', maxHeight:'65vh', padding:'12px', display:'flex', flexDirection:'column', gap:'10px' }}>
+      <div style={{ overflowY:'auto', padding:'12px', display:'flex', flexDirection:'column', gap:'10px' }}>
 
         {/* New trade form */}
         {showForm && (
@@ -530,7 +530,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
 
       {/* Mobile: panel below calendar */}
       {mobile && sel && (
-        <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', display:'flex', flexDirection:'column' }}>
+        <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', maxHeight:'80vh', display:'flex', flexDirection:'column' }}>
           <Panel />
         </div>
       )}

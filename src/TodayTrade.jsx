@@ -117,7 +117,7 @@ function TradeForm({ initial = {}, onSave, onCancel }) {
       <div>
         <span style={lbl}>NOTES</span>
         <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Analys, tankar..."
-          style={{...inp, resize:'vertical', minHeight:'70px', lineHeight:1.6}}
+          style={{...inp, resize:'vertical', minHeight:'140px', lineHeight:1.7, fontSize:'14px'}}
           onFocus={e=>e.target.style.borderColor='#3a5460'} onBlur={e=>e.target.style.borderColor='#263840'} />
       </div>
       <div style={{ display:'flex', gap:'8px' }}>

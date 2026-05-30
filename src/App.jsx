@@ -79,19 +79,13 @@ function SessionStatusMobile() {
 
   return (
     <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
-      <div style={{ display:'flex', alignItems:'center', gap:'5px', background:bg, border:`1px solid ${bdr}`, borderRadius:'20px', padding:'4px 10px' }}>
-        <div style={{ width:'6px', height:'6px', borderRadius:'50%', background:color }} />
-        <span style={{ fontFamily:M, fontSize:'10px', fontWeight:600, color, letterSpacing:'0.5px' }}>{label}</span>
+      <div style={{ display:'flex', alignItems:'center', gap:'5px', background:bg, border:`1px solid ${bdr}`, borderRadius:'20px', padding:'4px 9px' }}>
+        <div style={{ width:'5px', height:'5px', borderRadius:'50%', background:color }} />
+        <span style={{ fontFamily:M, fontSize:'9px', fontWeight:600, color, letterSpacing:'0.5px' }}>{label}</span>
       </div>
-      <div style={{ display:'flex', gap:'10px' }}>
-        <div style={{ textAlign:'right' }}>
-          <div style={{ fontFamily:M, fontSize:'7px', color:'#3a5460', letterSpacing:'1px' }}>SWE</div>
-          <div style={{ fontFamily:M, fontSize:'11px', color:'#8aacb4' }}>{sweTime}</div>
-        </div>
-        <div style={{ textAlign:'right' }}>
-          <div style={{ fontFamily:M, fontSize:'7px', color:'#3a5460', letterSpacing:'1px' }}>NY</div>
-          <div style={{ fontFamily:M, fontSize:'11px', color:'#8aacb4' }}>{nyTime}</div>
-        </div>
+      <div style={{ textAlign:'right' }}>
+        <div style={{ fontFamily:M, fontSize:'7px', color:'#3a5460', letterSpacing:'1px' }}>NY</div>
+        <div style={{ fontFamily:M, fontSize:'11px', color:'#8aacb4', fontWeight:500 }}>{nyTime}</div>
       </div>
     </div>
   )
