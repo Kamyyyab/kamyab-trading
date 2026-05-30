@@ -57,7 +57,7 @@ function TradeForm({ initial = {}, onSave, onCancel }) {
         <span style={lbl}>OUTCOME</span>
         <div style={{ display:'flex', flexWrap:'wrap', gap:'5px' }}>
           {RESULTS.map(r => (
-            <button key={r.v} onClick={() => setResult(r.v)} style={{
+            <button type="button" key={r.v} onClick={() => setResult(r.v)} style={{
               fontFamily:M, fontSize:'10px', padding:'7px 11px', borderRadius:'6px',
               background: result===r.v ? r.bg : '#0d1214',
               border: `1px solid ${result===r.v ? r.c+'55' : '#263840'}`,
@@ -89,7 +89,7 @@ function TradeForm({ initial = {}, onSave, onCancel }) {
         <span style={lbl}>EMOTION — <span style={{ color:parseInt(emotion)<=3?'#00e5b0':parseInt(emotion)>=7?'#ff4f6b':'#ffc030', fontWeight:600 }}>{parseInt(emotion)<=3?'Lugn ✓':parseInt(emotion)>=7?'Stressad ✗':'Neutral'}</span></span>
         <div style={{ display:'flex', gap:'3px' }}>
           {[1,2,3,4,5,6,7,8,9,10].map(n => (
-            <button key={n} onClick={() => setEmotion(String(n))} style={{
+            <button type="button" key={n} onClick={() => setEmotion(String(n))} style={{
               flex:1, padding:'8px 0', borderRadius:'5px',
               border:`1px solid ${emotion===String(n)?'#007d5e':'#263840'}`,
               background:emotion===String(n)?'#001810':'#161e24',
@@ -105,7 +105,7 @@ function TradeForm({ initial = {}, onSave, onCancel }) {
           {PSYCH.map(tag => {
             const a = psychTags.includes(tag.id)
             return (
-              <button key={tag.id} onClick={() => toggleTag(tag.id)} style={{
+              <button type="button" key={tag.id} onClick={() => toggleTag(tag.id)} style={{
                 fontFamily:M, fontSize:'9px', padding:'5px 10px', borderRadius:'5px',
                 background:a?tag.bg:'#161e24', border:`1px solid ${a?tag.c+'33':'#1e2c32'}`,
                 color:a?tag.c:'#5a7a84', cursor:'pointer', transition:'all 0.15s',
@@ -121,10 +121,10 @@ function TradeForm({ initial = {}, onSave, onCancel }) {
           onFocus={e=>e.target.style.borderColor='#3a5460'} onBlur={e=>e.target.style.borderColor='#263840'} />
       </div>
       <div style={{ display:'flex', gap:'8px' }}>
-        <button onClick={save} style={{ flex:1, background:'#00e5b0', color:'#020f08', fontFamily:M, fontSize:'11px', fontWeight:700, padding:'12px', borderRadius:'8px', border:'none', cursor:'pointer', letterSpacing:'1px', transition:'background 0.15s' }}
+        <button type="button" onClick={save} style={{ flex:1, background:'#00e5b0', color:'#020f08', fontFamily:M, fontSize:'11px', fontWeight:700, padding:'12px', borderRadius:'8px', border:'none', cursor:'pointer', letterSpacing:'1px', transition:'background 0.15s' }}
           onMouseEnter={e=>e.currentTarget.style.background='#00c49a'}
           onMouseLeave={e=>e.currentTarget.style.background='#00e5b0'}>SPARA</button>
-        <button onClick={onCancel} style={{ background:'transparent', color:'#5a7a84', fontFamily:M, fontSize:'10px', padding:'12px 14px', borderRadius:'8px', border:'1px solid #1e2c32', cursor:'pointer', transition:'all 0.15s' }}
+        <button type="button" onClick={onCancel} style={{ background:'transparent', color:'#5a7a84', fontFamily:M, fontSize:'10px', padding:'12px 14px', borderRadius:'8px', border:'1px solid #1e2c32', cursor:'pointer', transition:'all 0.15s' }}
           onMouseEnter={e=>{e.currentTarget.style.borderColor='#3a5460';e.currentTarget.style.color='#8aacb4'}}
           onMouseLeave={e=>{e.currentTarget.style.borderColor='#1e2c32';e.currentTarget.style.color='#5a7a84'}}>Avbryt</button>
       </div>
@@ -203,7 +203,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
         </div>
         <div style={{ display:'flex', gap:'6px' }}>
           {BIAS.map(b => (
-            <button key={b.v} onClick={() => onSaveBias?.(today, todayBias===b.v?null:b.v)} style={{
+            <button type="button" key={b.v} onClick={() => onSaveBias?.(today, todayBias===b.v?null:b.v)} style={{
               flex:1, minHeight:'36px', background:todayBias===b.v?b.bg:'#0d1214',
               border:`1px solid ${todayBias===b.v?b.bdr:'#1e2c32'}`,
               borderRadius:'8px', color:todayBias===b.v?b.c:'#5a7a84',
@@ -228,7 +228,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
               </div>
             )}
           </div>
-          <button onClick={() => setShowForm(!showForm)} style={{
+          <button type="button" onClick={() => setShowForm(!showForm)} style={{
             background:'#00e5b0', color:'#020f08', fontFamily:M, fontSize:'10px', fontWeight:700,
             padding:'8px 14px', borderRadius:'8px', border:'none', cursor:'pointer', letterSpacing:'1px',
             flexShrink:0, transition:'background 0.15s',
@@ -263,7 +263,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
                 <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
                   <span style={{ fontFamily:M, fontSize:'15px', fontWeight:700, color:pv>=0?'#00e5b0':'#ff4f6b' }}>{pv>=0?'+':''}${Math.abs(Math.round(pv))}</span>
                   {/* Edit button */}
-                  <button onClick={() => { setEditing(isEd?null:i); setExpanded(null) }} style={{ background:isEd?'#263840':'none', border:`1px solid ${isEd?'#3a5460':'#1e2c32'}`, borderRadius:'5px', color:isEd?'#d0e8ec':'#5a7a84', fontFamily:M, fontSize:'8px', padding:'3px 8px', cursor:'pointer', transition:'all 0.15s', letterSpacing:'0.5px' }}>✎</button>
+                  <button type="button" onClick={() => { setEditing(isEd?null:i); setExpanded(null) }} style={{ background:isEd?'#263840':'none', border:`1px solid ${isEd?'#3a5460':'#1e2c32'}`, borderRadius:'5px', color:isEd?'#d0e8ec':'#5a7a84', fontFamily:M, fontSize:'8px', padding:'3px 8px', cursor:'pointer', transition:'all 0.15s', letterSpacing:'0.5px' }}>✎</button>
                   <span onClick={() => { setExpanded(isEx?null:i); setEditing(null) }} style={{ color:'#3a5460', fontSize:'9px', cursor:'pointer', transition:'transform 0.2s', display:'inline-block', transform:isEx?'rotate(180deg)':'none' }}>▼</span>
                 </div>
               </div>

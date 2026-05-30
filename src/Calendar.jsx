@@ -59,7 +59,7 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         <span style={lbl}>OUTCOME</span>
         <div style={{ display:'flex', flexWrap:'wrap', gap:'5px' }}>
           {RESULTS.map(r => (
-            <button key={r.v} onClick={() => setResult(r.v)} style={{
+            <button type="button" key={r.v} onClick={() => setResult(r.v)} style={{
               fontFamily:M, fontSize:'10px', padding:'7px 11px', borderRadius:'6px',
               background: result===r.v ? r.bg : '#0d1214',
               border: `1px solid ${result===r.v ? r.c+'55' : '#263840'}`,
@@ -88,7 +88,7 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         <span style={lbl}>EMOTION — <span style={{ color:parseInt(emotion)<=3?'#00e5b0':parseInt(emotion)>=7?'#ff4f6b':'#ffc030', fontWeight:600 }}>{parseInt(emotion)<=3?'Lugn ✓':parseInt(emotion)>=7?'Stressad ✗':'Neutral'}</span></span>
         <div style={{ display:'flex', gap:'3px' }}>
           {[1,2,3,4,5,6,7,8,9,10].map(n => (
-            <button key={n} onClick={() => setEmotion(String(n))} style={{
+            <button type="button" key={n} onClick={() => setEmotion(String(n))} style={{
               flex:1, padding:'8px 0', borderRadius:'5px',
               border:`1px solid ${emotion===String(n)?'#007d5e':'#263840'}`,
               background:emotion===String(n)?'#001810':'#161e24',
@@ -103,7 +103,7 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         <div style={{ display:'flex', flexWrap:'wrap', gap:'5px' }}>
           {PSYCH.map(tag => {
             const a = tags.includes(tag.id)
-            return <button key={tag.id} onClick={() => toggle(tag.id)} style={{ fontFamily:M, fontSize:'9px', padding:'5px 10px', borderRadius:'5px', background:a?tag.bg:'#161e24', border:`1px solid ${a?tag.c+'33':'#1e2c32'}`, color:a?tag.c:'#5a7a84', cursor:'pointer', transition:'all 0.15s' }}>{tag.label}</button>
+            return <button type="button" key={tag.id} onClick={() => toggle(tag.id)} style={{ fontFamily:M, fontSize:'9px', padding:'5px 10px', borderRadius:'5px', background:a?tag.bg:'#161e24', border:`1px solid ${a?tag.c+'33':'#1e2c32'}`, color:a?tag.c:'#5a7a84', cursor:'pointer', transition:'all 0.15s' }}>{tag.label}</button>
           })}
         </div>
       </div>
@@ -112,11 +112,11 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Analys, tankar..." style={{...inp, resize:'vertical', minHeight:'60px', lineHeight:1.6}} />
       </div>
       <div style={{ display:'flex', gap:'8px' }}>
-        <button onClick={() => onSave({ result, instrument:instr, pnl:pnl||'0', note, emotion, setup, psychTags:tags })}
+        <button type="button" onClick={() => onSave({ result, instrument:instr, pnl:pnl||'0', note, emotion, setup, psychTags:tags })}
           style={{ flex:1, background:'#00e5b0', color:'#020f08', fontFamily:M, fontSize:'11px', fontWeight:700, padding:'12px', borderRadius:'8px', border:'none', cursor:'pointer', letterSpacing:'1px', transition:'background 0.15s' }}
           onMouseEnter={e=>e.currentTarget.style.background='#00c49a'}
           onMouseLeave={e=>e.currentTarget.style.background='#00e5b0'}>SPARA</button>
-        <button onClick={onCancel} style={{ background:'transparent', color:'#5a7a84', fontFamily:M, fontSize:'10px', padding:'12px 14px', borderRadius:'8px', border:'1px solid #1e2c32', cursor:'pointer' }}>Avbryt</button>
+        <button type="button" onClick={onCancel} style={{ background:'transparent', color:'#5a7a84', fontFamily:M, fontSize:'10px', padding:'12px 14px', borderRadius:'8px', border:'1px solid #1e2c32', cursor:'pointer' }}>Avbryt</button>
       </div>
     </div>
   )
@@ -292,10 +292,10 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
           )}
         </div>
         <div style={{ display:'flex', gap:'6px', alignItems:'center' }}>
-          <button onClick={() => { setShowForm(!showForm); setEditingIdx(null) }} style={{ background:'#00e5b0', color:'#020f08', fontFamily:M, fontSize:'9px', fontWeight:700, padding:'7px 13px', borderRadius:'6px', border:'none', cursor:'pointer', letterSpacing:'1px', transition:'background 0.15s' }}
+          <button type="button" onClick={() => { setShowForm(!showForm); setEditingIdx(null) }} style={{ background:'#00e5b0', color:'#020f08', fontFamily:M, fontSize:'9px', fontWeight:700, padding:'7px 13px', borderRadius:'6px', border:'none', cursor:'pointer', letterSpacing:'1px', transition:'background 0.15s' }}
             onMouseEnter={e=>e.currentTarget.style.background='#00c49a'}
             onMouseLeave={e=>e.currentTarget.style.background='#00e5b0'}>+ LOG</button>
-          <button onClick={() => { setSel(null); resetForm(); setEditingIdx(null) }} style={{ background:'none', border:'none', color:'#5a7a84', cursor:'pointer', fontSize:'18px', padding:'4px', lineHeight:1 }}>×</button>
+          <button type="button" onClick={() => { setSel(null); resetForm(); setEditingIdx(null) }} style={{ background:'none', border:'none', color:'#5a7a84', cursor:'pointer', fontSize:'18px', padding:'4px', lineHeight:1 }}>×</button>
         </div>
       </div>
 
@@ -337,14 +337,14 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
                 <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
                   <span style={{ fontFamily:M, fontSize:'14px', fontWeight:700, color:pv>=0?'#00e5b0':'#ff4f6b' }}>{pv>=0?'+':''}${Math.abs(Math.round(pv))}</span>
                   {/* Edit */}
-                  <button onClick={() => setEditingIdx(isEd?null:ji)} style={{
+                  <button type="button" onClick={() => setEditingIdx(isEd?null:ji)} style={{
                     background:isEd?'#263840':'none', border:`1px solid ${isEd?'#3a5460':'#1e2c32'}`,
                     borderRadius:'5px', color:isEd?'#d0e8ec':'#5a7a84',
                     fontFamily:M, fontSize:'9px', padding:'3px 8px', cursor:'pointer',
                     transition:'all 0.15s', letterSpacing:'0.5px',
                   }}>✎</button>
                   {/* Delete */}
-                  <button onClick={() => onDeleteTrade?.(ji)} style={{ background:'none', border:'none', color:'#3a5460', cursor:'pointer', fontSize:'14px', padding:'2px', transition:'color 0.15s' }}
+                  <button type="button" onClick={() => onDeleteTrade?.(ji)} style={{ background:'none', border:'none', color:'#3a5460', cursor:'pointer', fontSize:'14px', padding:'2px', transition:'color 0.15s' }}
                     onMouseEnter={e=>e.currentTarget.style.color='#ff4f6b'}
                     onMouseLeave={e=>e.currentTarget.style.color='#3a5460'}>×</button>
                 </div>
@@ -419,7 +419,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
         <div style={{ fontFamily:M, fontSize:'13px', fontWeight:700, color:'#d0e8ec', letterSpacing:'2px' }}>{MONTHS[month].toUpperCase()} {year}</div>
         <div style={{ display:'flex', gap:'5px' }}>
           {[{fn:prevM,l:'‹'},{fn:nextM,l:'›'}].map((b,i) => (
-            <button key={i} onClick={b.fn} style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'6px', padding:'8px 16px', cursor:'pointer', color:'#6a8a92', fontFamily:M, fontSize:'14px', transition:'all 0.15s' }}
+            <button type="button" key={i} onClick={b.fn} style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'6px', padding:'8px 16px', cursor:'pointer', color:'#6a8a92', fontFamily:M, fontSize:'14px', transition:'all 0.15s' }}
               onMouseEnter={e=>{e.currentTarget.style.borderColor='#3a5460';e.currentTarget.style.color='#d0e8ec'}}
               onMouseLeave={e=>{e.currentTarget.style.borderColor='#1e2c32';e.currentTarget.style.color='#6a8a92'}}>{b.l}</button>
           ))}
