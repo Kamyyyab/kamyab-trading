@@ -534,4 +534,3 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
   )
 }
 
-}
