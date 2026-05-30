@@ -300,7 +300,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
       </div>
 
       {/* Scrollable content */}
-      <div style={{ overflowY:'auto', padding:'12px', display:'flex', flexDirection:'column', gap:'10px' }}>
+      <div style={{ overflowY:'visible', padding:'12px', display:'flex', flexDirection:'column', gap:'10px' }}>
 
         {/* New trade form */}
         {showForm && (
@@ -530,7 +530,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
 
       {/* Mobile: panel below calendar */}
       {mobile && sel && (
-        <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', maxHeight:'80vh', display:'flex', flexDirection:'column' }}>
+        <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflowY:'auto' }}>
           <Panel />
         </div>
       )}

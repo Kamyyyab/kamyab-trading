@@ -13,9 +13,9 @@ const PSYCH = [
   { id: 'oversize',  label: 'Överposad',   c: '#ff4f6b', bg: '#1a0610' },
 ]
 
-const RC = { win:'#00e5b0', win2:'#00e5b0', tp1:'#4ab89a', tp2:'#00e5b0', tp3:'#00e5b0', loss:'#ff4f6b', be:'#6a8a90', skip:'#5a7a84', 'no-setup':'#5a7a84' }
-const RB = { win:'#001810', win2:'#001810', tp1:'#001410', tp2:'#001810', tp3:'#001a14', loss:'#1a0610', be:'#111820', skip:'#111820', 'no-setup':'#111820' }
-const RL = { win:'Win +3R', win2:'Win +2R', tp1:'TP1', tp2:'TP2', tp3:'TP3', loss:'Loss −1R', be:'Break Even', skip:'Skip', 'no-setup':'No Setup' }
+const RC = { win:'#00e5b0', win2:'#00e5b0', loss:'#ff4f6b', be:'#6a8a90', skip:'#5a7a84', 'no-setup':'#5a7a84' }
+const RB = { win:'#001810', win2:'#001810', loss:'#1a0610', be:'#111820', skip:'#111820', 'no-setup':'#111820' }
+const RL = { win:'Win +3R', win2:'Win +2R', loss:'Loss −1R', be:'Break Even', skip:'Skip', 'no-setup':'No Setup' }
 const BIAS = [
   { v:'bullish', label:'▲ Bull', c:'#00e5b0', bg:'#001810', bdr:'rgba(0,229,176,0.25)' },
   { v:'bearish', label:'▼ Bear', c:'#ff4f6b', bg:'#1a0610', bdr:'rgba(255,79,107,0.25)' },
@@ -24,16 +24,6 @@ const BIAS = [
 
 const inp = { width:'100%', background:'#0a0e10', border:'1px solid #263840', borderRadius:'8px', color:'#d0e8ec', fontSize:'15px', padding:'10px 12px', outline:'none', boxSizing:'border-box', transition:'border-color 0.15s' }
 const lbl = { fontFamily:M, fontSize:'8px', color:'#5a7a84', letterSpacing:'2px', marginBottom:'5px', display:'block' }
-
-const RESULTS = [
-  { v:"tp1",       label:"TP1",       c:"#4ab89a", bg:"#001410" },
-  { v:"tp2",       label:"TP2",       c:"#00e5b0", bg:"#001810" },
-  { v:"tp3",       label:"TP3",       c:"#00e5b0", bg:"#001a14" },
-  { v:"loss",      label:"Loss -1R",  c:"#ff4f6b", bg:"#1a0610" },
-  { v:"be",        label:"Break Even",c:"#6a8a90", bg:"#111820" },
-  { v:"skip",      label:"Skip",      c:"#5a7a84", bg:"#111820" },
-  { v:"no-setup",  label:"No Setup",  c:"#3a5460", bg:"#0d1214" },
-]
 
 function TradeForm({ initial = {}, onSave, onCancel }) {
   const [result,     setResult]     = useState(initial.result     || '')
@@ -53,25 +43,24 @@ function TradeForm({ initial = {}, onSave, onCancel }) {
 
   return (
     <div style={{ background:'#0a0e10', border:'1px solid #263840', borderRadius:'10px', padding:'16px', display:'flex', flexDirection:'column', gap:'12px' }}>
-            <div>
-        <span style={lbl}>OUTCOME</span>
-        <div style={{ display:'flex', flexWrap:'wrap', gap:'5px' }}>
-          {RESULTS.map(r => (
-            <button type="button" key={r.v} onClick={() => setResult(r.v)} style={{
-              fontFamily:M, fontSize:'10px', padding:'7px 11px', borderRadius:'6px',
-              background: result===r.v ? r.bg : '#0d1214',
-              border: `1px solid ${result===r.v ? r.c+'55' : '#263840'}`,
-              color: result===r.v ? r.c : '#5a7a84',
-              cursor:'pointer', transition:'all 0.15s',
-              WebkitTapHighlightColor:'transparent',
-            }}>{r.label}</button>
-          ))}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px' }}>
+        <div>
+          <span style={lbl}>OUTCOME</span>
+          <select value={result} onChange={e => setResult(e.target.value)} style={{...inp, fontFamily:M}}>
+            <option value="">Välj...</option>
+            <option value="win">Win +3R</option>
+            <option value="win2">Win +2R</option>
+            <option value="loss">Loss −1R</option>
+            <option value="be">Break Even</option>
+            <option value="skip">Skip</option>
+            <option value="no-setup">No Setup</option>
+          </select>
         </div>
-      </div>
-      <div>
-        <span style={lbl}>INSTRUMENT</span>
-        <input value={instrument} onChange={e => setInstrument(e.target.value)} style={inp}
-          onFocus={e=>e.target.style.borderColor='#3a5460'} onBlur={e=>e.target.style.borderColor='#263840'} />
+        <div>
+          <span style={lbl}>INSTRUMENT</span>
+          <input value={instrument} onChange={e => setInstrument(e.target.value)} style={inp}
+            onFocus={e=>e.target.style.borderColor='#3a5460'} onBlur={e=>e.target.style.borderColor='#263840'} />
+        </div>
       </div>
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px' }}>
         <div>
@@ -89,7 +78,7 @@ function TradeForm({ initial = {}, onSave, onCancel }) {
         <span style={lbl}>EMOTION — <span style={{ color:parseInt(emotion)<=3?'#00e5b0':parseInt(emotion)>=7?'#ff4f6b':'#ffc030', fontWeight:600 }}>{parseInt(emotion)<=3?'Lugn ✓':parseInt(emotion)>=7?'Stressad ✗':'Neutral'}</span></span>
         <div style={{ display:'flex', gap:'3px' }}>
           {[1,2,3,4,5,6,7,8,9,10].map(n => (
-            <button type="button" key={n} onClick={() => setEmotion(String(n))} style={{
+            <button key={n} onClick={() => setEmotion(String(n))} style={{
               flex:1, padding:'8px 0', borderRadius:'5px',
               border:`1px solid ${emotion===String(n)?'#007d5e':'#263840'}`,
               background:emotion===String(n)?'#001810':'#161e24',
@@ -105,7 +94,7 @@ function TradeForm({ initial = {}, onSave, onCancel }) {
           {PSYCH.map(tag => {
             const a = psychTags.includes(tag.id)
             return (
-              <button type="button" key={tag.id} onClick={() => toggleTag(tag.id)} style={{
+              <button key={tag.id} onClick={() => toggleTag(tag.id)} style={{
                 fontFamily:M, fontSize:'9px', padding:'5px 10px', borderRadius:'5px',
                 background:a?tag.bg:'#161e24', border:`1px solid ${a?tag.c+'33':'#1e2c32'}`,
                 color:a?tag.c:'#5a7a84', cursor:'pointer', transition:'all 0.15s',
@@ -117,14 +106,14 @@ function TradeForm({ initial = {}, onSave, onCancel }) {
       <div>
         <span style={lbl}>NOTES</span>
         <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Analys, tankar..."
-          style={{...inp, resize:'vertical', minHeight:'140px', lineHeight:1.7, fontSize:'14px'}}
+          style={{...inp, resize:'vertical', minHeight:'70px', lineHeight:1.6}}
           onFocus={e=>e.target.style.borderColor='#3a5460'} onBlur={e=>e.target.style.borderColor='#263840'} />
       </div>
       <div style={{ display:'flex', gap:'8px' }}>
-        <button type="button" onClick={save} style={{ flex:1, background:'#00e5b0', color:'#020f08', fontFamily:M, fontSize:'11px', fontWeight:700, padding:'12px', borderRadius:'8px', border:'none', cursor:'pointer', letterSpacing:'1px', transition:'background 0.15s' }}
+        <button onClick={save} style={{ flex:1, background:'#00e5b0', color:'#020f08', fontFamily:M, fontSize:'11px', fontWeight:700, padding:'12px', borderRadius:'8px', border:'none', cursor:'pointer', letterSpacing:'1px', transition:'background 0.15s' }}
           onMouseEnter={e=>e.currentTarget.style.background='#00c49a'}
           onMouseLeave={e=>e.currentTarget.style.background='#00e5b0'}>SPARA</button>
-        <button type="button" onClick={onCancel} style={{ background:'transparent', color:'#5a7a84', fontFamily:M, fontSize:'10px', padding:'12px 14px', borderRadius:'8px', border:'1px solid #1e2c32', cursor:'pointer', transition:'all 0.15s' }}
+        <button onClick={onCancel} style={{ background:'transparent', color:'#5a7a84', fontFamily:M, fontSize:'10px', padding:'12px 14px', borderRadius:'8px', border:'1px solid #1e2c32', cursor:'pointer', transition:'all 0.15s' }}
           onMouseEnter={e=>{e.currentTarget.style.borderColor='#3a5460';e.currentTarget.style.color='#8aacb4'}}
           onMouseLeave={e=>{e.currentTarget.style.borderColor='#1e2c32';e.currentTarget.style.color='#5a7a84'}}>Avbryt</button>
       </div>
@@ -203,7 +192,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
         </div>
         <div style={{ display:'flex', gap:'6px' }}>
           {BIAS.map(b => (
-            <button type="button" key={b.v} onClick={() => onSaveBias?.(today, todayBias===b.v?null:b.v)} style={{
+            <button key={b.v} onClick={() => onSaveBias?.(today, todayBias===b.v?null:b.v)} style={{
               flex:1, minHeight:'36px', background:todayBias===b.v?b.bg:'#0d1214',
               border:`1px solid ${todayBias===b.v?b.bdr:'#1e2c32'}`,
               borderRadius:'8px', color:todayBias===b.v?b.c:'#5a7a84',
@@ -228,7 +217,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
               </div>
             )}
           </div>
-          <button type="button" onClick={() => setShowForm(!showForm)} style={{
+          <button onClick={() => setShowForm(!showForm)} style={{
             background:'#00e5b0', color:'#020f08', fontFamily:M, fontSize:'10px', fontWeight:700,
             padding:'8px 14px', borderRadius:'8px', border:'none', cursor:'pointer', letterSpacing:'1px',
             flexShrink:0, transition:'background 0.15s',
@@ -263,7 +252,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
                 <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
                   <span style={{ fontFamily:M, fontSize:'15px', fontWeight:700, color:pv>=0?'#00e5b0':'#ff4f6b' }}>{pv>=0?'+':''}${Math.abs(Math.round(pv))}</span>
                   {/* Edit button */}
-                  <button type="button" onClick={() => { setEditing(isEd?null:i); setExpanded(null) }} style={{ background:isEd?'#263840':'none', border:`1px solid ${isEd?'#3a5460':'#1e2c32'}`, borderRadius:'5px', color:isEd?'#d0e8ec':'#5a7a84', fontFamily:M, fontSize:'8px', padding:'3px 8px', cursor:'pointer', transition:'all 0.15s', letterSpacing:'0.5px' }}>✎</button>
+                  <button onClick={() => { setEditing(isEd?null:i); setExpanded(null) }} style={{ background:isEd?'#263840':'none', border:`1px solid ${isEd?'#3a5460':'#1e2c32'}`, borderRadius:'5px', color:isEd?'#d0e8ec':'#5a7a84', fontFamily:M, fontSize:'8px', padding:'3px 8px', cursor:'pointer', transition:'all 0.15s', letterSpacing:'0.5px' }}>✎</button>
                   <span onClick={() => { setExpanded(isEx?null:i); setEditing(null) }} style={{ color:'#3a5460', fontSize:'9px', cursor:'pointer', transition:'transform 0.2s', display:'inline-block', transform:isEx?'rotate(180deg)':'none' }}>▼</span>
                 </div>
               </div>
