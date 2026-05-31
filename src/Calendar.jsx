@@ -242,7 +242,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
 
   // ── Trade Panel ──
   const Panel = () => (
-    <div style={{ display:'flex', flexDirection:'column', height:'100%', minHeight:0 }}>
+    <div style={{ display:'flex', flexDirection:'column', overflow:'hidden', flex:1 }}>
       {/* Header — fixed, never scrolls */}
       <div style={{ padding:'14px', borderBottom:'1px solid #1e2c32', display:'flex', justifyContent:'space-between', alignItems:'flex-start', flexShrink:0 }}>
         <div>
@@ -473,16 +473,16 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
 
         {/* Desktop side panel — FIX: overflow:'hidden' → overflow:'hidden' on wrapper but flex allows inner scroll */}
         {!mobile && sel && (
-          <div style={{ width:'460px', flexShrink:0, background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', height:'calc(100vh - 120px)', position:'sticky', top:'74px', display:'flex', flexDirection:'column' }}>
-            <Panel />
+          <div style={{ width:'460px', flexShrink:0, background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', height:'calc(100vh - 120px)', position:'sticky', top:'74px', display:'flex', flexDirection:'column', overflow:'hidden' }}>
+            {Panel()}
           </div>
         )}
       </div>
 
       {/* Mobile: panel below calendar — FIX: increased maxHeight, minHeight:0 on inner */}
       {mobile && sel && (
-        <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', height:'80vh', display:'flex', flexDirection:'column' }}>
-          <Panel />
+        <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', height:'80vh', display:'flex', flexDirection:'column', overflow:'hidden' }}>
+          {Panel()}
         </div>
       )}
 
