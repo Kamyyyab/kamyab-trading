@@ -180,7 +180,11 @@ export default function App() {
   function handleAddTrade(trade) {
     const nj = [trade, ...journal]
     const ns = { ...streakLogs }
-    if (trade.brokenRules?.length > 0) ns[trade.date] = 'violation'
+    // Auto-violation: any of these psychTags = rule broken
+    const VIOLATION_TAGS = new Set(['fomo','revenge','forced','oversize'])
+    const hasViolationTag = (trade.psychTags||[]).some(t => VIOLATION_TAGS.has(t))
+    const isViolation = trade.brokenRules?.length > 0 || hasViolationTag
+    if (isViolation) ns[trade.date] = 'violation'
     else if (!ns[trade.date] || ns[trade.date] === 'clean') ns[trade.date] = 'clean'
     saveData(nj, ns)
   }

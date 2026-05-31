@@ -1,12 +1,14 @@
 import { useState } from 'react'
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
+import { LineChart, BarChart, Bar, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, Cell } from 'recharts'
 
 const M = "'JetBrains Mono', monospace"
-
+const WIN_RESULTS = new Set(['win','win2','tp1','tp2','tp3'])
+const VIOLATION_TAGS = new Set(['fomo','revenge','forced','oversize'])
 const PSYCH_LABELS = { patient:'Tålmodig', fomo:'FOMO', revenge:'Hämndtrade', aplus:'A+ Setup', forced:'Forcerat', setforget:'Set & Forget', oversize:'Överposad', managed:'Hanterat bra' }
 
 export default function Statistics({ journal = [] }) {
   const [filter, setFilter] = useState('Totalt')
+  const [monthView, setMonthView] = useState('pnl') // 'pnl' | 'wr' | 'r'
 
   function filterTrades(t) {
     const now = new Date()
@@ -20,13 +22,13 @@ export default function Statistics({ journal = [] }) {
 
   const all    = filterTrades(journal)
   const trades = all.filter(t=>t.result!=='skip'&&t.result!=='no-setup')
-  const wins   = trades.filter(t=>['win','win2','tp1','tp2','tp3'].includes(t.result)||t.result==='tp1'||t.result==='tp2'||t.result==='tp3').length
+  const wins   = trades.filter(t=>WIN_RESULTS.has(t.result)).length
   const losses = trades.filter(t=>t.result==='loss').length
   const wr     = trades.length>0?((wins/trades.length)*100).toFixed(1):0
   const tPnl   = trades.reduce((s,t)=>s+parseFloat(t.pnl||0),0)
 
-  const wTrades = trades.filter(t=>['win','win2','tp1','tp2','tp3'].includes(t.result)||t.result==='tp1'||t.result==='tp2'||t.result==='tp3')
-  const avgRR   = wTrades.length>0?(wTrades.reduce((s,t)=>s+(t.result==='win'?3:2),0)/wTrades.length).toFixed(2):'0.00'
+  const wTrades = trades.filter(t=>WIN_RESULTS.has(t.result))
+  const avgRR   = wTrades.length>0?(wTrades.reduce((s,t)=>s+(t.result==='win'||t.result==='tp3'?3:t.result==='win2'||t.result==='tp2'?2:1),0)/wTrades.length).toFixed(2):'0.00'
 
   const best  = trades.filter(t=>t.pnl).sort((a,b)=>parseFloat(b.pnl)-parseFloat(a.pnl))[0]
   const worst = trades.filter(t=>t.pnl).sort((a,b)=>parseFloat(a.pnl)-parseFloat(b.pnl))[0]
@@ -38,26 +40,52 @@ export default function Statistics({ journal = [] }) {
   let peak=0, maxDD=0
   eqData.forEach(p=>{ if(p.pnl>peak)peak=p.pnl; const dd=peak-p.pnl; if(dd>maxDD)maxDD=dd })
 
-  const totalR = trades.reduce((s,t)=>{ if(t.result==='win')return s+3; if(t.result==='win2')return s+2; if(t.result==='tp3')return s+3; if(t.result==='tp2')return s+2; if(t.result==='tp1')return s+1; if(t.result==='loss')return s-1; return s },0)
+  const totalR = trades.reduce((s,t)=>{ if(t.result==='win'||t.result==='tp3')return s+3; if(t.result==='win2'||t.result==='tp2')return s+2; if(t.result==='tp1')return s+1; if(t.result==='loss')return s-1; return s },0)
   const avgR   = trades.length>0?(totalR/trades.length).toFixed(2):'0.00'
 
   const rData = [
-    {label:'+3R',count:trades.filter(t=>t.result==='win').length,   c:'#00e5b0'},
-    {label:'+2R',count:trades.filter(t=>t.result==='win2').length,  c:'#4ab89a'},
-    {label:'BE', count:trades.filter(t=>t.result==='be').length,    c:'#5a7a84'},
-    {label:'-1R',count:trades.filter(t=>t.result==='loss').length,  c:'#ff4f6b'},
+    {label:'+3R',count:trades.filter(t=>t.result==='win'||t.result==='tp3').length, c:'#00e5b0'},
+    {label:'+2R',count:trades.filter(t=>t.result==='win2'||t.result==='tp2').length,c:'#4ab89a'},
+    {label:'+1R',count:trades.filter(t=>t.result==='tp1').length,                   c:'#2a7a60'},
+    {label:'BE', count:trades.filter(t=>t.result==='be').length,                    c:'#5a7a84'},
+    {label:'-1R',count:trades.filter(t=>t.result==='loss').length,                  c:'#ff4f6b'},
   ]
 
+  // ── Monthly breakdown (always uses full journal, not filtered) ──
+  const monthlyData = (() => {
+    const allTrades = journal.filter(t=>t.result!=='skip'&&t.result!=='no-setup')
+    const map = {}
+    allTrades.forEach(t => {
+      const key = t.date.slice(0,7) // "2025-03"
+      if (!map[key]) map[key] = { pnl:0, wins:0, total:0, r:0 }
+      map[key].pnl   += parseFloat(t.pnl||0)
+      map[key].total += 1
+      if (WIN_RESULTS.has(t.result)) map[key].wins += 1
+      if (t.result==='win'||t.result==='tp3') map[key].r += 3
+      else if (t.result==='win2'||t.result==='tp2') map[key].r += 2
+      else if (t.result==='tp1') map[key].r += 1
+      else if (t.result==='loss') map[key].r -= 1
+    })
+    return Object.entries(map).sort(([a],[b])=>a.localeCompare(b)).map(([key,v]) => ({
+      label: new Date(key+'-15').toLocaleDateString('sv-SE',{month:'short',year:'2-digit'}),
+      key,
+      pnl:   Math.round(v.pnl),
+      wr:    v.total>0?Math.round(v.wins/v.total*100):0,
+      r:     v.r,
+      total: v.total,
+    }))
+  })()
+
   const setupStats = {}
-  trades.forEach(t=>{ const k=t.setup||'Otaggad'; if(!setupStats[k])setupStats[k]={pnl:0,wins:0,total:0}; setupStats[k].pnl+=parseFloat(t.pnl||0); setupStats[k].total++; if(['win','win2','tp1','tp2','tp3'].includes(t.result)||t.result==='tp1'||t.result==='tp2'||t.result==='tp3')setupStats[k].wins++ })
+  trades.forEach(t=>{ const k=t.setup||'Otaggad'; if(!setupStats[k])setupStats[k]={pnl:0,wins:0,total:0}; setupStats[k].pnl+=parseFloat(t.pnl||0); setupStats[k].total++; if(WIN_RESULTS.has(t.result))setupStats[k].wins++ })
   const setupList = Object.entries(setupStats).sort(([,a],[,b])=>b.pnl-a.pnl)
 
   const psychStats = {}
-  trades.forEach(t=>{ (t.psychTags||[]).forEach(id=>{ if(!psychStats[id])psychStats[id]={wins:0,losses:0,total:0,pnl:0}; psychStats[id].total++; psychStats[id].pnl+=parseFloat(t.pnl||0); if(['win','win2','tp1','tp2','tp3'].includes(t.result)||t.result==='tp1'||t.result==='tp2'||t.result==='tp3')psychStats[id].wins++; if(t.result==='loss')psychStats[id].losses++ }) })
+  trades.forEach(t=>{ (t.psychTags||[]).forEach(id=>{ if(!psychStats[id])psychStats[id]={wins:0,losses:0,total:0,pnl:0}; psychStats[id].total++; psychStats[id].pnl+=parseFloat(t.pnl||0); if(WIN_RESULTS.has(t.result))psychStats[id].wins++; if(t.result==='loss')psychStats[id].losses++ }) })
   const psychList = Object.entries(psychStats).sort(([,a],[,b])=>b.total-a.total)
 
   const days = ['Måndag','Tisdag','Onsdag','Torsdag','Fredag']
-  const dayStats = days.map((day,i)=>{ const dt=trades.filter(t=>new Date(t.date).getDay()===(i+1)); const dw=dt.filter(t=>['win','win2','tp1','tp2','tp3'].includes(t.result)||t.result==='tp1'||t.result==='tp2'||t.result==='tp3').length; return {day,wr:dt.length>0?Math.round(dw/dt.length*100):0,total:dt.length,reliable:dt.length>=3} })
+  const dayStats = days.map((day,i)=>{ const dt=trades.filter(t=>new Date(t.date).getDay()===(i+1)); const dw=dt.filter(t=>WIN_RESULTS.has(t.result)).length; return {day,wr:dt.length>0?Math.round(dw/dt.length*100):0,total:dt.length,reliable:dt.length>=3} })
 
   const card = (label,value,color,sub) => (
     <div style={{background:'#161e24',border:'1px solid #1e2c32',borderRadius:'12px',padding:'14px 16px'}}>
@@ -73,6 +101,18 @@ export default function Statistics({ journal = [] }) {
       {children}
     </div>
   )
+
+  const MonthTooltip = ({ active, payload }) => {
+    if (!active||!payload?.length) return null
+    const d = payload[0].payload
+    return (
+      <div style={{background:'#161e24',border:'1px solid #263840',borderRadius:'8px',padding:'10px 14px'}}>
+        <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',marginBottom:'4px',letterSpacing:'1px'}}>{d.label}</div>
+        <div style={{fontFamily:M,fontSize:'13px',fontWeight:700,color:d.pnl>=0?'#00e5b0':'#ff4f6b'}}>{d.pnl>=0?'+':''}${d.pnl}</div>
+        <div style={{fontFamily:M,fontSize:'9px',color:'#5a7a84',marginTop:'2px'}}>{d.wr}% WR · {d.r>=0?'+':''}{d.r}R · {d.total}t</div>
+      </div>
+    )
+  }
 
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>
@@ -106,7 +146,7 @@ export default function Statistics({ journal = [] }) {
               return (
                 <div key={i} style={{display:'flex',alignItems:'center',gap:'8px'}}>
                   <div style={{fontFamily:M,fontSize:'10px',color:r.c,width:'26px'}}>{r.label}</div>
-                  <div style={{flex:1,height:'5px',background:'#161e24',borderRadius:'3px',overflow:'hidden'}}>
+                  <div style={{flex:1,height:'5px',background:'#0d1214',borderRadius:'3px',overflow:'hidden'}}>
                     <div style={{height:'100%',width:`${pct}%`,background:r.c,borderRadius:'3px',transition:'width 0.4s ease'}} />
                   </div>
                   <div style={{fontFamily:M,fontSize:'9px',color:'#5a7a84',width:'20px',textAlign:'right'}}>{r.count}</div>
@@ -153,6 +193,55 @@ export default function Statistics({ journal = [] }) {
         </ResponsiveContainer>
       )}
 
+      {/* ── MONTHLY OVERVIEW ── */}
+      {monthlyData.length > 1 && (
+        <div style={{background:'#161e24',border:'1px solid #1e2c32',borderRadius:'12px',padding:'16px'}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'14px'}}>
+            <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',letterSpacing:'2px'}}>MÅNADSÖVERSIKT</div>
+            <div style={{display:'flex',gap:'4px'}}>
+              {[['pnl','P&L'],['wr','WR %'],['r','R']].map(([v,l])=>(
+                <button key={v} onClick={()=>setMonthView(v)} style={{
+                  fontFamily:M,fontSize:'8px',padding:'4px 9px',borderRadius:'5px',
+                  border:`1px solid ${monthView===v?'#007d5e':'#1e2c32'}`,
+                  background:monthView===v?'#001810':'transparent',
+                  color:monthView===v?'#00e5b0':'#5a7a84',cursor:'pointer',
+                  transition:'all 0.15s',letterSpacing:'0.5px',
+                }}>{l}</button>
+              ))}
+            </div>
+          </div>
+          <ResponsiveContainer width="100%" height={160}>
+            <BarChart data={monthlyData} barSize={monthlyData.length>8?14:20} margin={{top:4,right:0,left:0,bottom:0}}>
+              <XAxis dataKey="label" tick={{fill:'#5a7a84',fontSize:8,fontFamily:M}} axisLine={false} tickLine={false} />
+              <YAxis hide />
+              <ReferenceLine y={0} stroke="#263840" strokeDasharray="3 3" />
+              <Tooltip content={<MonthTooltip />} cursor={{fill:'rgba(255,255,255,0.03)'}} />
+              <Bar dataKey={monthView} radius={[3,3,0,0]}>
+                {monthlyData.map((m,i) => {
+                  const val = m[monthView]
+                  const color = monthView==='wr'
+                    ? (val>=50?'#00e5b0':'#ff4f6b')
+                    : (val>=0?'#00e5b0':'#ff4f6b')
+                  return <Cell key={i} fill={color} fillOpacity={0.85} />
+                })}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+          {/* Monthly table */}
+          <div style={{marginTop:'12px',display:'flex',flexDirection:'column',gap:'4px'}}>
+            {[...monthlyData].reverse().slice(0,6).map((m,i)=>(
+              <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'6px 8px',borderRadius:'6px',background:i===0?'#111820':'transparent'}}>
+                <div style={{fontFamily:M,fontSize:'9px',color:'#6a8a90',textTransform:'uppercase',minWidth:'50px'}}>{m.label}</div>
+                <div style={{fontFamily:M,fontSize:'10px',fontWeight:700,color:m.pnl>=0?'#00e5b0':'#ff4f6b',minWidth:'60px',textAlign:'right'}}>{m.pnl>=0?'+':''}${m.pnl}</div>
+                <div style={{fontFamily:M,fontSize:'9px',color:m.wr>=50?'#00e5b0':'#ff4f6b',minWidth:'40px',textAlign:'right'}}>{m.wr}%</div>
+                <div style={{fontFamily:M,fontSize:'9px',color:m.r>=0?'#00e5b0':'#ff4f6b',minWidth:'36px',textAlign:'right'}}>{m.r>=0?'+':''}{m.r}R</div>
+                <div style={{fontFamily:M,fontSize:'8px',color:'#3a5460',minWidth:'24px',textAlign:'right'}}>{m.total}t</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {setupList.length>0 && section('P&L PER SETUP',
         <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
           {setupList.map(([tag,s],i)=>{
@@ -168,7 +257,7 @@ export default function Statistics({ journal = [] }) {
                   </div>
                   <span style={{fontFamily:M,fontSize:'12px',fontWeight:700,color:s.pnl>=0?'#00e5b0':'#ff4f6b'}}>{s.pnl>=0?'+':''}${Math.round(s.pnl)}</span>
                 </div>
-                <div style={{height:'4px',background:'#161e24',borderRadius:'2px',overflow:'hidden'}}>
+                <div style={{height:'4px',background:'#0d1214',borderRadius:'2px',overflow:'hidden'}}>
                   <div style={{height:'100%',width:`${Math.abs(s.pnl)/maxP*100}%`,background:s.pnl>=0?'#007d5e':'#7a1020',borderRadius:'2px',transition:'width 0.4s ease'}} />
                 </div>
               </div>
@@ -181,10 +270,12 @@ export default function Statistics({ journal = [] }) {
         <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
           {psychList.map(([id,s],i)=>{
             const wr=s.total>0?Math.round(s.wins/s.total*100):0
+            const isViolation = VIOLATION_TAGS.has(id)
             return (
               <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                 <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
-                  <span style={{fontFamily:M,fontSize:'11px',color:'#d0e8ec'}}>{PSYCH_LABELS[id]||id}</span>
+                  <span style={{fontFamily:M,fontSize:'11px',color:isViolation?'#ff4f6b':'#d0e8ec'}}>{PSYCH_LABELS[id]||id}</span>
+                  {isViolation && <span style={{fontFamily:M,fontSize:'7px',color:'#ff4f6b',background:'#1a0610',border:'1px solid rgba(255,79,107,0.2)',borderRadius:'3px',padding:'1px 5px'}}>VIOLATION</span>}
                   <span style={{fontFamily:M,fontSize:'9px',color:'#5a7a84'}}>{s.total}x</span>
                 </div>
                 <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
