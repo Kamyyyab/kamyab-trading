@@ -25,21 +25,11 @@ const PSYCH = [
 
 const RBG  = { win:'#001810', win2:'#001810', loss:'#1a0610', be:'#111820', skip:'#111820', 'no-setup':'#111820' }
 const RBDR = { win:'rgba(0,229,176,0.2)', win2:'rgba(0,229,176,0.2)', loss:'rgba(255,79,107,0.2)', be:'rgba(106,138,144,0.15)', skip:'#1e2c32', 'no-setup':'#1e2c32' }
-const RC = { win:'#00e5b0', win2:'#00e5b0', tp1:'#4ab89a', loss:'#ff4f6b', be:'#6a8a90', skip:'#5a7a84', 'no-setup':'#5a7a84' }
-const RL = { win:'Win +3R', win2:'Win +2R', tp1:'TP1', loss:'Loss −1R', be:'BE', skip:'Skip', 'no-setup':'N/A' }
+const RC   = { win:'#00e5b0', win2:'#00e5b0', loss:'#ff4f6b', be:'#6a8a90', skip:'#5a7a84', 'no-setup':'#5a7a84' }
+const RL   = { win:'Win +3R', win2:'Win +2R', loss:'Loss −1R', be:'BE', skip:'Skip', 'no-setup':'N/A' }
 
 const inp = { width:'100%', background:'#080b0c', border:'1px solid #263840', borderRadius:'8px', color:'#d0e8ec', fontSize:'15px', padding:'10px 12px', outline:'none', boxSizing:'border-box', transition:'border-color 0.15s' }
 const lbl = { fontFamily:M, fontSize:'8px', color:'#5a7a84', letterSpacing:'2px', marginBottom:'5px', display:'block' }
-
-const RESULTS = [
-  { v:"tp1",       label:"TP1",       c:"#4ab89a", bg:"#001410" },
-  { v:"tp2",       label:"TP2",       c:"#00e5b0", bg:"#001810" },
-  { v:"tp3",       label:"TP3",       c:"#00e5b0", bg:"#001a14" },
-  { v:"loss",      label:"Loss -1R",  c:"#ff4f6b", bg:"#1a0610" },
-  { v:"be",        label:"Break Even",c:"#6a8a90", bg:"#111820" },
-  { v:"skip",      label:"Skip",      c:"#5a7a84", bg:"#111820" },
-  { v:"no-setup",  label:"No Setup",  c:"#3a5460", bg:"#0d1214" },
-]
 
 // ── Shared edit form ─────────────────────────────────────────────
 function EditForm({ initial = {}, onSave, onCancel }) {
@@ -50,39 +40,28 @@ function EditForm({ initial = {}, onSave, onCancel }) {
   const [emotion,   setEmotion]   = useState(initial.emotion    || '3')
   const [setup,     setSetup]     = useState(initial.setup      || '')
   const [tags,      setTags]      = useState(initial.psychTags  || [])
-  const [image,     setImage]     = useState(initial.image      || null)
-  const [imgPrev,   setImgPrev]   = useState(initial.image      || null)
-  const efRef = useRef()
 
   const toggle = id => setTags(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id])
-  
-  function handleImg(e) {
-    const f = e.target.files[0]; if(!f) return
-    const r = new FileReader()
-    r.onload = ev => { setImage(ev.target.result); setImgPrev(ev.target.result) }
-    r.readAsDataURL(f)
-  }
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
-      <div>
-        <span style={lbl}>OUTCOME</span>
-        <div style={{ display:'flex', flexWrap:'wrap', gap:'5px' }}>
-          {RESULTS.map(r => (
-            <button type="button" key={r.v} onClick={() => setResult(r.v)} style={{
-              fontFamily:M, fontSize:'10px', padding:'7px 11px', borderRadius:'6px',
-              background: result===r.v ? r.bg : '#0d1214',
-              border: `1px solid ${result===r.v ? r.c+'55' : '#263840'}`,
-              color: result===r.v ? r.c : '#5a7a84',
-              cursor:'pointer', transition:'all 0.15s',
-              WebkitTapHighlightColor:'transparent',
-            }}>{r.label}</button>
-          ))}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px' }}>
+        <div>
+          <span style={lbl}>OUTCOME</span>
+          <select value={result} onChange={e => setResult(e.target.value)} style={{...inp, fontFamily:M}}>
+            <option value="">Välj...</option>
+            <option value="win">Win +3R</option>
+            <option value="win2">Win +2R</option>
+            <option value="loss">Loss −1R</option>
+            <option value="be">Break Even</option>
+            <option value="skip">Skip</option>
+            <option value="no-setup">No Setup</option>
+          </select>
         </div>
-      </div>
-      <div>
-        <span style={lbl}>INSTRUMENT</span>
-        <input value={instr} onChange={e => setInstr(e.target.value)} style={inp} />
+        <div>
+          <span style={lbl}>INSTRUMENT</span>
+          <input value={instr} onChange={e => setInstr(e.target.value)} style={inp} />
+        </div>
       </div>
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px' }}>
         <div>
@@ -98,7 +77,7 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         <span style={lbl}>EMOTION — <span style={{ color:parseInt(emotion)<=3?'#00e5b0':parseInt(emotion)>=7?'#ff4f6b':'#ffc030', fontWeight:600 }}>{parseInt(emotion)<=3?'Lugn ✓':parseInt(emotion)>=7?'Stressad ✗':'Neutral'}</span></span>
         <div style={{ display:'flex', gap:'3px' }}>
           {[1,2,3,4,5,6,7,8,9,10].map(n => (
-            <button type="button" key={n} onClick={() => setEmotion(String(n))} style={{
+            <button key={n} onClick={() => setEmotion(String(n))} style={{
               flex:1, padding:'8px 0', borderRadius:'5px',
               border:`1px solid ${emotion===String(n)?'#007d5e':'#263840'}`,
               background:emotion===String(n)?'#001810':'#161e24',
@@ -113,34 +92,20 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         <div style={{ display:'flex', flexWrap:'wrap', gap:'5px' }}>
           {PSYCH.map(tag => {
             const a = tags.includes(tag.id)
-            return <button type="button" key={tag.id} onClick={() => toggle(tag.id)} style={{ fontFamily:M, fontSize:'9px', padding:'5px 10px', borderRadius:'5px', background:a?tag.bg:'#161e24', border:`1px solid ${a?tag.c+'33':'#1e2c32'}`, color:a?tag.c:'#5a7a84', cursor:'pointer', transition:'all 0.15s' }}>{tag.label}</button>
+            return <button key={tag.id} onClick={() => toggle(tag.id)} style={{ fontFamily:M, fontSize:'9px', padding:'5px 10px', borderRadius:'5px', background:a?tag.bg:'#161e24', border:`1px solid ${a?tag.c+'33':'#1e2c32'}`, color:a?tag.c:'#5a7a84', cursor:'pointer', transition:'all 0.15s' }}>{tag.label}</button>
           })}
         </div>
       </div>
       <div>
         <span style={lbl}>NOTES</span>
-        <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Analys, tankar..." style={{...inp, resize:'vertical', minHeight:'140px', lineHeight:1.7, fontSize:'14px'}} />
-      </div>
-      <div>
-        <span style={lbl}>CHART</span>
-        {imgPrev ? (
-          <div style={{ position:'relative' }}>
-            <img src={imgPrev} alt="chart" style={{ width:'100%', borderRadius:'8px', border:'1px solid #263840', display:'block', maxHeight:'180px', objectFit:'cover' }} />
-            <button type="button" onClick={() => { setImage(null); setImgPrev(null) }} style={{ position:'absolute', top:'8px', right:'8px', background:'rgba(6,8,9,0.9)', border:'1px solid #263840', borderRadius:'5px', color:'#ff4f6b', cursor:'pointer', fontSize:'11px', padding:'3px 8px', fontFamily:M }}>✕</button>
-          </div>
-        ) : (
-          <div onClick={() => efRef.current.click()} style={{ border:'1px dashed #263840', borderRadius:'8px', padding:'14px', textAlign:'center', cursor:'pointer', background:'#080b0c' }}>
-            <div style={{ fontFamily:M, fontSize:'11px', color:'#3a5460' }}>↑ Ladda upp chart</div>
-          </div>
-        )}
-        <input ref={efRef} type="file" accept="image/*" onChange={handleImg} style={{ display:'none' }} />
+        <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Analys, tankar..." style={{...inp, resize:'vertical', minHeight:'60px', lineHeight:1.6}} />
       </div>
       <div style={{ display:'flex', gap:'8px' }}>
-        <button type="button" onClick={() => onSave({ result, instrument:instr, pnl:pnl||'0', note, emotion, setup, psychTags:tags, image:image||null })}
+        <button onClick={() => onSave({ result, instrument:instr, pnl:pnl||'0', note, emotion, setup, psychTags:tags })}
           style={{ flex:1, background:'#00e5b0', color:'#020f08', fontFamily:M, fontSize:'11px', fontWeight:700, padding:'12px', borderRadius:'8px', border:'none', cursor:'pointer', letterSpacing:'1px', transition:'background 0.15s' }}
           onMouseEnter={e=>e.currentTarget.style.background='#00c49a'}
           onMouseLeave={e=>e.currentTarget.style.background='#00e5b0'}>SPARA</button>
-        <button type="button" onClick={onCancel} style={{ background:'transparent', color:'#5a7a84', fontFamily:M, fontSize:'10px', padding:'12px 14px', borderRadius:'8px', border:'1px solid #1e2c32', cursor:'pointer' }}>Avbryt</button>
+        <button onClick={onCancel} style={{ background:'transparent', color:'#5a7a84', fontFamily:M, fontSize:'10px', padding:'12px 14px', borderRadius:'8px', border:'1px solid #1e2c32', cursor:'pointer' }}>Avbryt</button>
       </div>
     </div>
   )
@@ -295,7 +260,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
   const dayLabels   = mobile ? DAY_LABELS_MOBILE : DAY_LABELS_DESKTOP
   const gridCols    = mobile ? 'repeat(5, 1fr)' : 'repeat(7, 1fr) 64px'
   const gridColsHdr = mobile ? 'repeat(5, 1fr)' : 'repeat(7, 1fr) 64px'
-  const cellH       = mobile ? '80px' : '100px'
+  const cellH       = mobile ? '60px' : '100px'
 
   const selTrades = sel ? journal.filter(t=>t.date===sel) : []
   const selPnl    = selTrades.reduce((s,t) => s+parseFloat(t.pnl||0), 0)
@@ -316,15 +281,15 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
           )}
         </div>
         <div style={{ display:'flex', gap:'6px', alignItems:'center' }}>
-          <button type="button" onClick={() => { setShowForm(!showForm); setEditingIdx(null) }} style={{ background:'#00e5b0', color:'#020f08', fontFamily:M, fontSize:'9px', fontWeight:700, padding:'7px 13px', borderRadius:'6px', border:'none', cursor:'pointer', letterSpacing:'1px', transition:'background 0.15s' }}
+          <button onClick={() => { setShowForm(!showForm); setEditingIdx(null) }} style={{ background:'#00e5b0', color:'#020f08', fontFamily:M, fontSize:'9px', fontWeight:700, padding:'7px 13px', borderRadius:'6px', border:'none', cursor:'pointer', letterSpacing:'1px', transition:'background 0.15s' }}
             onMouseEnter={e=>e.currentTarget.style.background='#00c49a'}
             onMouseLeave={e=>e.currentTarget.style.background='#00e5b0'}>+ LOG</button>
-          <button type="button" onClick={() => { setSel(null); resetForm(); setEditingIdx(null) }} style={{ background:'none', border:'none', color:'#5a7a84', cursor:'pointer', fontSize:'18px', padding:'4px', lineHeight:1 }}>×</button>
+          <button onClick={() => { setSel(null); resetForm(); setEditingIdx(null) }} style={{ background:'none', border:'none', color:'#5a7a84', cursor:'pointer', fontSize:'18px', padding:'4px', lineHeight:1 }}>×</button>
         </div>
       </div>
 
       {/* Scrollable content */}
-      <div style={{ overflowY:'visible', padding:'12px', display:'flex', flexDirection:'column', gap:'10px' }}>
+      <div style={{ overflowY:'auto', flex:1, padding:'12px', display:'flex', flexDirection:'column', gap:'10px' }}>
 
         {/* New trade form */}
         {showForm && (
@@ -350,7 +315,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
           const isEd = editingIdx===ji
 
           return (
-            <div key={i} style={{ background:'#080b0c', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px' }}>
+            <div key={i} style={{ background:'#080b0c', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden' }}>
               {/* Trade row */}
               <div style={{ padding:'11px 12px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <div style={{ display:'flex', alignItems:'center', gap:'6px', flexWrap:'wrap' }}>
@@ -361,14 +326,14 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
                 <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
                   <span style={{ fontFamily:M, fontSize:'14px', fontWeight:700, color:pv>=0?'#00e5b0':'#ff4f6b' }}>{pv>=0?'+':''}${Math.abs(Math.round(pv))}</span>
                   {/* Edit */}
-                  <button type="button" onClick={() => setEditingIdx(isEd?null:ji)} style={{
+                  <button onClick={() => setEditingIdx(isEd?null:ji)} style={{
                     background:isEd?'#263840':'none', border:`1px solid ${isEd?'#3a5460':'#1e2c32'}`,
                     borderRadius:'5px', color:isEd?'#d0e8ec':'#5a7a84',
                     fontFamily:M, fontSize:'9px', padding:'3px 8px', cursor:'pointer',
                     transition:'all 0.15s', letterSpacing:'0.5px',
                   }}>✎</button>
                   {/* Delete */}
-                  <button type="button" onClick={() => onDeleteTrade?.(ji)} style={{ background:'none', border:'none', color:'#3a5460', cursor:'pointer', fontSize:'14px', padding:'2px', transition:'color 0.15s' }}
+                  <button onClick={() => onDeleteTrade?.(ji)} style={{ background:'none', border:'none', color:'#3a5460', cursor:'pointer', fontSize:'14px', padding:'2px', transition:'color 0.15s' }}
                     onMouseEnter={e=>e.currentTarget.style.color='#ff4f6b'}
                     onMouseLeave={e=>e.currentTarget.style.color='#3a5460'}>×</button>
                 </div>
@@ -443,7 +408,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
         <div style={{ fontFamily:M, fontSize:'13px', fontWeight:700, color:'#d0e8ec', letterSpacing:'2px' }}>{MONTHS[month].toUpperCase()} {year}</div>
         <div style={{ display:'flex', gap:'5px' }}>
           {[{fn:prevM,l:'‹'},{fn:nextM,l:'›'}].map((b,i) => (
-            <button type="button" key={i} onClick={b.fn} style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'6px', padding:'8px 16px', cursor:'pointer', color:'#6a8a92', fontFamily:M, fontSize:'14px', transition:'all 0.15s' }}
+            <button key={i} onClick={b.fn} style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'6px', padding:'8px 16px', cursor:'pointer', color:'#6a8a92', fontFamily:M, fontSize:'14px', transition:'all 0.15s' }}
               onMouseEnter={e=>{e.currentTarget.style.borderColor='#3a5460';e.currentTarget.style.color='#d0e8ec'}}
               onMouseLeave={e=>{e.currentTarget.style.borderColor='#1e2c32';e.currentTarget.style.color='#6a8a92'}}>{b.l}</button>
           ))}
@@ -453,7 +418,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
       {/* Calendar + panel */}
       <div style={{ display:'flex', flexDirection:mobile?'column':'row', gap:'14px', alignItems:'flex-start' }}>
 
-        <div style={{ flex:1, minWidth:0, width:'100%' }}>
+        <div style={{ flex:1, minWidth:0 }}>
           <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden' }}>
 
             {/* Day headers */}
@@ -546,7 +511,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
 
         {/* Desktop side panel */}
         {!mobile && sel && (
-          <div style={{ width:'460px', flexShrink:0, background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflowY:'auto', maxHeight:'calc(100vh - 120px)' }}>
+          <div style={{ width:'460px', flexShrink:0, background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', maxHeight:'calc(100vh - 120px)', display:'flex', flexDirection:'column' }}>
             <Panel />
           </div>
         )}
@@ -554,7 +519,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
 
       {/* Mobile: panel below calendar */}
       {mobile && sel && (
-        <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflowY:'auto' }}>
+        <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', maxHeight:'75vh', display:'flex', flexDirection:'column' }}>
           <Panel />
         </div>
       )}
