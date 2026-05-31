@@ -241,10 +241,20 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
   const selPnl    = selTrades.reduce((s,t) => s+parseFloat(t.pnl||0), 0)
 
   // ── Trade Panel ──
-  const Panel = () => (
-    <div style={{ display:'flex', flexDirection:'column', overflow:'hidden', flex:1 }}>
-      {/* Header — fixed, never scrolls */}
-      <div style={{ padding:'14px', borderBottom:'1px solid #1e2c32', display:'flex', justifyContent:'space-between', alignItems:'flex-start', flexShrink:0 }}>
+  const PanelBox = () => (
+    <div style={{
+      width: mobile ? undefined : '460px',
+      flexShrink: 0,
+      background: '#111820',
+      border: '1px solid #1e2c32',
+      borderRadius: '12px',
+      overflowY: 'auto',
+      maxHeight: mobile ? '80vh' : 'calc(100vh - 120px)',
+      position: mobile ? undefined : 'sticky',
+      top: mobile ? undefined : '74px',
+    }}>
+      {/* Header — sticky inside scroll */}
+      <div style={{ padding:'14px', borderBottom:'1px solid #1e2c32', display:'flex', justifyContent:'space-between', alignItems:'flex-start', position:'sticky', top:0, background:'#111820', zIndex:2 }}>
         <div>
           <div style={{ fontFamily:M, fontSize:'8px', color:'#5a7a84', letterSpacing:'2px', marginBottom:'3px' }}>
             {new Date(sel+'T12:00:00').toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'}).toUpperCase()}
@@ -263,8 +273,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
         </div>
       </div>
 
-      {/* Scrollable content */}
-      <div style={{ overflowY:'auto', flex:1, minHeight:0, padding:'12px', display:'flex', flexDirection:'column', gap:'10px' }}>
+      <div style={{ padding:'12px', display:'flex', flexDirection:'column', gap:'10px' }}>
 
         {showForm && (
           <div style={{ background:'#080b0c', border:'1px solid #263840', borderRadius:'10px', padding:'14px' }}>
@@ -471,20 +480,10 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
           </div>
         </div>
 
-        {/* Desktop side panel — FIX: overflow:'hidden' → overflow:'hidden' on wrapper but flex allows inner scroll */}
-        {!mobile && sel && (
-          <div style={{ width:'460px', flexShrink:0, background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', height:'calc(100vh - 120px)', position:'sticky', top:'74px', display:'flex', flexDirection:'column', overflow:'hidden' }}>
-            {Panel()}
-          </div>
-        )}
+        {!mobile && sel && <PanelBox />}
       </div>
 
-      {/* Mobile: panel below calendar — FIX: increased maxHeight, minHeight:0 on inner */}
-      {mobile && sel && (
-        <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', height:'80vh', display:'flex', flexDirection:'column', overflow:'hidden' }}>
-          {Panel()}
-        </div>
-      )}
+      {mobile && sel && <PanelBox />}
 
       {lightbox && (
         <div onClick={() => setLightbox(null)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.95)', zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center', cursor:'zoom-out', padding:'16px' }}>
