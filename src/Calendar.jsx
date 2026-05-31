@@ -266,7 +266,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
         </div>
       </div>
 
-      <div style={{ overflowY:'auto', flex:1, padding:'12px', display:'flex', flexDirection:'column', gap:'10px' }}>
+      <div style={{ overflowY:'auto', flex:1, minHeight:0, padding:'12px', display:'flex', flexDirection:'column', gap:'10px' }}>
         {showForm && (
           <div style={{ background:'#080b0c', border:'1px solid #263840', borderRadius:'10px', padding:'14px' }}>
             <div style={{ fontFamily:M, fontSize:'8px', color:'#5a7a84', letterSpacing:'2px', marginBottom:'10px' }}>NY TRADE</div>
@@ -459,7 +459,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
       </div>
 
       {mobile && sel && (
-        <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', maxHeight:'75vh', display:'flex', flexDirection:'column' }}>
+        <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', maxHeight:'80vh', display:'flex', flexDirection:'column' }}>
           <Panel />
         </div>
       )}
