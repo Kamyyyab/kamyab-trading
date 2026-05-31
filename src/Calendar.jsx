@@ -418,7 +418,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
       {/* Calendar + panel */}
       <div style={{ display:'flex', flexDirection:mobile?'column':'row', gap:'14px', alignItems:'flex-start' }}>
 
-        <div style={{ flex:1, minWidth:0 }}>
+        <div style={{ width:"100%" }}>
           <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden' }}>
 
             {/* Day headers */}
