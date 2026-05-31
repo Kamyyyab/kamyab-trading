@@ -245,7 +245,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
   const selTrades = sel ? journal.filter(t=>t.date===sel) : []
   const selPnl    = selTrades.reduce((s,t) => s+parseFloat(t.pnl||0), 0)
 
-  const Panel = () => (
+  const panelContent = (
     <div style={{ display:'flex', flexDirection:'column', height:'100%', overflow:'hidden' }}>
       <div style={{ padding:'14px', borderBottom:'1px solid #1e2c32', display:'flex', justifyContent:'space-between', alignItems:'flex-start', flexShrink:0 }}>
         <div>
@@ -453,14 +453,14 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
 
         {!mobile && sel && (
           <div style={{ width:'460px', flexShrink:0, background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', height:'calc(100vh - 120px)', display:'flex', flexDirection:'column' }}>
-            <Panel />
+            {panelContent}
           </div>
         )}
       </div>
 
       {mobile && sel && (
         <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', height:'80vh', display:'flex', flexDirection:'column' }}>
-          <Panel />
+          {panelContent}
         </div>
       )}
 
