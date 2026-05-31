@@ -158,6 +158,13 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
   const [showForm,   setShowForm]   = useState(false)
   const [editingIdx, setEditingIdx] = useState(null)
   const [lightbox,   setLightbox]   = useState(null)
+  const [panelTop,   setPanelTop]   = useState(0)
+
+  // Mät navhöjden dynamiskt så panelen hamnar rätt under navet
+  useEffect(() => {
+    const nav = document.querySelector('nav')
+    if (nav) setPanelTop(nav.getBoundingClientRect().height)
+  }, [])
 
   const MONTHS = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December']
   const DAY_LABELS_MOBILE  = ['M','T','O','T','F']
@@ -245,9 +252,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
   const selTrades = sel ? journal.filter(t=>t.date===sel) : []
   const selPnl    = selTrades.reduce((s,t) => s+parseFloat(t.pnl||0), 0)
 
-  // FIX: panelContent — den scrollbara inre diven har nu min-height: 0
-  // vilket låter flex-barnet krympa under innehållets naturliga storlek
-  // så att overflow: auto faktiskt aktiveras och skapar scrollbar
+  // Panel-innehåll — återanvänds för både desktop (fixed) och mobil
   const panelContent = (
     <div style={{ display:'flex', flexDirection:'column', height:'100%', overflow:'hidden' }}>
       <div style={{ padding:'14px', borderBottom:'1px solid #1e2c32', display:'flex', justifyContent:'space-between', alignItems:'flex-start', flexShrink:0 }}>
@@ -269,8 +274,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
         </div>
       </div>
 
-      {/* SCROLL-FIX: flex:1 + minHeight:0 låter denna div krympa och scrolla */}
-      <div style={{ overflowY:'auto', flex:1, minHeight:0, padding:'12px', display:'flex', flexDirection:'column', gap:'10px' }}>
+      <div style={{ overflowY:'auto', flex:1, padding:'12px', display:'flex', flexDirection:'column', gap:'10px' }}>
         {showForm && (
           <div style={{ background:'#080b0c', border:'1px solid #263840', borderRadius:'10px', padding:'14px' }}>
             <div style={{ fontFamily:M, fontSize:'8px', color:'#5a7a84', letterSpacing:'2px', marginBottom:'10px' }}>NY TRADE</div>
@@ -352,8 +356,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
   )
 
   return (
-    // FIX: yttersta wrappern får minHeight:0 så att flex-kedjan inte bryts
-    <div style={{ display:'flex', flexDirection:'column', gap:'12px', minHeight:0 }}>
+    <div style={{ display:'flex', flexDirection:'column', gap:'12px' }}>
 
       <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'8px' }}>
         {[
@@ -382,8 +385,11 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
         </div>
       </div>
 
-      <div style={{ display:'flex', flexDirection:mobile?'column':'row', gap:'14px', alignItems:'flex-start', minHeight:0 }}>
-        <div style={{ flex:1, minWidth:0 }}>
+      {/* Kalender + panel-layout.
+          På desktop: kalendern får margin-right när panelen är öppen
+          så innehållet inte hamnar bakom den fixerade panelen. */}
+      <div style={{ position:'relative' }}>
+        <div style={{ marginRight: !mobile && sel ? '484px' : 0, transition:'margin-right 0.2s' }}>
           <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden' }}>
             <div style={{ display:'grid', gridTemplateColumns:gridColsHdr, background:'#0d1214', borderBottom:'1px solid #1e2c32' }}>
               {dayLabels.map((d,i) => (
@@ -456,25 +462,29 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
           </div>
         </div>
 
-        {/* FIX: sidopanelen (desktop) — position:sticky håller den synlig vid sidscroll
-            height:calc(100vh - 120px) + overflow:hidden + flex-column är kvar,
-            men nu propagerar minHeight:0 korrekt genom hela flex-kedjan */}
+        {/* Desktop-panel: position fixed, hamnar alltid till höger på skärmen
+            under navet. Scrollar oberoende av resten av sidan. */}
         {!mobile && sel && (
           <div style={{
-            width:'460px', flexShrink:0,
-            background:'#111820', border:'1px solid #1e2c32',
-            borderRadius:'12px', overflow:'hidden',
-            height:'calc(100vh - 120px)',
-            display:'flex', flexDirection:'column',
-            position:'sticky', top:'12px',
+            position:'fixed',
+            top: panelTop + 20,
+            right: 24,
+            width:'460px',
+            height:`calc(100vh - ${panelTop + 44}px)`,
+            background:'#111820',
+            border:'1px solid #1e2c32',
+            borderRadius:'12px',
+            overflow:'hidden',
+            display:'flex',
+            flexDirection:'column',
+            zIndex:30,
           }}>
             {panelContent}
           </div>
         )}
       </div>
 
-      {/* FIX: mobilpanelen — samma fix, minHeight:0 behövs inte här men
-          overflow:hidden + height:80vh + flex-column räcker på mobil */}
+      {/* Mobilpanel: visas under kalendern, scrollar med sidan */}
       {mobile && sel && (
         <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', height:'80vh', display:'flex', flexDirection:'column' }}>
           {panelContent}
