@@ -23,10 +23,10 @@ const PSYCH = [
   { id:'oversize',  label:'Överposad',   c:'#ff4f6b', bg:'#1a0610' },
 ]
 
-const RBG  = { win:'#001810', win2:'#001810', tp1:'#001410', tp2:'#001810', tp3:'#001810', loss:'#1a0610', be:'#111820', skip:'#111820', 'no-setup':'#111820' }
-const RBDR = { win:'rgba(0,229,176,0.2)', win2:'rgba(0,229,176,0.2)', tp1:'rgba(0,229,176,0.15)', tp2:'rgba(0,229,176,0.2)', tp3:'rgba(0,229,176,0.2)', loss:'rgba(255,79,107,0.2)', be:'rgba(106,138,144,0.15)', skip:'#1e2c32', 'no-setup':'#1e2c32' }
-const RC   = { win:'#00e5b0', win2:'#00e5b0', tp1:'#4ab89a', tp2:'#00e5b0', tp3:'#00e5b0', loss:'#ff4f6b', be:'#6a8a90', skip:'#5a7a84', 'no-setup':'#5a7a84' }
-const RL   = { win:"Win +3R", win2:"Win +2R", tp1:"TP1", tp2:"TP2", tp3:"TP3", loss:"Loss -1R", be:"BE", skip:"Skip", "no-setup":"NA" }
+const RBG  = { win:'#001810', win2:'#001810', loss:'#1a0610', be:'#111820', skip:'#111820', 'no-setup':'#111820' }
+const RBDR = { win:'rgba(0,229,176,0.2)', win2:'rgba(0,229,176,0.2)', loss:'rgba(255,79,107,0.2)', be:'rgba(106,138,144,0.15)', skip:'#1e2c32', 'no-setup':'#1e2c32' }
+const RC   = { win:'#00e5b0', win2:'#00e5b0', loss:'#ff4f6b', be:'#6a8a90', skip:'#5a7a84', 'no-setup':'#5a7a84' }
+const RL   = { win:'Win +3R', win2:'Win +2R', loss:'Loss −1R', be:'BE', skip:'Skip', 'no-setup':'N/A' }
 
 const inp = { width:'100%', background:'#080b0c', border:'1px solid #263840', borderRadius:'8px', color:'#d0e8ec', fontSize:'15px', padding:'10px 12px', outline:'none', boxSizing:'border-box', transition:'border-color 0.15s' }
 const lbl = { fontFamily:M, fontSize:'8px', color:'#5a7a84', letterSpacing:'2px', marginBottom:'5px', display:'block' }
@@ -161,7 +161,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
     const dt  = journal.filter(t=>t.date===ds); if(!dt.length)return null
     const act = dt.filter(t=>t.result!=='skip'&&t.result!=='no-setup')
     if(!act.length)return 'skip'
-    const hl=act.some(t=>t.result==='loss'), hw=act.some(t=>['win','win2','tp1','tp2','tp3'].includes(t.result))
+    const hl=act.some(t=>t.result==='loss'), hw=act.some(t=>t.result==='win'||t.result==='win2')
     if(hl&&!hw)return'loss'; if(hw&&!hl)return'win'; return'mixed'
   }
 
@@ -418,7 +418,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
       {/* Calendar + panel */}
       <div style={{ display:'flex', flexDirection:mobile?'column':'row', gap:'14px', alignItems:'flex-start' }}>
 
-        <div style={{ width:"100%" }}>
+        <div style={{ flex:1, minWidth:0 }}>
           <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden' }}>
 
             {/* Day headers */}
