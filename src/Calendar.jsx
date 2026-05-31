@@ -245,6 +245,9 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
   const selTrades = sel ? journal.filter(t=>t.date===sel) : []
   const selPnl    = selTrades.reduce((s,t) => s+parseFloat(t.pnl||0), 0)
 
+  // FIX: panelContent — den scrollbara inre diven har nu min-height: 0
+  // vilket låter flex-barnet krympa under innehållets naturliga storlek
+  // så att overflow: auto faktiskt aktiveras och skapar scrollbar
   const panelContent = (
     <div style={{ display:'flex', flexDirection:'column', height:'100%', overflow:'hidden' }}>
       <div style={{ padding:'14px', borderBottom:'1px solid #1e2c32', display:'flex', justifyContent:'space-between', alignItems:'flex-start', flexShrink:0 }}>
@@ -266,6 +269,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
         </div>
       </div>
 
+      {/* SCROLL-FIX: flex:1 + minHeight:0 låter denna div krympa och scrolla */}
       <div style={{ overflowY:'auto', flex:1, minHeight:0, padding:'12px', display:'flex', flexDirection:'column', gap:'10px' }}>
         {showForm && (
           <div style={{ background:'#080b0c', border:'1px solid #263840', borderRadius:'10px', padding:'14px' }}>
@@ -348,7 +352,8 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
   )
 
   return (
-    <div style={{ display:'flex', flexDirection:'column', gap:'12px' }}>
+    // FIX: yttersta wrappern får minHeight:0 så att flex-kedjan inte bryts
+    <div style={{ display:'flex', flexDirection:'column', gap:'12px', minHeight:0 }}>
 
       <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'8px' }}>
         {[
@@ -377,7 +382,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
         </div>
       </div>
 
-      <div style={{ display:'flex', flexDirection:mobile?'column':'row', gap:'14px', alignItems:'flex-start' }}>
+      <div style={{ display:'flex', flexDirection:mobile?'column':'row', gap:'14px', alignItems:'flex-start', minHeight:0 }}>
         <div style={{ flex:1, minWidth:0 }}>
           <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden' }}>
             <div style={{ display:'grid', gridTemplateColumns:gridColsHdr, background:'#0d1214', borderBottom:'1px solid #1e2c32' }}>
@@ -451,13 +456,25 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
           </div>
         </div>
 
+        {/* FIX: sidopanelen (desktop) — position:sticky håller den synlig vid sidscroll
+            height:calc(100vh - 120px) + overflow:hidden + flex-column är kvar,
+            men nu propagerar minHeight:0 korrekt genom hela flex-kedjan */}
         {!mobile && sel && (
-          <div style={{ width:'460px', flexShrink:0, background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', height:'calc(100vh - 120px)', display:'flex', flexDirection:'column' }}>
+          <div style={{
+            width:'460px', flexShrink:0,
+            background:'#111820', border:'1px solid #1e2c32',
+            borderRadius:'12px', overflow:'hidden',
+            height:'calc(100vh - 120px)',
+            display:'flex', flexDirection:'column',
+            position:'sticky', top:'12px',
+          }}>
             {panelContent}
           </div>
         )}
       </div>
 
+      {/* FIX: mobilpanelen — samma fix, minHeight:0 behövs inte här men
+          overflow:hidden + height:80vh + flex-column räcker på mobil */}
       {mobile && sel && (
         <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', height:'80vh', display:'flex', flexDirection:'column' }}>
           {panelContent}
