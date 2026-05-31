@@ -39,8 +39,17 @@ function EditForm({ initial = {}, onSave, onCancel }) {
   const [emotion,   setEmotion]   = useState(initial.emotion    || '3')
   const [setup,     setSetup]     = useState(initial.setup      || '')
   const [tags,      setTags]      = useState(initial.psychTags  || [])
+  const [image,     setImage]     = useState(initial.image      || null)
+  const imgRef = useRef()
 
   const toggle = id => setTags(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id])
+
+  function handleImg(e) {
+    const f = e.target.files[0]; if(!f) return
+    const r = new FileReader()
+    r.onload = ev => setImage(ev.target.result)
+    r.readAsDataURL(f)
+  }
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
@@ -99,8 +108,22 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         <span style={lbl}>NOTES</span>
         <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Analys, tankar..." style={{...inp, resize:'vertical', minHeight:'60px', lineHeight:1.6}} />
       </div>
+      <div>
+        <span style={lbl}>CHART BILD</span>
+        <input ref={imgRef} type="file" accept="image/*" onChange={handleImg} style={{ display:'none' }} />
+        {image ? (
+          <div style={{ position:'relative' }}>
+            <img src={image} alt="chart" style={{ width:'100%', borderRadius:'8px', border:'1px solid #263840', display:'block' }} />
+            <button onClick={() => setImage(null)} style={{ position:'absolute', top:'6px', right:'6px', background:'rgba(0,0,0,0.7)', border:'none', color:'#ff4f6b', borderRadius:'50%', width:'22px', height:'22px', cursor:'pointer', fontSize:'14px', lineHeight:1, display:'flex', alignItems:'center', justifyContent:'center' }}>×</button>
+          </div>
+        ) : (
+          <button onClick={() => imgRef.current?.click()} style={{ width:'100%', background:'#0d1214', border:'1px dashed #263840', borderRadius:'8px', padding:'10px', color:'#3a5460', fontFamily:M, fontSize:'9px', cursor:'pointer', letterSpacing:'1px', transition:'all 0.15s' }}
+            onMouseEnter={e=>{e.currentTarget.style.borderColor='#3a5460';e.currentTarget.style.color='#6a8a90'}}
+            onMouseLeave={e=>{e.currentTarget.style.borderColor='#263840';e.currentTarget.style.color='#3a5460'}}>+ LADDA UPP BILD</button>
+        )}
+      </div>
       <div style={{ display:'flex', gap:'8px' }}>
-        <button onClick={() => onSave({ result, instrument:instr, pnl:pnl||'0', note, emotion, setup, psychTags:tags })}
+        <button onClick={() => onSave({ result, instrument:instr, pnl:pnl||'0', note, emotion, setup, psychTags:tags, image })}
           style={{ flex:1, background:'#00e5b0', color:'#020f08', fontFamily:M, fontSize:'11px', fontWeight:700, padding:'12px', borderRadius:'8px', border:'none', cursor:'pointer', letterSpacing:'1px', transition:'background 0.15s' }}
           onMouseEnter={e=>e.currentTarget.style.background='#00c49a'}
           onMouseLeave={e=>e.currentTarget.style.background='#00e5b0'}>SPARA</button>
