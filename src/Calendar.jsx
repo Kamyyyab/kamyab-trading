@@ -31,7 +31,6 @@ const RL   = { win:"Win +3R", win2:"Win +2R", tp1:"TP1", tp2:"TP2", tp3:"TP3", l
 const inp = { width:'100%', background:'#080b0c', border:'1px solid #263840', borderRadius:'8px', color:'#d0e8ec', fontSize:'15px', padding:'10px 12px', outline:'none', boxSizing:'border-box', transition:'border-color 0.15s' }
 const lbl = { fontFamily:M, fontSize:'8px', color:'#5a7a84', letterSpacing:'2px', marginBottom:'5px', display:'block' }
 
-// ── Shared edit form ─────────────────────────────────────────────
 function EditForm({ initial = {}, onSave, onCancel }) {
   const [result,    setResult]    = useState(initial.result     || '')
   const [instr,     setInstr]     = useState(initial.instrument || 'MYM')
@@ -117,11 +116,10 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
   const [month, setMonth] = useState(new Date().getMonth())
   const [sel,   setSel]   = useState(null)
   const [showForm,     setShowForm]     = useState(false)
-  const [editingIdx,   setEditingIdx]   = useState(null) // journal index being edited
+  const [editingIdx,   setEditingIdx]   = useState(null)
   const [lightbox,     setLightbox]     = useState(null)
   const fileRef = useRef()
 
-  // new trade form state
   const [result,    setResult]    = useState('')
   const [instr,     setInstr]     = useState('MYM')
   const [pnl,       setPnl]       = useState('')
@@ -133,13 +131,11 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
   const [imgPrev,   setImgPrev]   = useState(null)
 
   const MONTHS = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December']
-  // On mobile: Mon–Fri only (5 cols). Desktop: Mon–Sun (7 cols)
   const DAY_LABELS_MOBILE  = ['M','T','O','T','F']
   const DAY_LABELS_DESKTOP = ['M','T','O','T','F','L','S']
 
   const first = new Date(year, month, 1)
   const dim   = new Date(year, month+1, 0).getDate()
-  // offset for Mon-first
   const fullOffset = (first.getDay()+6)%7
 
   const today = (() => {
@@ -198,25 +194,6 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
     setEditingIdx(null)
   }
 
-  // ── Build calendar cells ──
-  // Mobile: only Mon–Fri (skip weekend cells entirely)
-  // Desktop: full Mon–Sun grid
-  const buildCells = () => {
-    const cells = []
-    for(let d=1; d<=dim; d++) {
-      const date = new Date(year, month, d)
-      const wd   = date.getDay() // 0=Sun,1=Mon,...,6=Sat
-      const ds   = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`
-      const isWe = wd===0||wd===6
-      if(mobile && isWe) continue // skip weekends on mobile
-      cells.push({ day:d, ds, isWe, wd })
-    }
-    return cells
-  }
-
-  const allCells = buildCells()
-
-  // For desktop: build week rows with offset
   const buildDesktopWeeks = () => {
     const cells = []
     for(let i=0; i<fullOffset; i++) cells.push({ empty:true })
@@ -232,20 +209,18 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
     return weeks
   }
 
-  // For mobile: build week rows Mon–Fri only
   const buildMobileWeeks = () => {
     const weeks = []
     let week = []
-    // find what weekday (Mon=0..Fri=4) the 1st falls on
-    const monOffset = (first.getDay()+6)%7 // 0=Mon,4=Fri,5=Sat,6=Sun
-    const clampedOffset = Math.min(monOffset, 4) // only 0-4 for Mon-Fri
+    const monOffset = (first.getDay()+6)%7
+    const clampedOffset = Math.min(monOffset, 4)
     for(let i=0; i<clampedOffset; i++) week.push({ empty:true })
 
     for(let d=1; d<=dim; d++) {
       const date = new Date(year, month, d)
       const wd   = date.getDay()
       const ds   = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`
-      if(wd===0||wd===6) continue // skip weekends
+      if(wd===0||wd===6) continue
       week.push({ day:d, ds, isWe:false, wd })
       if(week.length===5) { weeks.push(week); week=[] }
     }
@@ -267,8 +242,8 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
 
   // ── Trade Panel ──
   const Panel = () => (
-    <div style={{ display:'flex', flexDirection:'column', height:'100%' }}>
-      {/* Header */}
+    <div style={{ display:'flex', flexDirection:'column', height:'100%', minHeight:0 }}>
+      {/* Header — fixed, never scrolls */}
       <div style={{ padding:'14px', borderBottom:'1px solid #1e2c32', display:'flex', justifyContent:'space-between', alignItems:'flex-start', flexShrink:0 }}>
         <div>
           <div style={{ fontFamily:M, fontSize:'8px', color:'#5a7a84', letterSpacing:'2px', marginBottom:'3px' }}>
@@ -289,9 +264,8 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
       </div>
 
       {/* Scrollable content */}
-      <div style={{ overflowY:'auto', flex:1, padding:'12px', display:'flex', flexDirection:'column', gap:'10px' }}>
+      <div style={{ overflowY:'auto', flex:1, minHeight:0, padding:'12px', display:'flex', flexDirection:'column', gap:'10px' }}>
 
-        {/* New trade form */}
         {showForm && (
           <div style={{ background:'#080b0c', border:'1px solid #263840', borderRadius:'10px', padding:'14px' }}>
             <div style={{ fontFamily:M, fontSize:'8px', color:'#5a7a84', letterSpacing:'2px', marginBottom:'10px' }}>NY TRADE</div>
@@ -306,7 +280,6 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
           <div style={{ fontFamily:M, fontSize:'11px', color:'#2e4450', padding:'20px 0', textAlign:'center' }}>Inga trades — tryck + LOG</div>
         )}
 
-        {/* Trade list */}
         {selTrades.map((t, i) => {
           const pv  = parseFloat(t.pnl||0)
           const em  = parseInt(t.emotion||0)
@@ -316,7 +289,6 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
 
           return (
             <div key={i} style={{ background:'#080b0c', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden' }}>
-              {/* Trade row */}
               <div style={{ padding:'11px 12px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <div style={{ display:'flex', alignItems:'center', gap:'6px', flexWrap:'wrap' }}>
                   <span style={{ fontFamily:M, fontSize:'9px', color:'#6a8a92', background:'#161e24', border:'1px solid #1e2c32', borderRadius:'4px', padding:'2px 7px' }}>{t.instrument}</span>
@@ -325,28 +297,24 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
                 </div>
                 <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
                   <span style={{ fontFamily:M, fontSize:'14px', fontWeight:700, color:pv>=0?'#00e5b0':'#ff4f6b' }}>{pv>=0?'+':''}${Math.abs(Math.round(pv))}</span>
-                  {/* Edit */}
                   <button onClick={() => setEditingIdx(isEd?null:ji)} style={{
                     background:isEd?'#263840':'none', border:`1px solid ${isEd?'#3a5460':'#1e2c32'}`,
                     borderRadius:'5px', color:isEd?'#d0e8ec':'#5a7a84',
                     fontFamily:M, fontSize:'9px', padding:'3px 8px', cursor:'pointer',
                     transition:'all 0.15s', letterSpacing:'0.5px',
                   }}>✎</button>
-                  {/* Delete */}
                   <button onClick={() => onDeleteTrade?.(ji)} style={{ background:'none', border:'none', color:'#3a5460', cursor:'pointer', fontSize:'14px', padding:'2px', transition:'color 0.15s' }}
                     onMouseEnter={e=>e.currentTarget.style.color='#ff4f6b'}
                     onMouseLeave={e=>e.currentTarget.style.color='#3a5460'}>×</button>
                 </div>
               </div>
 
-              {/* Edit form */}
               {isEd && (
                 <div style={{ padding:'12px', borderTop:'1px solid #161e24' }}>
                   <EditForm initial={t} onSave={updated => doEdit(ji, updated)} onCancel={() => setEditingIdx(null)} />
                 </div>
               )}
 
-              {/* Details when not editing */}
               {!isEd && (
                 <>
                   {em>0 && (
@@ -431,7 +399,6 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
 
             {/* Week rows */}
             {weeks.map((week, wi) => {
-              // Desktop week summary
               const wDates  = week.filter(c=>c.ds).map(c=>c.ds)
               const wT      = journal.filter(t=>wDates.includes(t.date)&&t.result!=='skip'&&t.result!=='no-setup')
               const wPnl    = wT.reduce((s,t)=>s+parseFloat(t.pnl||0),0)
@@ -468,20 +435,16 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
                         }}>
                         {isTd && <div style={{ position:'absolute', top:0, left:0, right:0, height:'2px', background:'#007d5e' }} />}
 
-                        {/* Day number */}
-                        <div style={{ fontFamily:M, fontSize: mobile?'11px':'11px', color:isTd?'#00e5b0':'#8aacb4', fontWeight:isTd?700:400, marginBottom:'4px' }}>{day}</div>
+                        <div style={{ fontFamily:M, fontSize:'11px', color:isTd?'#00e5b0':'#8aacb4', fontWeight:isTd?700:400, marginBottom:'4px' }}>{day}</div>
 
-                        {/* Desktop: trade pills */}
                         {!mobile && aT.map((t,ti) => (
                           <div key={ti} style={{ fontFamily:M, fontSize:'8px', padding:'2px 5px', borderRadius:'3px', background:RBG[t.result], color:RC[t.result], display:'inline-block', marginBottom:'2px', marginRight:'2px' }}>
                             {RL[t.result]||t.result}
                           </div>
                         ))}
 
-                        {/* Mobile: status dot */}
                         {mobile && stat && <div style={{ width:'6px', height:'6px', borderRadius:'50%', background:sc?.dot, marginBottom:'2px' }} />}
 
-                        {/* P&L */}
                         {aT.length>0 && (
                           <div style={{ fontFamily:M, fontSize: mobile?'11px':'10px', fontWeight:700, color:dPnl>=0?'#00e5b0':'#ff4f6b' }}>
                             {dPnl>=0?'+':''}${Math.abs(Math.round(dPnl))}
@@ -491,7 +454,6 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
                     )
                   })}
 
-                  {/* Desktop week summary column */}
                   {!mobile && (
                     <div style={{ minHeight:cellH, borderBottom:'1px solid #161e24', borderLeft:'1px solid #1e2c32', padding:'8px 6px', display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center', gap:'2px', background:'#0d1214' }}>
                       {wT.length>0 ? (
@@ -509,7 +471,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
           </div>
         </div>
 
-        {/* Desktop side panel */}
+        {/* Desktop side panel — FIX: overflow:'hidden' → overflow:'hidden' on wrapper but flex allows inner scroll */}
         {!mobile && sel && (
           <div style={{ width:'460px', flexShrink:0, background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', maxHeight:'calc(100vh - 120px)', display:'flex', flexDirection:'column' }}>
             <Panel />
@@ -517,14 +479,13 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
         )}
       </div>
 
-      {/* Mobile: panel below calendar */}
+      {/* Mobile: panel below calendar — FIX: increased maxHeight, minHeight:0 on inner */}
       {mobile && sel && (
-        <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', maxHeight:'75vh', display:'flex', flexDirection:'column' }}>
+        <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', maxHeight:'80vh', display:'flex', flexDirection:'column' }}>
           <Panel />
         </div>
       )}
 
-      {/* Lightbox */}
       {lightbox && (
         <div onClick={() => setLightbox(null)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.95)', zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center', cursor:'zoom-out', padding:'16px' }}>
           <img src={lightbox} alt="chart" style={{ maxWidth:'95vw', maxHeight:'90vh', borderRadius:'10px', border:'1px solid #263840', objectFit:'contain' }} />
