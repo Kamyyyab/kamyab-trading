@@ -21,7 +21,38 @@ function useIsMobile() {
   return m
 }
 
-// Isolated clock components — only these re-render every second, not App
+// Returns { isLockedOut, lockoutReason } based on streakLogs
+// Rule: 2+ violations in the current calendar week → full week lockout
+function computeLockout(streakLogs) {
+  const now = new Date()
+  // Monday of current week
+  const monday = new Date(now)
+  monday.setDate(now.getDate() - ((now.getDay() + 6) % 7))
+  monday.setHours(0, 0, 0, 0)
+
+  const pad = n => String(n).padStart(2, '0')
+  const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`
+
+  // Build Mon–Sun date strings for this week
+  const weekDates = []
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday)
+    d.setDate(monday.getDate() + i)
+    weekDates.push(fmt(d))
+  }
+
+  const violations = weekDates.filter(d => streakLogs[d] === 'violation')
+
+  if (violations.length >= 2) {
+    return {
+      isLockedOut: true,
+      lockoutReason: `${violations.length} violations denna vecka (${violations.join(', ')}). Ingen trading resten av veckan. Granska reglerna och återvänd måndag.`,
+    }
+  }
+
+  return { isLockedOut: false, lockoutReason: '' }
+}
+
 function SessionStatusDesktop() {
   const [clock, setClock] = useState(new Date())
   useEffect(() => {
@@ -31,8 +62,9 @@ function SessionStatusDesktop() {
 
   const nyParts   = clock.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hour12: false }).split(':')
   const nyMins    = parseInt(nyParts[0]) * 60 + parseInt(nyParts[1])
-  const isOpen    = nyMins >= 570 && nyMins < 960
-  const isPre     = nyMins >= 240 && nyMins < 570
+  // Window: 09:30–11:30 NY = 570–690 mins
+  const isOpen    = nyMins >= 570 && nyMins < 690
+  const isPre     = nyMins >= 0   && nyMins < 570
   const nyTime    = clock.toLocaleTimeString('sv-SE', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit' })
   const sweTime   = clock.toLocaleTimeString('sv-SE', { timeZone: 'Europe/Stockholm', hour: '2-digit', minute: '2-digit' })
   const color  = isOpen ? '#00e5b0' : isPre ? '#ffc030' : '#2a3c42'
@@ -68,8 +100,8 @@ function SessionStatusMobile() {
 
   const nyParts = clock.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hour12: false }).split(':')
   const nyMins  = parseInt(nyParts[0]) * 60 + parseInt(nyParts[1])
-  const isOpen  = nyMins >= 570 && nyMins < 960
-  const isPre   = nyMins >= 240 && nyMins < 570
+  const isOpen  = nyMins >= 570 && nyMins < 690
+  const isPre   = nyMins >= 0   && nyMins < 570
   const nyTime  = clock.toLocaleTimeString('sv-SE', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit' })
   const sweTime = clock.toLocaleTimeString('sv-SE', { timeZone: 'Europe/Stockholm',  hour: '2-digit', minute: '2-digit' })
   const color   = isOpen ? '#00e5b0' : isPre ? '#ffc030' : '#5a7a84'
@@ -176,6 +208,9 @@ export default function App() {
     saveData(null, u)
   }
 
+  // Central lockout computation — drives both banner and LOG button
+  const { isLockedOut, lockoutReason } = computeLockout(streakLogs)
+
   if (loading) return (
     <div style={{ background:'#060809', minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center' }}>
       <div style={{ fontFamily:M, fontSize:'12px', color:'#2a3c42', letterSpacing:'3px' }}>LADDAR...</div>
@@ -246,7 +281,16 @@ export default function App() {
       <div style={{ padding: MOBILE ? '14px 12px 86px' : '20px 24px' }}>
         {page==='home' && (
           <div style={{ display:'flex', flexDirection:'column', gap:'12px', maxWidth:'1400px', margin:'0 auto' }}>
-            <TodayTrade journal={journal} onAddTrade={handleAddTrade} onEditTrade={handleEditTrade} streakLogs={streakLogs} biasLogs={biasLogs} onSaveBias={handleSaveBias} />
+            <TodayTrade
+              journal={journal}
+              onAddTrade={handleAddTrade}
+              onEditTrade={handleEditTrade}
+              streakLogs={streakLogs}
+              biasLogs={biasLogs}
+              onSaveBias={handleSaveBias}
+              isLockedOut={isLockedOut}
+              lockoutReason={lockoutReason}
+            />
             {MOBILE ? (
               <>
                 <EquityCurve journal={journal} />
