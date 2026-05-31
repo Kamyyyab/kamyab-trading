@@ -161,7 +161,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
     const dt  = journal.filter(t=>t.date===ds); if(!dt.length)return null
     const act = dt.filter(t=>t.result!=='skip'&&t.result!=='no-setup')
     if(!act.length)return 'skip'
-    const hl=act.some(t=>t.result==='loss'), hw=act.some(t=>t.result==='win'||t.result==='win2')
+    const hl=act.some(t=>t.result==='loss'), hw=act.some(t=>['win','win2','tp1','tp2','tp3'].includes(t.result))
     if(hl&&!hw)return'loss'; if(hw&&!hl)return'win'; return'mixed'
   }
 
