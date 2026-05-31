@@ -23,7 +23,7 @@ const PSYCH = [
   { id:'oversize',  label:'Överposad',   c:'#ff4f6b', bg:'#1a0610' },
 ]
 
-const RBG  = { win:'#001810', win2:'#001810', loss:'#1a0610', be:'#111820', skip:'#111820', 'no-setup':'#111820' }
+const RBG  = { win:'#001810', win2:'#001810', tp1:'#001410', tp2:'#001810', tp3:'#001810', loss:'#1a0610', be:'#111820', skip:'#111820', 'no-setup':'#111820' }
 const RBDR = { win:'rgba(0,229,176,0.2)', win2:'rgba(0,229,176,0.2)', loss:'rgba(255,79,107,0.2)', be:'rgba(106,138,144,0.15)', skip:'#1e2c32', 'no-setup':'#1e2c32' }
 const RC   = { win:'#00e5b0', win2:'#00e5b0', loss:'#ff4f6b', be:'#6a8a90', skip:'#5a7a84', 'no-setup':'#5a7a84' }
 const RL   = { win:"Win +3R", win2:"Win +2R", tp1:"TP1", tp2:"TP2", tp3:"TP3", loss:"Loss -1R", be:"BE", skip:"Skip", "no-setup":"NA" }
