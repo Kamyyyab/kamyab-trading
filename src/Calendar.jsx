@@ -246,7 +246,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
   const selPnl    = selTrades.reduce((s,t) => s+parseFloat(t.pnl||0), 0)
 
   const Panel = () => (
-    <div style={{ display:'flex', flexDirection:'column', height:'100%' }}>
+    <div style={{ display:'flex', flexDirection:'column', height:'100%', overflow:'hidden' }}>
       <div style={{ padding:'14px', borderBottom:'1px solid #1e2c32', display:'flex', justifyContent:'space-between', alignItems:'flex-start', flexShrink:0 }}>
         <div>
           <div style={{ fontFamily:M, fontSize:'8px', color:'#5a7a84', letterSpacing:'2px', marginBottom:'3px' }}>
@@ -452,14 +452,14 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
         </div>
 
         {!mobile && sel && (
-          <div style={{ width:'460px', flexShrink:0, background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', maxHeight:'calc(100vh - 120px)', display:'flex', flexDirection:'column' }}>
+          <div style={{ width:'460px', flexShrink:0, background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', height:'calc(100vh - 120px)', display:'flex', flexDirection:'column' }}>
             <Panel />
           </div>
         )}
       </div>
 
       {mobile && sel && (
-        <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', maxHeight:'80vh', display:'flex', flexDirection:'column' }}>
+        <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', height:'80vh', display:'flex', flexDirection:'column' }}>
           <Panel />
         </div>
       )}
