@@ -21,11 +21,8 @@ function useIsMobile() {
   return m
 }
 
-// Returns { isLockedOut, lockoutReason } based on streakLogs
-// Rule: 2+ violations in the current calendar week → full week lockout
 function computeLockout(streakLogs) {
   const now = new Date()
-  // Monday of current week
   const monday = new Date(now)
   monday.setDate(now.getDate() - ((now.getDay() + 6) % 7))
   monday.setHours(0, 0, 0, 0)
@@ -33,7 +30,6 @@ function computeLockout(streakLogs) {
   const pad = n => String(n).padStart(2, '0')
   const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`
 
-  // Build Mon–Sun date strings for this week
   const weekDates = []
   for (let i = 0; i < 7; i++) {
     const d = new Date(monday)
@@ -62,7 +58,6 @@ function SessionStatusDesktop() {
 
   const nyParts   = clock.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hour12: false }).split(':')
   const nyMins    = parseInt(nyParts[0]) * 60 + parseInt(nyParts[1])
-  // Window: 09:30–11:30 NY = 570–690 mins
   const isOpen    = nyMins >= 570 && nyMins < 690
   const isPre     = nyMins >= 0   && nyMins < 570
   const nyTime    = clock.toLocaleTimeString('sv-SE', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit' })
@@ -180,7 +175,6 @@ export default function App() {
   function handleAddTrade(trade) {
     const nj = [trade, ...journal]
     const ns = { ...streakLogs }
-    // Auto-violation: any of these psychTags = rule broken
     const VIOLATION_TAGS = new Set(['fomo','revenge','forced','oversize'])
     const hasViolationTag = (trade.psychTags||[]).some(t => VIOLATION_TAGS.has(t))
     const isViolation = trade.brokenRules?.length > 0 || hasViolationTag
@@ -212,7 +206,6 @@ export default function App() {
     saveData(null, u)
   }
 
-  // Central lockout computation — drives both banner and LOG button
   const { isLockedOut, lockoutReason } = computeLockout(streakLogs)
 
   if (loading) return (
@@ -223,7 +216,8 @@ export default function App() {
 
   if (!user) return <Auth onLogin={setUser} />
 
-  const navH = { height:'54px', background:'rgba(6,8,9,0.95)', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', borderBottom:'1px solid #182025', display:'flex', alignItems:'center', padding:'0 16px', justifyContent:'space-between', position:'sticky', top:0, zIndex:40 }
+  const NAV_H = 54
+  const navStyle = { height:`${NAV_H}px`, background:'rgba(6,8,9,0.95)', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', borderBottom:'1px solid #182025', display:'flex', alignItems:'center', padding:'0 16px', justifyContent:'space-between', position:'sticky', top:0, zIndex:40 }
 
   const Logo = () => (
     <div style={{ display:'flex', alignItems:'center', gap:'9px' }}>
@@ -242,11 +236,16 @@ export default function App() {
     </div>
   )
 
+  // Kalender-sidan behöver en fast höjd för att panelen ska kunna scrolla.
+  // Vi räknar: 100vh - navhöjd - padding top/bottom för kalender-sidan.
+  const calPad  = MOBILE ? 14 : 20
+  const calH    = `calc(100vh - ${NAV_H + calPad}px)`
+
   return (
     <div style={{ background:'#060809', minHeight:'100vh', color:'#d0e8ec' }}>
 
       {MOBILE ? (
-        <nav style={navH}>
+        <nav style={navStyle}>
           <Logo />
           <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
             <SessionStatusMobile />
@@ -254,7 +253,7 @@ export default function App() {
           </div>
         </nav>
       ) : (
-        <nav style={navH}>
+        <nav style={navStyle}>
           <div style={{ display:'flex', alignItems:'center', gap:'6px' }}>
             <Logo />
             <div style={{ width:'1px', height:'18px', background:'#182025', margin:'0 8px' }} />
@@ -282,43 +281,51 @@ export default function App() {
         </nav>
       )}
 
-      <div style={{ padding: MOBILE ? '14px 12px 86px' : '20px 24px' }}>
-        {page==='home' && (
-          <div style={{ display:'flex', flexDirection:'column', gap:'12px', maxWidth:'1400px', margin:'0 auto' }}>
-            <TodayTrade
-              journal={journal}
-              onAddTrade={handleAddTrade}
-              onEditTrade={handleEditTrade}
-              streakLogs={streakLogs}
-              biasLogs={biasLogs}
-              onSaveBias={handleSaveBias}
-              isLockedOut={isLockedOut}
-              lockoutReason={lockoutReason}
-            />
-            {MOBILE ? (
-              <>
-                <EquityCurve journal={journal} />
-                <StreakHistory journal={journal} streakLogs={streakLogs} onSaveStreakLog={handleSaveStreakLog} />
-                <EconomicCalendar />
-              </>
-            ) : (
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 340px', gap:'12px', alignItems:'start' }}>
-                <div style={{ display:'flex', flexDirection:'column', gap:'12px' }}>
-                  <EquityCurve journal={journal} />
-                  <EconomicCalendar />
-                </div>
-                <div style={{ display:'flex', flexDirection:'column', gap:'12px' }}>
-                  <RiskCalculator />
-                  <StreakHistory journal={journal} streakLogs={streakLogs} onSaveStreakLog={handleSaveStreakLog} />
-                </div>
-              </div>
-            )}
+      {/* Kalender-sidan hanteras separat utan padding-wrapper så höjdkedjan inte bryts */}
+      {page === 'calendar' ? (
+        <div style={{ padding: MOBILE ? `${calPad}px 12px 86px` : `${calPad}px 24px`, height: calH, overflow:'hidden', boxSizing:'border-box' }}>
+          <div style={{ maxWidth:'1400px', margin:'0 auto', height:'100%', display:'flex', flexDirection:'column' }}>
+            <Calendar journal={journal} onAddTrade={handleAddTrade} onDeleteTrade={handleDeleteTrade} onEditTrade={handleEditTrade} />
           </div>
-        )}
-        {page==='calendar'   && <div style={{ maxWidth:'1400px', margin:'0 auto' }}><Calendar journal={journal} onAddTrade={handleAddTrade} onDeleteTrade={handleDeleteTrade} onEditTrade={handleEditTrade} /></div>}
-        {page==='statistics' && <div style={{ maxWidth:'900px',  margin:'0 auto' }}><Statistics journal={journal} /></div>}
-        {page==='calculator' && <div style={{ maxWidth:'520px',  margin:'0 auto', paddingBottom:'12px' }}><RiskCalculator /></div>}
-      </div>
+        </div>
+      ) : (
+        <div style={{ padding: MOBILE ? '14px 12px 86px' : '20px 24px' }}>
+          {page==='home' && (
+            <div style={{ display:'flex', flexDirection:'column', gap:'12px', maxWidth:'1400px', margin:'0 auto' }}>
+              <TodayTrade
+                journal={journal}
+                onAddTrade={handleAddTrade}
+                onEditTrade={handleEditTrade}
+                streakLogs={streakLogs}
+                biasLogs={biasLogs}
+                onSaveBias={handleSaveBias}
+                isLockedOut={isLockedOut}
+                lockoutReason={lockoutReason}
+              />
+              {MOBILE ? (
+                <>
+                  <EquityCurve journal={journal} />
+                  <StreakHistory journal={journal} streakLogs={streakLogs} onSaveStreakLog={handleSaveStreakLog} />
+                  <EconomicCalendar />
+                </>
+              ) : (
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 340px', gap:'12px', alignItems:'start' }}>
+                  <div style={{ display:'flex', flexDirection:'column', gap:'12px' }}>
+                    <EquityCurve journal={journal} />
+                    <EconomicCalendar />
+                  </div>
+                  <div style={{ display:'flex', flexDirection:'column', gap:'12px' }}>
+                    <RiskCalculator />
+                    <StreakHistory journal={journal} streakLogs={streakLogs} onSaveStreakLog={handleSaveStreakLog} />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          {page==='statistics' && <div style={{ maxWidth:'900px',  margin:'0 auto' }}><Statistics journal={journal} /></div>}
+          {page==='calculator' && <div style={{ maxWidth:'520px',  margin:'0 auto', paddingBottom:'12px' }}><RiskCalculator /></div>}
+        </div>
+      )}
 
       {MOBILE && (
         <nav style={{ position:'fixed', bottom:0, left:0, right:0, zIndex:40, background:'rgba(6,8,9,0.96)', backdropFilter:'blur(12px)', borderTop:'1px solid #182025', display:'flex', paddingBottom:'env(safe-area-inset-bottom)' }}>
