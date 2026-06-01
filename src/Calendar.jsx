@@ -207,122 +207,126 @@ function EditForm({ initial = {}, onSave, onCancel }) {
   )
 }
 
-// ── TradeCard ────────────────────────────────────────────────
-function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEdit, onImageClick }) {
-  const pv = parseFloat(t.pnl||0)
-  const em = parseInt(t.emotion||0)
-  const ec = em<=3?'#00e5b0':em>=7?'#ff4f6b':'#ffc030'
-  const hasImage = !!t.image
-
-  if (isEd) return (
-    <div style={{ background:'#0a0e10', border:'1px solid #263840', borderRadius:'10px', padding:'18px' }}>
-      <div style={{ fontFamily:M, fontSize:'9px', color:'#85a4ad', letterSpacing:'1.5px', marginBottom:'14px', fontWeight:600 }}>REDIGERA TRADE</div>
-      <EditForm initial={t} onSave={updated => onSaveEdit(ji, updated)} onCancel={onCancelEdit} />
-    </div>
-  )
-
-  // Info panel — shared between both layouts
-  const InfoPanel = () => (
-    <div style={{ display:'flex', flexDirection:'column', gap:'0', width:'100%' }}>
-
-      {/* Header row — instrument + outcome + pnl + actions */}
-      <div style={{ padding:'14px 14px 12px', display:'flex', justifyContent:'space-between', alignItems:'center', gap:'10px', flexWrap:'wrap' }}>
-        <div style={{ display:'flex', alignItems:'center', gap:'7px', flexWrap:'wrap', minWidth:0 }}>
-          <span style={{ fontFamily:M, fontSize:'10px', color:'#88a8ae', background:'#161e24', border:'1px solid #1e2c32', borderRadius:'5px', padding:'3px 8px', fontWeight:600 }}>{t.instrument}</span>
-          <span style={{ fontFamily:M, fontSize:'10px', padding:'3px 8px', borderRadius:'5px', background:RBG[t.result]||'#111820', color:RC[t.result]||'#85a4ad', fontWeight:700 }}>{RL[t.result]||t.result}</span>
-          {t.setup && <span style={{ fontFamily:M, fontSize:'9px', color:'#85a4ad', background:'#161e24', border:'1px solid #1e2c32', borderRadius:'5px', padding:'3px 7px' }}>{t.setup}</span>}
-        </div>
-        <div style={{ display:'flex', alignItems:'center', gap:'10px', flexShrink:0 }}>
-          <span style={{ fontFamily:M, fontSize:'16px', fontWeight:700, color:pv>=0?'#00e5b0':'#ff4f6b' }}>{pv>=0?'+':''}${Math.abs(Math.round(pv))}</span>
-          <button onClick={onToggleEdit} style={{ background:'none', border:'1px solid #1e2c32', borderRadius:'5px', color:'#85a4ad', fontFamily:M, fontSize:'10px', padding:'4px 9px', cursor:'pointer', transition:'all 0.15s' }}
-            onMouseEnter={e=>{e.currentTarget.style.borderColor='#3a5460';e.currentTarget.style.color='#d0e8ec'}}
-            onMouseLeave={e=>{e.currentTarget.style.borderColor='#1e2c32';e.currentTarget.style.color='#85a4ad'}}
-          >✎ Edit</button>
-          <button onClick={onDelete} style={{ background:'none', border:'none', color:'#5a7a84', cursor:'pointer', fontSize:'16px', padding:'2px 4px', transition:'color 0.15s' }}
-            onMouseEnter={e=>e.currentTarget.style.color='#ff4f6b'}
-            onMouseLeave={e=>e.currentTarget.style.color='#5a7a84'}
-          >×</button>
-        </div>
-      </div>
-
-      {/* Emotion bar */}
-      {em>0 && (
-        <div style={{ padding:'10px 14px', display:'flex', alignItems:'center', gap:'10px', borderTop:'1px solid #161e24' }}>
-          <span style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'1px', flexShrink:0, fontWeight:600 }}>EMOTION</span>
-          <div style={{ display:'flex', gap:'2px', flex:1 }}>
-            {[1,2,3,4,5,6,7,8,9,10].map(n=><div key={n} style={{ flex:1, height:'4px', borderRadius:'2px', background:n<=em?ec:'#1e2c32' }} />)}
-          </div>
-          <span style={{ fontFamily:M, fontSize:'10px', color:ec, flexShrink:0, fontWeight:700 }}>{em}/10</span>
-        </div>
-      )}
-
-      {/* Psych tags */}
-      {t.psychTags?.length>0 && (
-        <div style={{ padding:'8px 14px 10px', display:'flex', gap:'5px', flexWrap:'wrap', borderTop:'1px solid #161e24' }}>
-          {t.psychTags.map(id => { const tag=PSYCH.find(p=>p.id===id); return tag?<span key={id} style={{ fontFamily:M, fontSize:'9px', color:tag.c, background:tag.bg, border:`1px solid ${tag.c}33`, borderRadius:'5px', padding:'3px 8px', fontWeight:600 }}>{tag.label}</span>:null })}
-        </div>
-      )}
-
-      {/* Notes */}
-      {t.note && (
-        <div style={{ padding:'12px 14px 14px', borderTop:'1px solid #161e24', flex:1 }}>
-          <div style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'1px', marginBottom:'7px', fontWeight:600 }}>NOTES</div>
-          <div style={{ fontSize:'13px', color:'#a0c0ca', lineHeight:1.75, whiteSpace:'pre-wrap', wordBreak:'break-word', borderLeft:'2px solid #263840', paddingLeft:'12px' }}>{t.note}</div>
-        </div>
-      )}
-    </div>
-  )
-
-  // Two-column layout when image exists
-  if (hasImage) {
-    return (
-      <div style={{ 
-        background:'#0a0e10', 
-        border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, 
-        borderRadius:'10px', 
-        overflow:'hidden', 
-        display:'grid', 
-        gridTemplateColumns:'minmax(200px, 1.2fr) 1.8fr',
-        alignItems:'start'
-      }}>
-        {/* LEFT — image */}
-        <div style={{ 
-          borderRight:'1px solid #161e24', 
-          display:'flex', 
-          alignItems:'center', 
-          justifyContent:'center',
-          alignSelf:'stretch',
-          background:'#080b0c',
-          padding:'10px'
-        }}>
-          <img
-            src={t.image}
-            alt="chart"
-            onClick={() => onImageClick(t.image)}
+{/* MODAL */}
+      {sel && (
+        <div
+          onClick={closeModal}
+          style={{
+            position:'fixed', inset:0, background:'rgba(0,0,0,0.85)', backdropFilter:'blur(8px)',
+            zIndex:1000, display:'flex', alignItems: mobile?'flex-end':'center', justifyContent:'center',
+            padding: mobile?'0':'24px',
+            animation:'fadeIn 0.2s ease',
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
             style={{
-              width:'100%',
-              maxHeight:'500px',
-              objectFit:'contain',
-              display:'block',
-              cursor:'zoom-in',
+              background:'#111820', border:'1px solid #1e2c32',
+              borderRadius: mobile?'16px 16px 0 0':'14px',
+              width: mobile?'100%':'min(960px, 100%)', // Ökad bredd något för att ge mer yta
+              maxHeight: mobile?'92vh':'90vh', // Använd maxHeight istället för fast height
+              display:'flex', flexDirection:'column', overflow:'hidden',
+              boxShadow:'0 24px 80px rgba(0,0,0,0.6)',
+              animation: mobile?'slideUp 0.25s ease':'scaleIn 0.2s ease',
             }}
-          />
-        </div>
-        {/* RIGHT — info */}
-        <div style={{ display:'flex', flexDirection:'column' }}>
-          <InfoPanel />
-        </div>
-      </div>
-    )
-  }
+          >
+            {/* Modal header */}
+            <div style={{
+              padding:'16px 18px', borderBottom:'1px solid #1e2c32',
+              display:'flex', justifyContent:'space-between', alignItems:'center',
+              flexShrink:0, background:'#0d1214',
+            }}>
+              <div>
+                <div style={{ fontFamily:M, fontSize:'9px', color:'#85a4ad', letterSpacing:'2px', marginBottom:'4px', fontWeight:600 }}>
+                  {new Date(sel+'T12:00:00').toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'}).toUpperCase()}
+                </div>
+                {selTrades.filter(t=>t.result!=='skip'&&t.result!=='no-setup').length>0 ? (
+                  <div style={{ display:'flex', alignItems:'baseline', gap:'10px', flexWrap:'wrap' }}>
+                    <span style={{ fontFamily:M, fontSize:'24px', fontWeight:700, color:selPnl>=0?'#00e5b0':'#ff4f6b' }}>
+                      {selPnl>=0?'+':''}${Math.round(selPnl)}
+                    </span>
+                    <span style={{ fontFamily:M, fontSize:'10px', color:'#85a4ad' }}>
+                      {selWins>0 && <span style={{ color:'#00e5b0' }}>{selWins}W</span>}
+                      {selWins>0 && selLoss>0 && ' · '}
+                      {selLoss>0 && <span style={{ color:'#ff4f6b' }}>{selLoss}L</span>}
+                    </span>
+                  </div>
+                ) : (
+                  <div style={{ fontFamily:M, fontSize:'13px', color:'#88a8ae' }}>Ingen aktivitet</div>
+                )}
+              </div>
+              <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
+                {!showForm && (
+                  <button onClick={() => { setShowForm(true); setEditingIdx(null) }} style={{
+                    background:'#00e5b0', color:'#020f08', fontFamily:M, fontSize:'11px', fontWeight:700,
+                    padding:'9px 16px', borderRadius:'7px', border:'none', cursor:'pointer',
+                    letterSpacing:'1px', transition:'background 0.15s',
+                  }}
+                    onMouseEnter={e=>e.currentTarget.style.background='#00c49a'}
+                    onMouseLeave={e=>e.currentTarget.style.background='#00e5b0'}
+                  >+ NY TRADE</button>
+                )}
+                <button onClick={closeModal} style={{
+                  background:'transparent', border:'1px solid #263840', borderRadius:'7px',
+                  color:'#85a4ad', cursor:'pointer', fontSize:'18px',
+                  width:'34px', height:'34px', lineHeight:1, transition:'all 0.15s',
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                }}
+                  onMouseEnter={e=>{e.currentTarget.style.borderColor='#3a5460';e.currentTarget.style.color='#d0e8ec'}}
+                  onMouseLeave={e=>{e.currentTarget.style.borderColor='#263840';e.currentTarget.style.color='#85a4ad'}}
+                >×</button>
+              </div>
+            </div>
 
-  // No image — single column
-  return (
-    <div style={{ background:'#0a0e10', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden' }}>
-      <InfoPanel />
-    </div>
-  )
-}
+            {/* Modal body — DETTA FIXAR SCROLLEN */}
+            <div style={{
+              flex:1,
+              overflowY:'auto', // Aktiverar vertikal scrollning för hela innehållet
+              padding:'16px 18px', 
+              display:'flex', 
+              flexDirection:'column', 
+              gap:'12px',
+              background:'#111820',
+              WebkitOverflowScrolling:'touch',
+            }}>
+              {showForm && (
+                <div style={{ background:'#0a0e10', border:'1px solid #263840', borderRadius:'10px', padding:'18px' }}>
+                  <div style={{ fontFamily:M, fontSize:'9px', color:'#00e5b0', letterSpacing:'1.5px', marginBottom:'14px', fontWeight:700 }}>NY TRADE</div>
+                  <EditForm
+                    onSave={trade => { onAddTrade({ date:sel, ...trade, timestamp:new Date().toISOString() }); setShowForm(false) }}
+                    onCancel={() => setShowForm(false)}
+                  />
+                </div>
+              )}
+
+              {selTrades.length===0 && !showForm && (
+                <div style={{ fontFamily:M, fontSize:'13px', color:'#5a7a84', padding:'48px 0', textAlign:'center' }}>
+                  <div style={{ fontSize:'32px', marginBottom:'10px', opacity:0.4 }}>—</div>
+                  <div>Inga trades på denna dag</div>
+                  <div style={{ fontSize:'10px', marginTop:'6px', color:'#4a6470' }}>Tryck + NY TRADE för att logga</div>
+                </div>
+              )}
+
+              {selTrades.map((t, i) => {
+                const ji = journal.findIndex(j => j===t)
+                return (
+                  <TradeCard
+                    key={i}
+                    t={t}
+                    ji={ji}
+                    isEd={editingIdx===ji}
+                    onToggleEdit={() => setEditingIdx(editingIdx===ji?null:ji)}
+                    onDelete={() => onDeleteTrade?.(ji)}
+                    onSaveEdit={doEdit}
+                    onCancelEdit={() => setEditingIdx(null)}
+                    onImageClick={img => setLightbox(img)}
+                  />
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
 export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEditTrade }) {
   const mobile = useIsMobile()
