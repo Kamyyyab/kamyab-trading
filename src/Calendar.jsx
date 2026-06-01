@@ -223,7 +223,7 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
 
   // Info panel — shared between both layouts
   const InfoPanel = () => (
-    <div style={{ display:'flex', flexDirection:'column', gap:'0' }}>
+    <div style={{ display:'flex', flexDirection:'column', gap:'0', width:'100%' }}>
 
       {/* Header row — instrument + outcome + pnl + actions */}
       <div style={{ padding:'14px 14px 12px', display:'flex', justifyContent:'space-between', alignItems:'center', gap:'10px', flexWrap:'wrap' }}>
@@ -276,27 +276,40 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
   // Two-column layout when image exists
   if (hasImage) {
     return (
-      <div style={{ background:'#0a0e10', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden', display:'grid', gridTemplateColumns:'1fr 1fr', minHeight:'320px' }}>
+      <div style={{ 
+        background:'#0a0e10', 
+        border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, 
+        borderRadius:'10px', 
+        overflow:'hidden', 
+        display:'grid', 
+        gridTemplateColumns:'minmax(200px, 1.2fr) 1.8fr',
+        alignItems:'start'
+      }}>
         {/* LEFT — image */}
-        <div style={{ borderRight:'1px solid #161e24', display:'flex', alignItems:'stretch' }}>
+        <div style={{ 
+          borderRight:'1px solid #161e24', 
+          display:'flex', 
+          alignItems:'center', 
+          justifyContent:'center',
+          alignSelf:'stretch',
+          background:'#080b0c',
+          padding:'10px'
+        }}>
           <img
             src={t.image}
             alt="chart"
             onClick={() => onImageClick(t.image)}
             style={{
               width:'100%',
-              height:'100%',
-              minHeight:'280px',
-              objectFit:'cover',
-              objectPosition:'center',
+              maxHeight:'500px',
+              objectFit:'contain',
               display:'block',
               cursor:'zoom-in',
-              background:'#080b0c',
             }}
           />
         </div>
         {/* RIGHT — info */}
-        <div style={{ display:'flex', flexDirection:'column', overflow:'hidden' }}>
+        <div style={{ display:'flex', flexDirection:'column' }}>
           <InfoPanel />
         </div>
       </div>
