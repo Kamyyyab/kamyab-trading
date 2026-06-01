@@ -40,13 +40,13 @@ function Auth({ onLogin }) {
           </div>
           <div>
             <div style={{ fontFamily: 'monospace', fontSize: '16px', fontWeight: 700, color: '#00e5b0' }}>Trading OS</div>
-            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#4a6870', letterSpacing: '1px' }}>{isSignUp ? 'SKAPA KONTO' : 'LOGGA IN'}</div>
+            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#7090a0', letterSpacing: '1px' }}>{isSignUp ? 'SKAPA KONTO' : 'LOGGA IN'}</div>
           </div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <div>
-            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#4a6870', letterSpacing: '2px', marginBottom: '5px' }}>EMAIL</div>
+            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#7090a0', letterSpacing: '2px', marginBottom: '5px' }}>EMAIL</div>
             <input
               type="email"
               value={email}
@@ -57,7 +57,7 @@ function Auth({ onLogin }) {
             />
           </div>
           <div>
-            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#4a6870', letterSpacing: '2px', marginBottom: '5px' }}>LÖSENORD</div>
+            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#7090a0', letterSpacing: '2px', marginBottom: '5px' }}>LÖSENORD</div>
             <input
               type="password"
               value={password}
@@ -77,7 +77,7 @@ function Auth({ onLogin }) {
           </button>
 
           <button onClick={() => { setIsSignUp(!isSignUp); setError(null); setMessage(null) }}
-            style={{ background: 'none', border: 'none', color: '#4a6870', fontFamily: 'monospace', fontSize: '10px', cursor: 'pointer', padding: '4px' }}>
+            style={{ background: 'none', border: 'none', color: '#7090a0', fontFamily: 'monospace', fontSize: '10px', cursor: 'pointer', padding: '4px' }}>
             {isSignUp ? 'Har redan konto? Logga in' : 'Inget konto? Skapa ett'}
           </button>
         </div>

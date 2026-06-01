@@ -61,7 +61,7 @@ const inp = {
 const label = {
   fontFamily: 'monospace',
   fontSize: '10px',
-  color: '#6a8a90',
+  color: '#88a8ae',
   letterSpacing: '1.5px',
   marginBottom: '7px',
   display: 'block',
@@ -73,7 +73,7 @@ function Chip({ active, color, onClick, children }) {
       background: active ? '#1c2426' : '#0f1618',
       border: `1px solid ${active ? (color || '#007d5e') : '#1e2d31'}`,
       borderRadius: '8px',
-      color: active ? (color || '#00e5b0') : '#6a8a90',
+      color: active ? (color || '#00e5b0') : '#88a8ae',
       fontFamily: 'monospace',
       fontSize: '11px',
       padding: '8px 13px',
@@ -121,7 +121,7 @@ function RiskCalculator() {
       flexDirection: 'column',
       gap: '16px',
     }}>
-      <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#4a6870', letterSpacing: '2px' }}>RISK CALCULATOR</div>
+      <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#7090a0', letterSpacing: '2px' }}>RISK CALCULATOR</div>
 
       {/* Account chips */}
       <div>
@@ -219,8 +219,8 @@ function RiskCalculator() {
               </div>
             </div>
             <div style={{ background: '#1c2426', border: '1px solid #26383d', borderRadius: '12px', padding: '16px' }}>
-              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#4a6870', letterSpacing: '1.5px', marginBottom: '6px' }}>KONTRAKT</div>
-              <div style={{ fontFamily: 'monospace', fontSize: '26px', fontWeight: 700, color: slPts > 0 ? '#00e5b0' : '#2e4448', lineHeight: 1 }}>
+              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#7090a0', letterSpacing: '1.5px', marginBottom: '6px' }}>KONTRAKT</div>
+              <div style={{ fontFamily: 'monospace', fontSize: '26px', fontWeight: 700, color: slPts > 0 ? '#00e5b0' : '#4a6470', lineHeight: 1 }}>
                 {slPts > 0 ? contracts : '—'}
               </div>
             </div>
@@ -230,7 +230,7 @@ function RiskCalculator() {
           {slPts > 0 && contracts > 0 && (
             <>
               <div style={{ background: '#1c2426', border: '1px solid #26383d', borderRadius: '10px', padding: '12px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontFamily: 'monospace', fontSize: '10px', color: '#6a8a90', letterSpacing: '1px' }}>SL / kontrakt</span>
+                <span style={{ fontFamily: 'monospace', fontSize: '10px', color: '#88a8ae', letterSpacing: '1px' }}>SL / kontrakt</span>
                 <span style={{ fontFamily: 'monospace', fontSize: '15px', fontWeight: 700, color: '#ff4f6b' }}>-${slValuePerContract.toFixed(2)}</span>
               </div>
 

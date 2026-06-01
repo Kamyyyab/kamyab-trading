@@ -95,7 +95,7 @@ function EconomicCalendar() {
       <div style={{
         fontFamily: 'monospace',
         fontSize: '10px',
-        color: '#6a8a90',
+        color: '#88a8ae',
         letterSpacing: '2px',
         padding: '10px 0 6px',
         borderBottom: '1px solid #1a2225',
@@ -119,7 +119,7 @@ function EconomicCalendar() {
         marginBottom: '6px',
       }}>
         {/* time */}
-        <div style={{ fontFamily: 'monospace', fontSize: '11px', color: '#6a8a90', minWidth: '36px', flexShrink: 0 }}>
+        <div style={{ fontFamily: 'monospace', fontSize: '11px', color: '#88a8ae', minWidth: '36px', flexShrink: 0 }}>
           {formatTime(e.time)}
         </div>
         {/* event name */}
@@ -161,12 +161,12 @@ function EconomicCalendar() {
             onError={ev => { ev.target.style.display = 'none'; ev.target.nextSibling.style.display = 'flex' }}
           />
           <div style={{ width: '30px', height: '30px', borderRadius: '7px', background: '#1a2225', display: 'none', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <span style={{ fontFamily: 'monospace', fontSize: '8px', color: '#4a6870', fontWeight: 700 }}>{e.symbol?.slice(0, 2)}</span>
+            <span style={{ fontFamily: 'monospace', fontSize: '8px', color: '#7090a0', fontWeight: 700 }}>{e.symbol?.slice(0, 2)}</span>
           </div>
           <div>
             <div style={{ fontFamily: 'monospace', fontSize: '14px', fontWeight: 700, color: '#00e5b0' }}>{e.symbol}</div>
             {e.epsEstimate != null && (
-              <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#6a8a90', marginTop: '1px' }}>
+              <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#88a8ae', marginTop: '1px' }}>
                 EPS est. ${parseFloat(e.epsEstimate).toFixed(2)}
               </div>
             )}
@@ -197,12 +197,12 @@ function EconomicCalendar() {
 
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-        <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#4a6870', letterSpacing: '2px' }}>MARKET EVENTS</div>
+        <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#7090a0', letterSpacing: '2px' }}>MARKET EVENTS</div>
         <button
           onClick={fetchData}
           style={{
             background: 'none', border: '1px solid #1e2d31', borderRadius: '8px',
-            color: '#6a8a90', fontFamily: 'monospace', fontSize: '12px',
+            color: '#88a8ae', fontFamily: 'monospace', fontSize: '12px',
             padding: '6px 12px', cursor: 'pointer', minHeight: '34px',
           }}>
           ↻
@@ -210,7 +210,7 @@ function EconomicCalendar() {
       </div>
 
       {loading && (
-        <div style={{ color: '#6a8a90', fontFamily: 'monospace', fontSize: '12px', padding: '24px 0', textAlign: 'center' }}>
+        <div style={{ color: '#88a8ae', fontFamily: 'monospace', fontSize: '12px', padding: '24px 0', textAlign: 'center' }}>
           Laddar...
         </div>
       )}
@@ -245,7 +245,7 @@ function EconomicCalendar() {
                     background: tab === t.id ? '#1c2f34' : 'none',
                     border: tab === t.id ? '1px solid #26383d' : '1px solid transparent',
                     borderRadius: '8px',
-                    color: tab === t.id ? '#e2eeee' : '#6a8a90',
+                    color: tab === t.id ? '#e2eeee' : '#88a8ae',
                     fontFamily: 'monospace',
                     fontSize: '11px',
                     padding: '9px 6px',
@@ -262,7 +262,7 @@ function EconomicCalendar() {
             {tab === 'econ' && (
               <div>
                 {econGroups.length === 0 && (
-                  <div style={{ color: '#6a8a90', fontFamily: 'monospace', fontSize: '12px', padding: '16px 0' }}>
+                  <div style={{ color: '#88a8ae', fontFamily: 'monospace', fontSize: '12px', padding: '16px 0' }}>
                     Inga high-impact events kommande 7 dagar
                   </div>
                 )}
@@ -279,7 +279,7 @@ function EconomicCalendar() {
             {tab === 'earnings' && (
               <div>
                 {earnGroups.length === 0 && (
-                  <div style={{ color: '#6a8a90', fontFamily: 'monospace', fontSize: '12px', padding: '16px 0' }}>
+                  <div style={{ color: '#88a8ae', fontFamily: 'monospace', fontSize: '12px', padding: '16px 0' }}>
                     Inga earnings kommande 7 dagar
                   </div>
                 )}
@@ -297,12 +297,12 @@ function EconomicCalendar() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
 
             <div>
-              <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#4a6870', letterSpacing: '2px', marginBottom: '10px' }}>
+              <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#7090a0', letterSpacing: '2px', marginBottom: '10px' }}>
                 ECONOMIC — HIGH IMPACT
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', maxHeight: '320px', overflowY: 'auto', paddingRight: '4px' }}>
                 {econGroups.length === 0 && (
-                  <div style={{ color: '#4a6870', fontFamily: 'monospace', fontSize: '11px', padding: '12px 0' }}>
+                  <div style={{ color: '#7090a0', fontFamily: 'monospace', fontSize: '11px', padding: '12px 0' }}>
                     Inga events kommande 7 dagar
                   </div>
                 )}
@@ -316,12 +316,12 @@ function EconomicCalendar() {
             </div>
 
             <div>
-              <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#4a6870', letterSpacing: '2px', marginBottom: '10px' }}>
+              <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#7090a0', letterSpacing: '2px', marginBottom: '10px' }}>
                 EARNINGS
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', maxHeight: '320px', overflowY: 'auto', paddingRight: '4px' }}>
                 {earnGroups.length === 0 && (
-                  <div style={{ color: '#4a6870', fontFamily: 'monospace', fontSize: '11px', padding: '12px 0' }}>
+                  <div style={{ color: '#7090a0', fontFamily: 'monospace', fontSize: '11px', padding: '12px 0' }}>
                     Inga earnings kommande 7 dagar
                   </div>
                 )}

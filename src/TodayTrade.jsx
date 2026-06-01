@@ -13,26 +13,26 @@ const PSYCH = [
   { id: 'oversize',  label: 'Överposad',   c: '#ff4f6b', bg: '#1a0610' },
 ]
 
-const RC = { win:'#00e5b0', win2:'#00e5b0', tp1:'#4ab89a', tp2:'#00e5b0', tp3:'#00e5b0', loss:'#ff4f6b', be:'#6a8a90', skip:'#5a7a84', 'no-setup':'#5a7a84' }
+const RC = { win:'#00e5b0', win2:'#00e5b0', tp1:'#4ab89a', tp2:'#00e5b0', tp3:'#00e5b0', loss:'#ff4f6b', be:'#88a8ae', skip:'#85a4ad', 'no-setup':'#85a4ad' }
 const RB = { win:'#001810', win2:'#001810', tp1:'#001410', tp2:'#001810', tp3:'#001a14', loss:'#1a0610', be:'#111820', skip:'#111820', 'no-setup':'#111820' }
 const RL = { win:'Win +3R', win2:'Win +2R', tp1:'TP1', tp2:'TP2', tp3:'TP3', loss:'Loss −1R', be:'Break Even', skip:'Skip', 'no-setup':'No Setup' }
 const BIAS = [
   { v:'bullish', label:'▲ Bull', c:'#00e5b0', bg:'#001810', bdr:'rgba(0,229,176,0.25)' },
   { v:'bearish', label:'▼ Bear', c:'#ff4f6b', bg:'#1a0610', bdr:'rgba(255,79,107,0.25)' },
-  { v:'neutral', label:'◆ Neu',  c:'#6a8a90', bg:'#111820', bdr:'rgba(106,138,144,0.2)' },
+  { v:'neutral', label:'◆ Neu',  c:'#88a8ae', bg:'#111820', bdr:'rgba(106,138,144,0.2)' },
 ]
 
 const inp = { width:'100%', background:'#0a0e10', border:'1px solid #263840', borderRadius:'8px', color:'#d0e8ec', fontSize:'15px', padding:'10px 12px', outline:'none', boxSizing:'border-box', transition:'border-color 0.15s' }
-const lbl = { fontFamily:M, fontSize:'8px', color:'#5a7a84', letterSpacing:'2px', marginBottom:'5px', display:'block' }
+const lbl = { fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'2px', marginBottom:'5px', display:'block' }
 
 const RESULTS = [
   { v:"tp1",       label:"TP1",       c:"#4ab89a", bg:"#001410" },
   { v:"tp2",       label:"TP2",       c:"#00e5b0", bg:"#001810" },
   { v:"tp3",       label:"TP3",       c:"#00e5b0", bg:"#001a14" },
   { v:"loss",      label:"Loss -1R",  c:"#ff4f6b", bg:"#1a0610" },
-  { v:"be",        label:"Break Even",c:"#6a8a90", bg:"#111820" },
-  { v:"skip",      label:"Skip",      c:"#5a7a84", bg:"#111820" },
-  { v:"no-setup",  label:"No Setup",  c:"#3a5460", bg:"#0d1214" },
+  { v:"be",        label:"Break Even",c:"#88a8ae", bg:"#111820" },
+  { v:"skip",      label:"Skip",      c:"#85a4ad", bg:"#111820" },
+  { v:"no-setup",  label:"No Setup",  c:"#5a7a84", bg:"#0d1214" },
 ]
 
 // Outcomes that count as real trades (require bias)
@@ -82,8 +82,8 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
         <div style={{ background:'#0d1214', border:'1px solid rgba(90,122,132,0.3)', borderRadius:'8px', padding:'10px 13px', display:'flex', gap:'9px', alignItems:'flex-start' }}>
           <span style={{ fontSize:'14px', flexShrink:0 }}>ℹ️</span>
           <div>
-            <div style={{ fontFamily:M, fontSize:'10px', color:'#6a8a90', fontWeight:700, marginBottom:'2px' }}>TRADE #2 — KONTROLLERA</div>
-            <div style={{ fontFamily:M, fontSize:'9px', color:'#4a6870', lineHeight:1.5 }}>Samma bias? Ingen emotionell drivkraft? Max 50% risk. Annars — stanna.</div>
+            <div style={{ fontFamily:M, fontSize:'10px', color:'#88a8ae', fontWeight:700, marginBottom:'2px' }}>TRADE #2 — KONTROLLERA</div>
+            <div style={{ fontFamily:M, fontSize:'9px', color:'#7090a0', lineHeight:1.5 }}>Samma bias? Ingen emotionell drivkraft? Max 50% risk. Annars — stanna.</div>
           </div>
         </div>
       )}
@@ -104,7 +104,7 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
               fontFamily:M, fontSize:'10px', padding:'7px 11px', borderRadius:'6px',
               background: result===r.v ? r.bg : '#0d1214',
               border: `1px solid ${result===r.v ? r.c+'55' : '#263840'}`,
-              color: result===r.v ? r.c : '#5a7a84',
+              color: result===r.v ? r.c : '#85a4ad',
               cursor:'pointer', transition:'all 0.15s',
               WebkitTapHighlightColor:'transparent',
             }}>{r.label}</button>
@@ -115,19 +115,19 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
       <div>
         <span style={lbl}>INSTRUMENT</span>
         <input value={instrument} onChange={e => setInstrument(e.target.value)} style={inp}
-          onFocus={e=>e.target.style.borderColor='#3a5460'} onBlur={e=>e.target.style.borderColor='#263840'} />
+          onFocus={e=>e.target.style.borderColor='#5a7a84'} onBlur={e=>e.target.style.borderColor='#263840'} />
       </div>
 
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px' }}>
         <div>
           <span style={lbl}>P&L ($)</span>
           <input type="number" inputMode="decimal" value={pnl} onChange={e => setPnl(e.target.value)} placeholder="450" style={inp}
-            onFocus={e=>e.target.style.borderColor='#3a5460'} onBlur={e=>e.target.style.borderColor='#263840'} />
+            onFocus={e=>e.target.style.borderColor='#5a7a84'} onBlur={e=>e.target.style.borderColor='#263840'} />
         </div>
         <div>
           <span style={lbl}>SETUP</span>
           <input value={setup} onChange={e => setSetup(e.target.value)} placeholder="BTB" style={inp}
-            onFocus={e=>e.target.style.borderColor='#3a5460'} onBlur={e=>e.target.style.borderColor='#263840'} />
+            onFocus={e=>e.target.style.borderColor='#5a7a84'} onBlur={e=>e.target.style.borderColor='#263840'} />
         </div>
       </div>
 
@@ -139,7 +139,7 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
               flex:1, padding:'8px 0', borderRadius:'5px',
               border:`1px solid ${emotion===String(n)?'#007d5e':'#263840'}`,
               background:emotion===String(n)?'#001810':'#161e24',
-              color:emotion===String(n)?'#00e5b0':'#5a7a84',
+              color:emotion===String(n)?'#00e5b0':'#85a4ad',
               fontFamily:M, fontSize:'11px', cursor:'pointer', transition:'all 0.15s',
             }}>{n}</button>
           ))}
@@ -155,7 +155,7 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
               <button type="button" key={tag.id} onClick={() => toggleTag(tag.id)} style={{
                 fontFamily:M, fontSize:'9px', padding:'5px 10px', borderRadius:'5px',
                 background:a?tag.bg:'#161e24', border:`1px solid ${a?tag.c+'33':'#1e2c32'}`,
-                color:a?tag.c:'#5a7a84', cursor:'pointer', transition:'all 0.15s',
+                color:a?tag.c:'#85a4ad', cursor:'pointer', transition:'all 0.15s',
               }}>{tag.label}</button>
             )
           })}
@@ -166,7 +166,7 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
         <span style={lbl}>NOTES</span>
         <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Analys, tankar..."
           style={{...inp, resize:'vertical', minHeight:'140px', lineHeight:1.7, fontSize:'14px'}}
-          onFocus={e=>e.target.style.borderColor='#3a5460'} onBlur={e=>e.target.style.borderColor='#263840'} />
+          onFocus={e=>e.target.style.borderColor='#5a7a84'} onBlur={e=>e.target.style.borderColor='#263840'} />
       </div>
 
       <div style={{ display:'flex', gap:'8px' }}>
@@ -188,9 +188,9 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
         >
           {(isSecondTrade && firstTradeWon) ? 'STANNA FÖR DAGEN' : 'SPARA'}
         </button>
-        <button type="button" onClick={onCancel} style={{ background:'transparent', color:'#5a7a84', fontFamily:M, fontSize:'10px', padding:'12px 14px', borderRadius:'8px', border:'1px solid #1e2c32', cursor:'pointer', transition:'all 0.15s' }}
-          onMouseEnter={e=>{e.currentTarget.style.borderColor='#3a5460';e.currentTarget.style.color='#8aacb4'}}
-          onMouseLeave={e=>{e.currentTarget.style.borderColor='#1e2c32';e.currentTarget.style.color='#5a7a84'}}>Avbryt</button>
+        <button type="button" onClick={onCancel} style={{ background:'transparent', color:'#85a4ad', fontFamily:M, fontSize:'10px', padding:'12px 14px', borderRadius:'8px', border:'1px solid #1e2c32', cursor:'pointer', transition:'all 0.15s' }}
+          onMouseEnter={e=>{e.currentTarget.style.borderColor='#5a7a84';e.currentTarget.style.color='#8aacb4'}}
+          onMouseLeave={e=>{e.currentTarget.style.borderColor='#1e2c32';e.currentTarget.style.color='#85a4ad'}}>Avbryt</button>
       </div>
     </div>
   )
@@ -250,9 +250,9 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
   function card(label, value, color, sub) {
     return (
       <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', padding:'14px 16px' }}>
-        <div style={{ fontFamily:M, fontSize:'8px', color:'#5a7a84', letterSpacing:'2px', marginBottom:'6px' }}>{label}</div>
+        <div style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'2px', marginBottom:'6px' }}>{label}</div>
         <div style={{ fontFamily:M, fontSize:'24px', fontWeight:700, color, lineHeight:1 }}>{value}</div>
-        {sub && <div style={{ fontFamily:M, fontSize:'9px', color:'#5a7a84', marginTop:'4px' }}>{sub}</div>}
+        {sub && <div style={{ fontFamily:M, fontSize:'9px', color:'#85a4ad', marginTop:'4px' }}>{sub}</div>}
       </div>
     )
   }
@@ -289,14 +289,14 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
         {card('WIN RATE',    `${winRate}%`,                                      '#00e5b0', `${trades.length} trades`)}
         {card('TOTALT P&L',  `${totalPnl>=0?'+':''}$${Math.round(totalPnl)}`,   totalPnl>=0?'#00e5b0':'#ff4f6b')}
         {card('DENNA VECKA', `${weekPnl>=0?'+':''}$${Math.round(weekPnl)}`,     weekPnl>=0?'#00e5b0':'#ff4f6b')}
-        {card('STREAK',      `${streak}d`,                                       streak>=5?'#00e5b0':streak>=2?'#ffc030':'#5a7a84')}
+        {card('STREAK',      `${streak}d`,                                       streak>=5?'#00e5b0':streak>=2?'#ffc030':'#85a4ad')}
       </div>
 
       {/* Bias */}
       <div style={{ background:'#111820', border:`1px solid ${curBias?curBias.bdr:'#1e2c32'}`, borderRadius:'12px', padding:'12px 14px', transition:'border-color 0.2s' }}>
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'9px' }}>
           <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
-            <span style={{ fontFamily:M, fontSize:'8px', color:'#5a7a84', letterSpacing:'2px' }}>DAGLIG BIAS</span>
+            <span style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'2px' }}>DAGLIG BIAS</span>
             {!todayBias && (
               <span style={{ fontFamily:M, fontSize:'8px', color:'#ffc030', background:'#1a1000', border:'1px solid rgba(255,192,48,0.25)', borderRadius:'4px', padding:'1px 6px', letterSpacing:'0.5px' }}>
                 OBLIGATORISK
@@ -310,7 +310,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
             <button type="button" key={b.v} onClick={() => onSaveBias?.(today, todayBias===b.v?null:b.v)} style={{
               flex:1, minHeight:'36px', background:todayBias===b.v?b.bg:'#0d1214',
               border:`1px solid ${todayBias===b.v?b.bdr:'#1e2c32'}`,
-              borderRadius:'8px', color:todayBias===b.v?b.c:'#5a7a84',
+              borderRadius:'8px', color:todayBias===b.v?b.c:'#85a4ad',
               fontFamily:M, fontSize:'11px', cursor:'pointer', transition:'all 0.15s',
             }}>{b.label}</button>
           ))}
@@ -322,8 +322,8 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:todayTrades.length>0||showForm?'12px':'0' }}>
           <div style={{ display:'flex', alignItems:'center', gap:'10px', flexWrap:'wrap' }}>
             <div>
-              <div style={{ fontFamily:M, fontSize:'8px', color:'#5a7a84', letterSpacing:'2px', marginBottom:'2px' }}>DAGENS TRADES</div>
-              <div style={{ fontSize:'11px', color:'#5a7a84' }}>{new Date().toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'})}</div>
+              <div style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'2px', marginBottom:'2px' }}>DAGENS TRADES</div>
+              <div style={{ fontSize:'11px', color:'#85a4ad' }}>{new Date().toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'})}</div>
             </div>
             {timerStr && (
               <div style={{ display:'flex', alignItems:'center', gap:'5px', background:'#0d1214', border:`1px solid ${isOpen?'rgba(0,229,176,0.2)':'#1e2c32'}`, borderRadius:'6px', padding:'4px 9px' }}>
@@ -336,8 +336,8 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
             {/* After window — show closed */}
             {!isOpen && !isPre && (
               <div style={{ display:'flex', alignItems:'center', gap:'5px', background:'#0d1214', border:'1px solid #1e2c32', borderRadius:'6px', padding:'4px 9px' }}>
-                <div style={{ width:'5px', height:'5px', borderRadius:'50%', background:'#2a3c42' }} />
-                <span style={{ fontFamily:M, fontSize:'8px', color:'#3a5460' }}>SESSION STÄNGD</span>
+                <div style={{ width:'5px', height:'5px', borderRadius:'50%', background:'#4a6470' }} />
+                <span style={{ fontFamily:M, fontSize:'8px', color:'#5a7a84' }}>SESSION STÄNGD</span>
               </div>
             )}
           </div>
@@ -362,7 +362,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
         </div>
 
         {todayTrades.length===0 && !showForm && (
-          <div style={{ fontFamily:M, fontSize:'11px', color:'#2e4450' }}>Inga trades loggade idag</div>
+          <div style={{ fontFamily:M, fontSize:'11px', color:'#4a6470' }}>Inga trades loggade idag</div>
         )}
 
         {todayTrades.map((t, i) => {
@@ -378,14 +378,14 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
             <div key={i} style={{ marginBottom:'6px', background:'#0d1214', border:`1px solid ${bdr}`, borderRadius:'9px', overflow:'hidden', transition:'border-color 0.15s' }}>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 12px' }}>
                 <div onClick={() => { setExpanded(isEx?null:i); setEditing(null) }} style={{ display:'flex', gap:'6px', alignItems:'center', flexWrap:'wrap', cursor:'pointer', flex:1 }}>
-                  <span style={{ fontFamily:M, fontSize:'9px', color:'#6a8a92', background:'#161e24', border:'1px solid #1e2c32', borderRadius:'4px', padding:'2px 7px' }}>{t.instrument}</span>
-                  <span style={{ fontFamily:M, fontSize:'9px', padding:'2px 8px', borderRadius:'4px', background:RB[t.result]||'#111', color:RC[t.result]||'#6a8a90', fontWeight:600 }}>{RL[t.result]||t.result}</span>
-                  {t.setup && <span style={{ fontFamily:M, fontSize:'8px', color:'#5a7a84', background:'#161e24', border:'1px solid #1e2c32', borderRadius:'4px', padding:'2px 6px' }}>{t.setup}</span>}
+                  <span style={{ fontFamily:M, fontSize:'9px', color:'#88a8ae', background:'#161e24', border:'1px solid #1e2c32', borderRadius:'4px', padding:'2px 7px' }}>{t.instrument}</span>
+                  <span style={{ fontFamily:M, fontSize:'9px', padding:'2px 8px', borderRadius:'4px', background:RB[t.result]||'#111', color:RC[t.result]||'#88a8ae', fontWeight:600 }}>{RL[t.result]||t.result}</span>
+                  {t.setup && <span style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', background:'#161e24', border:'1px solid #1e2c32', borderRadius:'4px', padding:'2px 6px' }}>{t.setup}</span>}
                 </div>
                 <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
                   <span style={{ fontFamily:M, fontSize:'15px', fontWeight:700, color:pv>=0?'#00e5b0':'#ff4f6b' }}>{pv>=0?'+':''}${Math.abs(Math.round(pv))}</span>
-                  <button type="button" onClick={() => { setEditing(isEd?null:i); setExpanded(null) }} style={{ background:isEd?'#263840':'none', border:`1px solid ${isEd?'#3a5460':'#1e2c32'}`, borderRadius:'5px', color:isEd?'#d0e8ec':'#5a7a84', fontFamily:M, fontSize:'8px', padding:'3px 8px', cursor:'pointer', transition:'all 0.15s', letterSpacing:'0.5px' }}>✎</button>
-                  <span onClick={() => { setExpanded(isEx?null:i); setEditing(null) }} style={{ color:'#3a5460', fontSize:'9px', cursor:'pointer', transition:'transform 0.2s', display:'inline-block', transform:isEx?'rotate(180deg)':'none' }}>▼</span>
+                  <button type="button" onClick={() => { setEditing(isEd?null:i); setExpanded(null) }} style={{ background:isEd?'#263840':'none', border:`1px solid ${isEd?'#5a7a84':'#1e2c32'}`, borderRadius:'5px', color:isEd?'#d0e8ec':'#85a4ad', fontFamily:M, fontSize:'8px', padding:'3px 8px', cursor:'pointer', transition:'all 0.15s', letterSpacing:'0.5px' }}>✎</button>
+                  <span onClick={() => { setExpanded(isEx?null:i); setEditing(null) }} style={{ color:'#5a7a84', fontSize:'9px', cursor:'pointer', transition:'transform 0.2s', display:'inline-block', transform:isEx?'rotate(180deg)':'none' }}>▼</span>
                 </div>
               </div>
 
@@ -406,7 +406,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
                 <div style={{ borderTop:'1px solid #161e24' }}>
                   {em>0 && (
                     <div style={{ padding:'8px 12px', display:'flex', alignItems:'center', gap:'8px' }}>
-                      <span style={{ fontFamily:M, fontSize:'7px', color:'#5a7a84', letterSpacing:'1px', flexShrink:0 }}>EMOTION</span>
+                      <span style={{ fontFamily:M, fontSize:'7px', color:'#85a4ad', letterSpacing:'1px', flexShrink:0 }}>EMOTION</span>
                       <div style={{ display:'flex', gap:'2px', flex:1 }}>
                         {[1,2,3,4,5,6,7,8,9,10].map(n=>(
                           <div key={n} style={{ flex:1, height:'3px', borderRadius:'2px', background:n<=em?ec:'#1e2c32' }} />
@@ -425,8 +425,8 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
                   )}
                   {t.note && (
                     <div style={{ padding:'8px 12px', borderTop:'1px solid #161e24' }}>
-                      <div style={{ fontFamily:M, fontSize:'7px', color:'#5a7a84', letterSpacing:'1px', marginBottom:'5px' }}>NOTES</div>
-                      <div style={{ fontSize:'12px', color:'#6a8a92', lineHeight:1.7, whiteSpace:'pre-wrap', wordBreak:'break-word', borderLeft:'2px solid #1e2c32', paddingLeft:'10px' }}>{t.note}</div>
+                      <div style={{ fontFamily:M, fontSize:'7px', color:'#85a4ad', letterSpacing:'1px', marginBottom:'5px' }}>NOTES</div>
+                      <div style={{ fontSize:'12px', color:'#88a8ae', lineHeight:1.7, whiteSpace:'pre-wrap', wordBreak:'break-word', borderLeft:'2px solid #1e2c32', paddingLeft:'10px' }}>{t.note}</div>
                     </div>
                   )}
                 </div>
@@ -437,7 +437,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
 
         {todayTrades.filter(t => REAL_RESULTS.has(t.result)).length > 0 && (
           <div style={{ display:'flex', justifyContent:'flex-end', marginTop:'6px', gap:'4px' }}>
-            <span style={{ fontFamily:M, fontSize:'10px', color:'#5a7a84' }}>Idag:</span>
+            <span style={{ fontFamily:M, fontSize:'10px', color:'#85a4ad' }}>Idag:</span>
             <span style={{ fontFamily:M, fontSize:'10px', fontWeight:700, color:todayPnl>=0?'#00e5b0':'#ff4f6b' }}>{todayPnl>=0?'+':''}${Math.round(todayPnl)}</span>
           </div>
         )}

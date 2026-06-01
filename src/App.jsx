@@ -21,7 +21,35 @@ function useIsMobile() {
   return m
 }
 
-// Isolated clock components — only these re-render every second, not App
+// Lockout: 2+ violations in current calendar week → full week lockout
+function computeLockout(streakLogs) {
+  const now = new Date()
+  const monday = new Date(now)
+  monday.setDate(now.getDate() - ((now.getDay() + 6) % 7))
+  monday.setHours(0, 0, 0, 0)
+
+  const pad = n => String(n).padStart(2, '0')
+  const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`
+
+  const weekDates = []
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday)
+    d.setDate(monday.getDate() + i)
+    weekDates.push(fmt(d))
+  }
+
+  const violations = weekDates.filter(d => streakLogs[d] === 'violation')
+
+  if (violations.length >= 2) {
+    return {
+      isLockedOut: true,
+      lockoutReason: `${violations.length} violations denna vecka (${violations.join(', ')}). Ingen trading resten av veckan. Granska reglerna och återvänd måndag.`,
+    }
+  }
+
+  return { isLockedOut: false, lockoutReason: '' }
+}
+
 function SessionStatusDesktop() {
   const [clock, setClock] = useState(new Date())
   useEffect(() => {
@@ -31,11 +59,11 @@ function SessionStatusDesktop() {
 
   const nyParts   = clock.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hour12: false }).split(':')
   const nyMins    = parseInt(nyParts[0]) * 60 + parseInt(nyParts[1])
-  const isOpen    = nyMins >= 570 && nyMins < 960
-  const isPre     = nyMins >= 240 && nyMins < 570
+  const isOpen    = nyMins >= 570 && nyMins < 690   // 09:30–11:30 NY
+  const isPre     = nyMins >= 0   && nyMins < 570
   const nyTime    = clock.toLocaleTimeString('sv-SE', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit' })
   const sweTime   = clock.toLocaleTimeString('sv-SE', { timeZone: 'Europe/Stockholm', hour: '2-digit', minute: '2-digit' })
-  const color  = isOpen ? '#00e5b0' : isPre ? '#ffc030' : '#2a3c42'
+  const color  = isOpen ? '#00e5b0' : isPre ? '#ffc030' : '#4a6470'
   const label  = isOpen ? 'ÖPPEN' : isPre ? 'PRE' : 'STÄNGD'
   const bg     = isOpen ? 'rgba(0,229,176,0.07)' : isPre ? 'rgba(255,192,48,0.06)' : 'transparent'
   const bdr    = isOpen ? 'rgba(0,229,176,0.18)' : isPre ? 'rgba(255,192,48,0.14)' : '#182025'
@@ -48,12 +76,12 @@ function SessionStatusDesktop() {
       </div>
       <div style={{ width:'1px', height:'16px', background:'#182025' }} />
       <div>
-        <div style={{ fontFamily:M, fontSize:'7px', color:'#1e2c32', letterSpacing:'1px', marginBottom:'1px' }}>SWE</div>
-        <div style={{ fontFamily:M, fontSize:'11px', color:'#4a6470' }}>{sweTime}</div>
+        <div style={{ fontFamily:M, fontSize:'7px', color:'#5a7a84', letterSpacing:'1px', marginBottom:'1px' }}>SWE</div>
+        <div style={{ fontFamily:M, fontSize:'11px', color:'#88a8ae' }}>{sweTime}</div>
       </div>
       <div>
-        <div style={{ fontFamily:M, fontSize:'7px', color:'#1e2c32', letterSpacing:'1px', marginBottom:'1px' }}>NY</div>
-        <div style={{ fontFamily:M, fontSize:'11px', color:'#4a6470' }}>{nyTime}</div>
+        <div style={{ fontFamily:M, fontSize:'7px', color:'#5a7a84', letterSpacing:'1px', marginBottom:'1px' }}>NY</div>
+        <div style={{ fontFamily:M, fontSize:'11px', color:'#88a8ae' }}>{nyTime}</div>
       </div>
     </div>
   )
@@ -68,11 +96,10 @@ function SessionStatusMobile() {
 
   const nyParts = clock.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hour12: false }).split(':')
   const nyMins  = parseInt(nyParts[0]) * 60 + parseInt(nyParts[1])
-  const isOpen  = nyMins >= 570 && nyMins < 960
-  const isPre   = nyMins >= 240 && nyMins < 570
+  const isOpen  = nyMins >= 570 && nyMins < 690
+  const isPre   = nyMins >= 0   && nyMins < 570
   const nyTime  = clock.toLocaleTimeString('sv-SE', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit' })
-  const sweTime = clock.toLocaleTimeString('sv-SE', { timeZone: 'Europe/Stockholm',  hour: '2-digit', minute: '2-digit' })
-  const color   = isOpen ? '#00e5b0' : isPre ? '#ffc030' : '#5a7a84'
+  const color   = isOpen ? '#00e5b0' : isPre ? '#ffc030' : '#85a4ad'
   const label   = isOpen ? 'ÖPPEN' : isPre ? 'PRE' : 'STÄNGD'
   const bg      = isOpen ? 'rgba(0,229,176,0.07)' : isPre ? 'rgba(255,192,48,0.06)' : 'transparent'
   const bdr     = isOpen ? 'rgba(0,229,176,0.18)' : isPre ? 'rgba(255,192,48,0.14)' : '#1e2c32'
@@ -84,7 +111,7 @@ function SessionStatusMobile() {
         <span style={{ fontFamily:M, fontSize:'9px', fontWeight:600, color, letterSpacing:'0.5px' }}>{label}</span>
       </div>
       <div style={{ textAlign:'right' }}>
-        <div style={{ fontFamily:M, fontSize:'7px', color:'#3a5460', letterSpacing:'1px' }}>NY</div>
+        <div style={{ fontFamily:M, fontSize:'7px', color:'#5a7a84', letterSpacing:'1px' }}>NY</div>
         <div style={{ fontFamily:M, fontSize:'11px', color:'#8aacb4', fontWeight:500 }}>{nyTime}</div>
       </div>
     </div>
@@ -148,7 +175,11 @@ export default function App() {
   function handleAddTrade(trade) {
     const nj = [trade, ...journal]
     const ns = { ...streakLogs }
-    if (trade.brokenRules?.length > 0) ns[trade.date] = 'violation'
+    // Auto-violation: any of these psychTags = rule broken
+    const VIOLATION_TAGS = new Set(['fomo','revenge','forced','oversize'])
+    const hasViolationTag = (trade.psychTags||[]).some(t => VIOLATION_TAGS.has(t))
+    const isViolation = trade.brokenRules?.length > 0 || hasViolationTag
+    if (isViolation) ns[trade.date] = 'violation'
     else if (!ns[trade.date] || ns[trade.date] === 'clean') ns[trade.date] = 'clean'
     saveData(nj, ns)
   }
@@ -176,9 +207,11 @@ export default function App() {
     saveData(null, u)
   }
 
+  const { isLockedOut, lockoutReason } = computeLockout(streakLogs)
+
   if (loading) return (
     <div style={{ background:'#060809', minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center' }}>
-      <div style={{ fontFamily:M, fontSize:'12px', color:'#2a3c42', letterSpacing:'3px' }}>LADDAR...</div>
+      <div style={{ fontFamily:M, fontSize:'12px', color:'#4a6470', letterSpacing:'3px' }}>LADDAR...</div>
     </div>
   )
 
@@ -198,7 +231,7 @@ export default function App() {
       </div>
       <div>
         <div style={{ fontFamily:M, fontSize:'13px', fontWeight:700, color:'#00e5b0', lineHeight:1.1 }}>Kamyab</div>
-        <div style={{ fontFamily:M, fontSize:'7px', color:'#1e2c32', letterSpacing:'2px' }}>TRADING OS</div>
+        <div style={{ fontFamily:M, fontSize:'7px', color:'#5a7a84', letterSpacing:'2px' }}>TRADING OS</div>
       </div>
     </div>
   )
@@ -211,7 +244,7 @@ export default function App() {
           <Logo />
           <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
             <SessionStatusMobile />
-            <button type="button" onClick={() => supabase.auth.signOut()} style={{ background:'none', border:'1px solid #182025', borderRadius:'7px', color:'#2a3c42', fontSize:'13px', width:'30px', height:'30px', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>↩</button>
+            <button type="button" onClick={() => supabase.auth.signOut()} style={{ background:'none', border:'1px solid #182025', borderRadius:'7px', color:'#5a7a84', fontSize:'13px', width:'30px', height:'30px', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>↩</button>
           </div>
         </nav>
       ) : (
@@ -225,10 +258,10 @@ export default function App() {
                 border: `1px solid ${page===id ? '#1e2c32' : 'transparent'}`,
                 borderRadius:'8px', padding:'6px 13px', cursor:'pointer',
                 display:'flex', alignItems:'center', gap:'6px',
-                color: page===id ? '#d0e8ec' : '#3a5460',
+                color: page===id ? '#d0e8ec' : '#7090a0',
                 fontSize:'13px', fontWeight:500, transition:'all 0.15s',
               }}>
-                <Icon path={path} color={page===id ? '#00e5b0' : '#3a5460'} />
+                <Icon path={path} color={page===id ? '#00e5b0' : '#7090a0'} />
                 {label}
               </button>
             ))}
@@ -236,9 +269,9 @@ export default function App() {
           <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
             <SessionStatusDesktop />
             <div style={{ width:'1px', height:'16px', background:'#182025' }} />
-            <button type="button" onClick={() => supabase.auth.signOut()} style={{ fontFamily:M, fontSize:'9px', color:'#2a3c42', background:'none', border:'none', cursor:'pointer', letterSpacing:'0.5px', transition:'color 0.15s' }}
-              onMouseEnter={e=>e.currentTarget.style.color='#5a7a82'}
-              onMouseLeave={e=>e.currentTarget.style.color='#2a3c42'}>logga ut</button>
+            <button type="button" onClick={() => supabase.auth.signOut()} style={{ fontFamily:M, fontSize:'9px', color:'#7090a0', background:'none', border:'none', cursor:'pointer', letterSpacing:'0.5px', transition:'color 0.15s' }}
+              onMouseEnter={e=>e.currentTarget.style.color='#a0c0ca'}
+              onMouseLeave={e=>e.currentTarget.style.color='#7090a0'}>logga ut</button>
           </div>
         </nav>
       )}
@@ -246,7 +279,16 @@ export default function App() {
       <div style={{ padding: MOBILE ? '14px 12px 86px' : '20px 24px' }}>
         {page==='home' && (
           <div style={{ display:'flex', flexDirection:'column', gap:'12px', maxWidth:'1400px', margin:'0 auto' }}>
-            <TodayTrade journal={journal} onAddTrade={handleAddTrade} onEditTrade={handleEditTrade} streakLogs={streakLogs} biasLogs={biasLogs} onSaveBias={handleSaveBias} />
+            <TodayTrade
+              journal={journal}
+              onAddTrade={handleAddTrade}
+              onEditTrade={handleEditTrade}
+              streakLogs={streakLogs}
+              biasLogs={biasLogs}
+              onSaveBias={handleSaveBias}
+              isLockedOut={isLockedOut}
+              lockoutReason={lockoutReason}
+            />
             {MOBILE ? (
               <>
                 <EquityCurve journal={journal} />
@@ -281,8 +323,8 @@ export default function App() {
               borderTop:`2px solid ${page===id?'#00e5b0':'transparent'}`, marginTop:'-1px',
               transition:'border-color 0.2s',
             }}>
-              <Icon path={path} color={page===id?'#00e5b0':'#2a3c42'} />
-              <span style={{ fontFamily:M, fontSize:'9px', fontWeight:page===id?600:400, color:page===id?'#00e5b0':'#2a3c42', letterSpacing:'0.5px', transition:'color 0.15s' }}>{label}</span>
+              <Icon path={path} color={page===id?'#00e5b0':'#5a7a84'} />
+              <span style={{ fontFamily:M, fontSize:'9px', fontWeight:page===id?600:400, color:page===id?'#00e5b0':'#5a7a84', letterSpacing:'0.5px', transition:'color 0.15s' }}>{label}</span>
             </button>
           ))}
         </nav>

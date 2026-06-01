@@ -47,7 +47,7 @@ export default function Statistics({ journal = [] }) {
     {label:'+3R',count:trades.filter(t=>t.result==='win'||t.result==='tp3').length, c:'#00e5b0'},
     {label:'+2R',count:trades.filter(t=>t.result==='win2'||t.result==='tp2').length,c:'#4ab89a'},
     {label:'+1R',count:trades.filter(t=>t.result==='tp1').length,                   c:'#2a7a60'},
-    {label:'BE', count:trades.filter(t=>t.result==='be').length,                    c:'#5a7a84'},
+    {label:'BE', count:trades.filter(t=>t.result==='be').length,                    c:'#85a4ad'},
     {label:'-1R',count:trades.filter(t=>t.result==='loss').length,                  c:'#ff4f6b'},
   ]
 
@@ -89,15 +89,15 @@ export default function Statistics({ journal = [] }) {
 
   const card = (label,value,color,sub) => (
     <div style={{background:'#161e24',border:'1px solid #1e2c32',borderRadius:'12px',padding:'14px 16px'}}>
-      <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',letterSpacing:'2px',marginBottom:'6px'}}>{label}</div>
+      <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',letterSpacing:'2px',marginBottom:'6px'}}>{label}</div>
       <div style={{fontFamily:M,fontSize:'24px',fontWeight:700,color,lineHeight:1}}>{value}</div>
-      {sub&&<div style={{fontFamily:M,fontSize:'9px',color:'#5a7a84',marginTop:'4px'}}>{sub}</div>}
+      {sub&&<div style={{fontFamily:M,fontSize:'9px',color:'#85a4ad',marginTop:'4px'}}>{sub}</div>}
     </div>
   )
 
   const section = (title, children) => (
     <div style={{background:'#161e24',border:'1px solid #1e2c32',borderRadius:'12px',padding:'16px'}}>
-      <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',letterSpacing:'2px',marginBottom:'14px'}}>{title}</div>
+      <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',letterSpacing:'2px',marginBottom:'14px'}}>{title}</div>
       {children}
     </div>
   )
@@ -107,9 +107,9 @@ export default function Statistics({ journal = [] }) {
     const d = payload[0].payload
     return (
       <div style={{background:'#161e24',border:'1px solid #263840',borderRadius:'8px',padding:'10px 14px'}}>
-        <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',marginBottom:'4px',letterSpacing:'1px'}}>{d.label}</div>
+        <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',marginBottom:'4px',letterSpacing:'1px'}}>{d.label}</div>
         <div style={{fontFamily:M,fontSize:'13px',fontWeight:700,color:d.pnl>=0?'#00e5b0':'#ff4f6b'}}>{d.pnl>=0?'+':''}${d.pnl}</div>
-        <div style={{fontFamily:M,fontSize:'9px',color:'#5a7a84',marginTop:'2px'}}>{d.wr}% WR · {d.r>=0?'+':''}{d.r}R · {d.total}t</div>
+        <div style={{fontFamily:M,fontSize:'9px',color:'#85a4ad',marginTop:'2px'}}>{d.wr}% WR · {d.r>=0?'+':''}{d.r}R · {d.total}t</div>
       </div>
     )
   }
@@ -123,7 +123,7 @@ export default function Statistics({ journal = [] }) {
             fontFamily:M,fontSize:'9px',padding:'7px 13px',borderRadius:'7px',
             border:`1px solid ${filter===f?'#007d5e':'#1e2c32'}`,
             background:filter===f?'#001810':'transparent',
-            color:filter===f?'#00e5b0':'#5a7a84',cursor:'pointer',letterSpacing:'1px',
+            color:filter===f?'#00e5b0':'#85a4ad',cursor:'pointer',letterSpacing:'1px',
             transition:'all 0.15s',
           }}>{f}</button>
         ))}
@@ -149,7 +149,7 @@ export default function Statistics({ journal = [] }) {
                   <div style={{flex:1,height:'5px',background:'#0d1214',borderRadius:'3px',overflow:'hidden'}}>
                     <div style={{height:'100%',width:`${pct}%`,background:r.c,borderRadius:'3px',transition:'width 0.4s ease'}} />
                   </div>
-                  <div style={{fontFamily:M,fontSize:'9px',color:'#5a7a84',width:'20px',textAlign:'right'}}>{r.count}</div>
+                  <div style={{fontFamily:M,fontSize:'9px',color:'#85a4ad',width:'20px',textAlign:'right'}}>{r.count}</div>
                 </div>
               )
             })}
@@ -158,10 +158,10 @@ export default function Statistics({ journal = [] }) {
         {section('TOTAL R',
           <>
             <div style={{fontFamily:M,fontSize:'34px',fontWeight:700,color:totalR>=0?'#00e5b0':'#ff4f6b',lineHeight:1,marginBottom:'5px'}}>{totalR>=0?'+':''}{totalR}R</div>
-            <div style={{fontFamily:M,fontSize:'9px',color:'#5a7a84',marginBottom:'14px'}}>Snitt {avgR}R / trade</div>
-            <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'5px'}}>EDGE</div>
+            <div style={{fontFamily:M,fontSize:'9px',color:'#85a4ad',marginBottom:'14px'}}>Snitt {avgR}R / trade</div>
+            <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',letterSpacing:'1px',marginBottom:'5px'}}>EDGE</div>
             <div style={{fontFamily:M,fontSize:'16px',fontWeight:700,color:parseFloat(avgR)>=0.5?'#00e5b0':parseFloat(avgR)>=0?'#ffc030':'#ff4f6b'}}>{parseFloat(avgR)>=0?'+':''}{avgR}R</div>
-            <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',marginTop:'3px'}}>{parseFloat(avgR)>=0.5?'✓ Positiv edge':parseFloat(avgR)>=0?'⚠ Svag edge':'✗ Negativ edge'}</div>
+            <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',marginTop:'3px'}}>{parseFloat(avgR)>=0.5?'✓ Positiv edge':parseFloat(avgR)>=0?'⚠ Svag edge':'✗ Negativ edge'}</div>
           </>
         )}
       </div>
@@ -169,14 +169,14 @@ export default function Statistics({ journal = [] }) {
       {best && worst && (
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
           <div style={{background:'#161e24',border:'1px solid rgba(0,229,176,0.12)',borderRadius:'12px',padding:'14px'}}>
-            <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',letterSpacing:'2px',marginBottom:'7px'}}>BÄSTA TRADE</div>
+            <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',letterSpacing:'2px',marginBottom:'7px'}}>BÄSTA TRADE</div>
             <div style={{fontFamily:M,fontSize:'26px',fontWeight:700,color:'#00e5b0'}}>+${Math.round(parseFloat(best.pnl))}</div>
-            <div style={{fontFamily:M,fontSize:'9px',color:'#5a7a84',marginTop:'4px'}}>{best.date} · {best.instrument}</div>
+            <div style={{fontFamily:M,fontSize:'9px',color:'#85a4ad',marginTop:'4px'}}>{best.date} · {best.instrument}</div>
           </div>
           <div style={{background:'#161e24',border:'1px solid rgba(255,79,107,0.12)',borderRadius:'12px',padding:'14px'}}>
-            <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',letterSpacing:'2px',marginBottom:'7px'}}>SÄMSTA TRADE</div>
+            <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',letterSpacing:'2px',marginBottom:'7px'}}>SÄMSTA TRADE</div>
             <div style={{fontFamily:M,fontSize:'26px',fontWeight:700,color:'#ff4f6b'}}>${Math.round(parseFloat(worst.pnl))}</div>
-            <div style={{fontFamily:M,fontSize:'9px',color:'#5a7a84',marginTop:'4px'}}>{worst.date} · {worst.instrument}</div>
+            <div style={{fontFamily:M,fontSize:'9px',color:'#85a4ad',marginTop:'4px'}}>{worst.date} · {worst.instrument}</div>
           </div>
         </div>
       )}
@@ -184,8 +184,8 @@ export default function Statistics({ journal = [] }) {
       {section('EQUITY CURVE',
         <ResponsiveContainer width="100%" height={180}>
           <LineChart data={eqData}>
-            <XAxis dataKey="date" stroke="#1e2c32" tick={{fill:'#5a7a84',fontSize:8,fontFamily:M}} interval="preserveStartEnd" />
-            <YAxis stroke="#1e2c32" tick={{fill:'#5a7a84',fontSize:8,fontFamily:M}} width={42} />
+            <XAxis dataKey="date" stroke="#1e2c32" tick={{fill:'#85a4ad',fontSize:8,fontFamily:M}} interval="preserveStartEnd" />
+            <YAxis stroke="#1e2c32" tick={{fill:'#85a4ad',fontSize:8,fontFamily:M}} width={42} />
             <Tooltip contentStyle={{background:'#161e24',border:'1px solid #263840',color:'#d0e8ec',fontFamily:M,fontSize:'11px'}} formatter={v=>[`$${v}`,'P&L']} />
             <ReferenceLine y={0} stroke="#263840" strokeDasharray="4 4" />
             <Line type="monotone" dataKey="pnl" stroke={eqPos?'#00e5b0':'#ff4f6b'} dot={false} strokeWidth={2} />
@@ -197,14 +197,14 @@ export default function Statistics({ journal = [] }) {
       {monthlyData.length > 1 && (
         <div style={{background:'#161e24',border:'1px solid #1e2c32',borderRadius:'12px',padding:'16px'}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'14px'}}>
-            <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',letterSpacing:'2px'}}>MÅNADSÖVERSIKT</div>
+            <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',letterSpacing:'2px'}}>MÅNADSÖVERSIKT</div>
             <div style={{display:'flex',gap:'4px'}}>
               {[['pnl','P&L'],['wr','WR %'],['r','R']].map(([v,l])=>(
                 <button key={v} onClick={()=>setMonthView(v)} style={{
                   fontFamily:M,fontSize:'8px',padding:'4px 9px',borderRadius:'5px',
                   border:`1px solid ${monthView===v?'#007d5e':'#1e2c32'}`,
                   background:monthView===v?'#001810':'transparent',
-                  color:monthView===v?'#00e5b0':'#5a7a84',cursor:'pointer',
+                  color:monthView===v?'#00e5b0':'#85a4ad',cursor:'pointer',
                   transition:'all 0.15s',letterSpacing:'0.5px',
                 }}>{l}</button>
               ))}
@@ -212,7 +212,7 @@ export default function Statistics({ journal = [] }) {
           </div>
           <ResponsiveContainer width="100%" height={160}>
             <BarChart data={monthlyData} barSize={monthlyData.length>8?14:20} margin={{top:4,right:0,left:0,bottom:0}}>
-              <XAxis dataKey="label" tick={{fill:'#5a7a84',fontSize:8,fontFamily:M}} axisLine={false} tickLine={false} />
+              <XAxis dataKey="label" tick={{fill:'#85a4ad',fontSize:8,fontFamily:M}} axisLine={false} tickLine={false} />
               <YAxis hide />
               <ReferenceLine y={0} stroke="#263840" strokeDasharray="3 3" />
               <Tooltip content={<MonthTooltip />} cursor={{fill:'rgba(255,255,255,0.03)'}} />
@@ -231,11 +231,11 @@ export default function Statistics({ journal = [] }) {
           <div style={{marginTop:'12px',display:'flex',flexDirection:'column',gap:'4px'}}>
             {[...monthlyData].reverse().slice(0,6).map((m,i)=>(
               <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'6px 8px',borderRadius:'6px',background:i===0?'#111820':'transparent'}}>
-                <div style={{fontFamily:M,fontSize:'9px',color:'#6a8a90',textTransform:'uppercase',minWidth:'50px'}}>{m.label}</div>
+                <div style={{fontFamily:M,fontSize:'9px',color:'#88a8ae',textTransform:'uppercase',minWidth:'50px'}}>{m.label}</div>
                 <div style={{fontFamily:M,fontSize:'10px',fontWeight:700,color:m.pnl>=0?'#00e5b0':'#ff4f6b',minWidth:'60px',textAlign:'right'}}>{m.pnl>=0?'+':''}${m.pnl}</div>
                 <div style={{fontFamily:M,fontSize:'9px',color:m.wr>=50?'#00e5b0':'#ff4f6b',minWidth:'40px',textAlign:'right'}}>{m.wr}%</div>
                 <div style={{fontFamily:M,fontSize:'9px',color:m.r>=0?'#00e5b0':'#ff4f6b',minWidth:'36px',textAlign:'right'}}>{m.r>=0?'+':''}{m.r}R</div>
-                <div style={{fontFamily:M,fontSize:'8px',color:'#3a5460',minWidth:'24px',textAlign:'right'}}>{m.total}t</div>
+                <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',minWidth:'24px',textAlign:'right'}}>{m.total}t</div>
               </div>
             ))}
           </div>
@@ -253,7 +253,7 @@ export default function Statistics({ journal = [] }) {
                   <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
                     <span style={{fontFamily:M,fontSize:'11px',color:'#d0e8ec',fontWeight:600}}>{tag}</span>
                     <span style={{fontFamily:M,fontSize:'9px',color:wr>=50?'#00e5b0':'#ff4f6b'}}>{wr}%</span>
-                    <span style={{fontFamily:M,fontSize:'8px',color:'#5a7a84'}}>{s.total}t</span>
+                    <span style={{fontFamily:M,fontSize:'8px',color:'#85a4ad'}}>{s.total}t</span>
                   </div>
                   <span style={{fontFamily:M,fontSize:'12px',fontWeight:700,color:s.pnl>=0?'#00e5b0':'#ff4f6b'}}>{s.pnl>=0?'+':''}${Math.round(s.pnl)}</span>
                 </div>
@@ -276,7 +276,7 @@ export default function Statistics({ journal = [] }) {
                 <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
                   <span style={{fontFamily:M,fontSize:'11px',color:isViolation?'#ff4f6b':'#d0e8ec'}}>{PSYCH_LABELS[id]||id}</span>
                   {isViolation && <span style={{fontFamily:M,fontSize:'7px',color:'#ff4f6b',background:'#1a0610',border:'1px solid rgba(255,79,107,0.2)',borderRadius:'3px',padding:'1px 5px'}}>VIOLATION</span>}
-                  <span style={{fontFamily:M,fontSize:'9px',color:'#5a7a84'}}>{s.total}x</span>
+                  <span style={{fontFamily:M,fontSize:'9px',color:'#85a4ad'}}>{s.total}x</span>
                 </div>
                 <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
                   <span style={{fontFamily:M,fontSize:'10px',color:wr>=50?'#00e5b0':'#ff4f6b'}}>{wr}% WR</span>
@@ -290,18 +290,18 @@ export default function Statistics({ journal = [] }) {
 
       {section('WIN RATE PER VECKODAG',
         <>
-          <div style={{fontFamily:M,fontSize:'8px',color:'#3a5460',marginBottom:'12px'}}>Gråa = under 3 trades</div>
+          <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',marginBottom:'12px'}}>Gråa = under 3 trades</div>
           <div style={{display:'flex',gap:'8px',alignItems:'flex-end',height:'100px'}}>
             {dayStats.map((d,i)=>{
               const c  = d.total===0?'#161e24':!d.reliable?'#1a2428':d.wr>=50?'#007d5e':'#7a1020'
-              const tc = d.total===0?'#263840':!d.reliable?'#5a7a84':d.wr>=50?'#00e5b0':'#ff4f6b'
+              const tc = d.total===0?'#263840':!d.reliable?'#85a4ad':d.wr>=50?'#00e5b0':'#ff4f6b'
               const h  = d.total===0?'5px':`${Math.max(d.wr,5)}%`
               return (
                 <div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:'4px',height:'100%',justifyContent:'flex-end'}}>
                   <div style={{fontFamily:M,fontSize:'9px',color:tc}}>{d.total===0?'—':`${d.wr}%`}</div>
                   <div style={{width:'100%',height:h,background:c,borderRadius:'3px 3px 0 0',transition:'height 0.3s ease'}} />
-                  <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84'}}>{d.day.slice(0,3)}</div>
-                  <div style={{fontFamily:M,fontSize:'7px',color:'#3a5460'}}>{d.total}t</div>
+                  <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad'}}>{d.day.slice(0,3)}</div>
+                  <div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84'}}>{d.total}t</div>
                 </div>
               )
             })}
