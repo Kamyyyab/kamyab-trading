@@ -516,8 +516,8 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
               background:'#111820', border:'1px solid #1e2c32',
               borderRadius: mobile?'16px 16px 0 0':'14px',
               width: mobile?'100%':'min(680px, 100%)',
-              maxHeight: mobile?'92vh':'min(880px, 90vh)',
-              height: mobile?'92vh':undefined,              display:'flex', flexDirection:'column', overflow:'hidden',
+              height: mobile?'92vh':'min(880px, 90vh)',
+              display:'flex', flexDirection:'column', overflow:'hidden',
               boxShadow:'0 24px 80px rgba(0,0,0,0.6)',
               animation: mobile?'slideUp 0.25s ease':'scaleIn 0.2s ease',
             }}
@@ -572,7 +572,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
 
             {/* Modal body — scrollable */}
             <div style={{
-              flex:'1 1 0', minHeight:0, overflowY:'auto', height:0,
+              flex:1, minHeight:0, overflowY:'auto', overflowX:'hidden',
               padding:'16px 18px', display:'flex', flexDirection:'column', gap:'12px',
               WebkitOverflowScrolling:'touch',
             }}>
