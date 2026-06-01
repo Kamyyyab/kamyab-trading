@@ -213,7 +213,6 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
   const em = parseInt(t.emotion||0)
   const ec = em<=3?'#00e5b0':em>=7?'#ff4f6b':'#ffc030'
   const hasImage = !!t.image
-  const isMobile = useIsMobile()
 
   if (isEd) return (
     <div style={{ background:'#0a0e10', border:'1px solid #263840', borderRadius:'10px', padding:'18px' }}>
@@ -225,14 +224,14 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
   const InfoPanel = () => (
     <div style={{ display:'block', width:'100%' }}>
       {/* Header row — instrument + outcome + pnl + actions */}
-      <div style={{ padding:'14px 14px 12px', display:'flex', justifyContent:'space-between', alignItems:'center', gap:'10px', flexWrap:'wrap' }}>
+      <div style={{ padding:'16px 16px 14px', display:'flex', justifyContent:'space-between', alignItems:'center', gap:'10px', flexWrap:'wrap' }}>
         <div style={{ display:'flex', alignItems:'center', gap:'7px', flexWrap:'wrap', minWidth:0 }}>
           <span style={{ fontFamily:M, fontSize:'10px', color:'#88a8ae', background:'#161e24', border:'1px solid #1e2c32', borderRadius:'5px', padding:'3px 8px', fontWeight:600 }}>{t.instrument}</span>
           <span style={{ fontFamily:M, fontSize:'10px', padding:'3px 8px', borderRadius:'5px', background:RBG[t.result]||'#111820', color:RC[t.result]||'#85a4ad', fontWeight:700 }}>{RL[t.result]||t.result}</span>
           {t.setup && <span style={{ fontFamily:M, fontSize:'9px', color:'#85a4ad', background:'#161e24', border:'1px solid #1e2c32', borderRadius:'5px', padding:'3px 7px' }}>{t.setup}</span>}
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:'10px', flexShrink:0 }}>
-          <span style={{ fontFamily:M, fontSize:'16px', fontWeight:700, color:pv>=0?'#00e5b0':'#ff4f6b' }}>{pv>=0?'+':''}${Math.abs(Math.round(pv))}</span>
+          <span style={{ fontFamily:M, fontSize:'18px', fontWeight:700, color:pv>=0?'#00e5b0':'#ff4f6b' }}>{pv>=0?'+':''}${Math.abs(Math.round(pv))}</span>
           <button onClick={onToggleEdit} style={{ background:'none', border:'1px solid #1e2c32', borderRadius:'5px', color:'#85a4ad', fontFamily:M, fontSize:'10px', padding:'4px 9px', cursor:'pointer' }}>✎ Edit</button>
           <button onClick={onDelete} style={{ background:'none', border:'none', color:'#5a7a84', cursor:'pointer', fontSize:'16px', padding:'2px 4px' }}>×</button>
         </div>
@@ -240,7 +239,7 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
 
       {/* Emotion bar */}
       {em>0 && (
-        <div style={{ padding:'10px 14px', display:'flex', alignItems:'center', gap:'10px', borderTop:'1px solid #161e24' }}>
+        <div style={{ padding:'12px 16px', display:'flex', alignItems:'center', gap:'10px', borderTop:'1px solid #161e24' }}>
           <span style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'1px', flexShrink:0, fontWeight:600 }}>EMOTION</span>
           <div style={{ display:'flex', gap:'2px', flex:1 }}>
             {[1,2,3,4,5,6,7,8,9,10].map(n=><div key={n} style={{ flex:1, height:'4px', borderRadius:'2px', background:n<=em?ec:'#1e2c32' }} />)}
@@ -251,82 +250,68 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
 
       {/* Psych tags */}
       {t.psychTags?.length>0 && (
-        <div style={{ padding:'8px 14px 10px', display:'flex', gap:'5px', flexWrap:'wrap', borderTop:'1px solid #161e24' }}>
+        <div style={{ padding:'10px 16px 12px', display:'flex', gap:'5px', flexWrap:'wrap', borderTop:'1px solid #161e24' }}>
           {t.psychTags.map(id => { const tag=PSYCH.find(p=>p.id===id); return tag?<span key={id} style={{ fontFamily:M, fontSize:'9px', color:tag.c, background:tag.bg, border:`1px solid ${tag.c}33`, borderRadius:'5px', padding:'3px 8px', fontWeight:600 }}>{tag.label}</span>:null })}
         </div>
       )}
 
       {/* Notes */}
       {t.note && (
-        <div style={{ padding:'12px 14px 14px', borderTop:'1px solid #161e24' }}>
-          <div style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'1px', marginBottom:'7px', fontWeight:600 }}>NOTES</div>
-          <div style={{ fontSize:'13px', color:'#a0c0ca', lineHeight:1.75, whiteSpace:'pre-wrap', wordBreak:'break-word', borderLeft:'2px solid #263840', paddingLeft:'12px' }}>{t.note}</div>
+        <div style={{ padding:'16px', borderTop:'1px solid #161e24' }}>
+          <div style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'1px', marginBottom:'8px', fontWeight:600 }}>NOTES</div>
+          <div style={{ fontSize:'14px', color:'#a0c0ca', lineHeight:1.8, whiteSpace:'pre-wrap', wordBreak:'break-word', borderLeft:'2px solid #263840', paddingLeft:'14px' }}>{t.note}</div>
         </div>
       )}
     </div>
   )
 
+  // Om trade har en bild visas den ALLTID överst i full bredd nu
   if (hasImage) {
-    if (isMobile) {
-      return (
-        <div style={{ background:'#0a0e10', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden' }}>
-          <div style={{ background:'#080b0c', width:'100%', padding:'8px', boxSizing:'border-box' }}>
-            <img
-              src={t.image}
-              alt="chart"
-              onClick={() => onImageClick(t.image)}
-              style={{ width:'100%', height:'auto', display:'block', borderRadius:'6px', cursor:'zoom-in' }}
-            />
-          </div>
-          <InfoPanel />
-        </div>
-      )
-    }
-
-    // DEN NYA STABILA CSS GRID-LAYOUTEN FÖR DESKTOP
     return (
       <div style={{ 
         background:'#0a0e10', 
         border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, 
         borderRadius:'10px', 
         overflow:'hidden',
-        display:'grid',
-        gridTemplateColumns:'460px 1fr', // Bilden får EXAKT 460px, texten tar resten (1fr)
-        alignItems:'start',
-        width:'100%'
+        display:'block',
+        width:'100%',
+        marginBottom:'14px'
       }}>
-        {/* VÄNSTER — Bilden är helt skyddad i en 460px kolumn */}
+        {/* BILDEN HÖGST UPP */}
         <div style={{ 
-          background:'#080b0c',
-          borderRight:'1px solid #161e24',
-          padding:'14px',
+          background:'#080b0c', 
+          width:'100%', 
+          padding:'12px', 
           boxSizing:'border-box',
-          width:'460px'
+          borderBottom:'1px solid #161e24'
         }}>
           <img
             src={t.image}
             alt="chart"
             onClick={() => onImageClick(t.image)}
-            style={{
-              width:'100%',
-              height:'auto',
-              borderRadius:'6px',
-              display:'block',
-              cursor:'zoom-in'
+            style={{ 
+              width:'100%', 
+              height:'auto', 
+              maxHeight:'550px', // Sätter ett max-tak så breda skärmar inte gör bilden löjligt hög
+              objectFit:'contain',
+              display:'block', 
+              borderRadius:'6px', 
+              cursor:'zoom-in' 
             }}
           />
         </div>
 
-        {/* HÖGER — All text och anteckningar har hela resterande utrymme */}
-        <div style={{ minWidth:0, width:'100%', boxSizing:'border-box' }}>
+        {/* TEXTEN UNDER BILDEN */}
+        <div style={{ width:'100%', boxSizing:'border-box' }}>
           <InfoPanel />
         </div>
       </div>
     )
   }
 
+  // Om ingen bild finns visas bara textpanelen som vanligt
   return (
-    <div style={{ background:'#0a0e10', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden' }}>
+    <div style={{ background:'#0a0e10', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden', marginBottom:'14px' }}>
       <InfoPanel />
     </div>
   )
