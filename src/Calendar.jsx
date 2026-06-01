@@ -452,14 +452,14 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
         </div>
 
         {!mobile && sel && (
-          <div style={{ width:'460px', flexShrink:0, background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', height:'calc(100vh - 120px)', display:'flex', flexDirection:'column' }}>
+          <div style={{ width:'460px', flexShrink:0, position:'sticky', top:'74px', background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', height:'calc(100vh - 94px)', display:'flex', flexDirection:'column' }}>
             {panelContent}
           </div>
         )}
       </div>
 
       {mobile && sel && (
-        <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', height:'80vh', display:'flex', flexDirection:'column' }}>
+        <div style={{ position:'sticky', bottom:'70px', background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden', height:'70vh', display:'flex', flexDirection:'column', boxShadow:'0 -10px 30px rgba(0,0,0,0.6)' }}>
           {panelContent}
         </div>
       )}
