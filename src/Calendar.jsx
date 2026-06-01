@@ -225,18 +225,17 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
   const InfoPanel = () => (
     <div style={{ display:'block', width:'100%' }}>
       {/* Header row — instrument + outcome + pnl + actions */}
-      <div style={{ padding:'14px 14px 12px', display:'block' }}>
-        <div style={{ float:'left', display:'flex', alignItems:'center', gap:'7px', flexWrap:'wrap', maxWidth:'70%' }}>
+      <div style={{ padding:'14px 14px 12px', display:'flex', justifyContent:'space-between', alignItems:'center', gap:'10px', flexWrap:'wrap' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:'7px', flexWrap:'wrap', minWidth:0 }}>
           <span style={{ fontFamily:M, fontSize:'10px', color:'#88a8ae', background:'#161e24', border:'1px solid #1e2c32', borderRadius:'5px', padding:'3px 8px', fontWeight:600 }}>{t.instrument}</span>
           <span style={{ fontFamily:M, fontSize:'10px', padding:'3px 8px', borderRadius:'5px', background:RBG[t.result]||'#111820', color:RC[t.result]||'#85a4ad', fontWeight:700 }}>{RL[t.result]||t.result}</span>
           {t.setup && <span style={{ fontFamily:M, fontSize:'9px', color:'#85a4ad', background:'#161e24', border:'1px solid #1e2c32', borderRadius:'5px', padding:'3px 7px' }}>{t.setup}</span>}
         </div>
-        <div style={{ float:'right', display:'flex', alignItems:'center', gap:'10px' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:'10px', flexShrink:0 }}>
           <span style={{ fontFamily:M, fontSize:'16px', fontWeight:700, color:pv>=0?'#00e5b0':'#ff4f6b' }}>{pv>=0?'+':''}${Math.abs(Math.round(pv))}</span>
           <button onClick={onToggleEdit} style={{ background:'none', border:'1px solid #1e2c32', borderRadius:'5px', color:'#85a4ad', fontFamily:M, fontSize:'10px', padding:'4px 9px', cursor:'pointer' }}>✎ Edit</button>
           <button onClick={onDelete} style={{ background:'none', border:'none', color:'#5a7a84', cursor:'pointer', fontSize:'16px', padding:'2px 4px' }}>×</button>
         </div>
-        <div style={{ clear:'both' }} />
       </div>
 
       {/* Emotion bar */}
@@ -270,7 +269,7 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
   if (hasImage) {
     if (isMobile) {
       return (
-        <div style={{ background:'#0a0e10', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden', display:'block', width:'100%' }}>
+        <div style={{ background:'#0a0e10', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden' }}>
           <div style={{ background:'#080b0c', width:'100%', padding:'8px', boxSizing:'border-box' }}>
             <img
               src={t.image}
@@ -284,24 +283,25 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
       )
     }
 
-    // SKOTTSÄKER DESKTOP-LAYOUT: Inga konstiga flex-krympningar eller absoluta låsningar
+    // DEN NYA STABILA CSS GRID-LAYOUTEN FÖR DESKTOP
     return (
       <div style={{ 
         background:'#0a0e10', 
         border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, 
         borderRadius:'10px', 
         overflow:'hidden',
-        display:'block',
+        display:'grid',
+        gridTemplateColumns:'460px 1fr', // Bilden får EXAKT 460px, texten tar resten (1fr)
+        alignItems:'start',
         width:'100%'
       }}>
-        {/* VÄNSTERKOLUMN: Tar upp exakt 45% av bredden, bilden sätter höjden själv */}
+        {/* VÄNSTER — Bilden är helt skyddad i en 460px kolumn */}
         <div style={{ 
-          float:'left',
-          width:'45%', 
           background:'#080b0c',
           borderRight:'1px solid #161e24',
           padding:'14px',
-          boxSizing:'border-box'
+          boxSizing:'border-box',
+          width:'460px'
         }}>
           <img
             src={t.image}
@@ -309,21 +309,18 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
             onClick={() => onImageClick(t.image)}
             style={{
               width:'100%',
-              height:'auto', // Låter webbläsaren räkna ut proportionerna perfekt
-              display:'block',
+              height:'auto',
               borderRadius:'6px',
+              display:'block',
               cursor:'zoom-in'
             }}
           />
         </div>
 
-        {/* HÖGERKOLUMN: Tar upp resterande 55% av bredden */}
-        <div style={{ float:'right', width:'55%', boxSizing:'border-box' }}>
+        {/* HÖGER — All text och anteckningar har hela resterande utrymme */}
+        <div style={{ minWidth:0, width:'100%', boxSizing:'border-box' }}>
           <InfoPanel />
         </div>
-
-        {/* RENSNING: Tvingar ytterramen att omsluta både bild och text helt */}
-        <div style={{ clear:'both' }} />
       </div>
     )
   }
