@@ -213,6 +213,7 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
   const em = parseInt(t.emotion||0)
   const ec = em<=3?'#00e5b0':em>=7?'#ff4f6b':'#ffc030'
   const hasImage = !!t.image
+  const isMobile = useIsMobile()
 
   if (isEd) return (
     <div style={{ background:'#0a0e10', border:'1px solid #263840', borderRadius:'10px', padding:'18px' }}>
@@ -221,28 +222,21 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
     </div>
   )
 
-  // Info panel — shared between both layouts
   const InfoPanel = () => (
-    <div style={{ display:'flex', flexDirection:'column', gap:'0', width:'100%' }}>
-
+    <div style={{ display:'block', width:'100%' }}>
       {/* Header row — instrument + outcome + pnl + actions */}
-      <div style={{ padding:'14px 14px 12px', display:'flex', justifyContent:'space-between', alignItems:'center', gap:'10px', flexWrap:'wrap' }}>
-        <div style={{ display:'flex', alignItems:'center', gap:'7px', flexWrap:'wrap', minWidth:0 }}>
+      <div style={{ padding:'14px 14px 12px', display:'block' }}>
+        <div style={{ float:'left', display:'flex', alignItems:'center', gap:'7px', flexWrap:'wrap', maxWidth:'70%' }}>
           <span style={{ fontFamily:M, fontSize:'10px', color:'#88a8ae', background:'#161e24', border:'1px solid #1e2c32', borderRadius:'5px', padding:'3px 8px', fontWeight:600 }}>{t.instrument}</span>
           <span style={{ fontFamily:M, fontSize:'10px', padding:'3px 8px', borderRadius:'5px', background:RBG[t.result]||'#111820', color:RC[t.result]||'#85a4ad', fontWeight:700 }}>{RL[t.result]||t.result}</span>
           {t.setup && <span style={{ fontFamily:M, fontSize:'9px', color:'#85a4ad', background:'#161e24', border:'1px solid #1e2c32', borderRadius:'5px', padding:'3px 7px' }}>{t.setup}</span>}
         </div>
-        <div style={{ display:'flex', alignItems:'center', gap:'10px', flexShrink:0 }}>
+        <div style={{ float:'right', display:'flex', alignItems:'center', gap:'10px' }}>
           <span style={{ fontFamily:M, fontSize:'16px', fontWeight:700, color:pv>=0?'#00e5b0':'#ff4f6b' }}>{pv>=0?'+':''}${Math.abs(Math.round(pv))}</span>
-          <button onClick={onToggleEdit} style={{ background:'none', border:'1px solid #1e2c32', borderRadius:'5px', color:'#85a4ad', fontFamily:M, fontSize:'10px', padding:'4px 9px', cursor:'pointer', transition:'all 0.15s' }}
-            onMouseEnter={e=>{e.currentTarget.style.borderColor='#3a5460';e.currentTarget.style.color='#d0e8ec'}}
-            onMouseLeave={e=>{e.currentTarget.style.borderColor='#1e2c32';e.currentTarget.style.color='#85a4ad'}}
-          >✎ Edit</button>
-          <button onClick={onDelete} style={{ background:'none', border:'none', color:'#5a7a84', cursor:'pointer', fontSize:'16px', padding:'2px 4px', transition:'color 0.15s' }}
-            onMouseEnter={e=>e.currentTarget.style.color='#ff4f6b'}
-            onMouseLeave={e=>e.currentTarget.style.color='#5a7a84'}
-          >×</button>
+          <button onClick={onToggleEdit} style={{ background:'none', border:'1px solid #1e2c32', borderRadius:'5px', color:'#85a4ad', fontFamily:M, fontSize:'10px', padding:'4px 9px', cursor:'pointer' }}>✎ Edit</button>
+          <button onClick={onDelete} style={{ background:'none', border:'none', color:'#5a7a84', cursor:'pointer', fontSize:'16px', padding:'2px 4px' }}>×</button>
         </div>
+        <div style={{ clear:'both' }} />
       </div>
 
       {/* Emotion bar */}
@@ -265,7 +259,7 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
 
       {/* Notes */}
       {t.note && (
-        <div style={{ padding:'12px 14px 14px', borderTop:'1px solid #161e24', flex:1 }}>
+        <div style={{ padding:'12px 14px 14px', borderTop:'1px solid #161e24' }}>
           <div style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'1px', marginBottom:'7px', fontWeight:600 }}>NOTES</div>
           <div style={{ fontSize:'13px', color:'#a0c0ca', lineHeight:1.75, whiteSpace:'pre-wrap', wordBreak:'break-word', borderLeft:'2px solid #263840', paddingLeft:'12px' }}>{t.note}</div>
         </div>
@@ -273,52 +267,67 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
     </div>
   )
 
-  // Two-column layout when image exists
   if (hasImage) {
+    if (isMobile) {
+      // MOBIL-LAYOUT: Bilden hamnar högst upp i full bredd, texten rullar under den.
+      return (
+        <div style={{ background:'#0a0e10', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden', marginBottom:'12px' }}>
+          <div style={{ background:'#080b0c', width:'100%', padding:'6px' }}>
+            <img
+              src={t.image}
+              alt="chart"
+              onClick={() => onImageClick(t.image)}
+              style={{ width:'100%', height:'auto', display:'block', borderRadius:'6px' }}
+            />
+          </div>
+          <InfoPanel />
+        </div>
+      )
+    }
+
+    // DESKTOP-LAYOUT: Stabil tvåkolumnslösning som aldrig trycker ihop bilden
     return (
       <div style={{ 
         background:'#0a0e10', 
         border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, 
         borderRadius:'10px', 
-        overflow:'hidden', 
-        display:'flex',
-        alignItems:'flex-start'
+        overflow:'hidden',
+        display:'table',
+        width:'100%',
+        tableLayout:'fixed'
       }}>
-        {/* LEFT — Fixed image container */}
+        {/* VÄNSTER — Bilden hålls stor och opåverkad av textens längd */}
         <div style={{ 
-          width: '45%',
-          minWidth: '320px',
-          maxWidth: '420px',
-          borderRight:'1px solid #161e24', 
+          display:'table-cell', 
+          width:'45%', 
+          verticalAlign:'top',
           background:'#080b0c',
-          position: 'sticky',
-          top: 0,
-          alignSelf: 'start',
-          padding: '12px 12px 12px 12px',
-          boxSizing: 'border-box'
+          borderRight:'1px solid #161e24',
+          padding:'12px'
         }}>
-          <img
-            src={t.image}
-            alt="chart"
-            onClick={() => onImageClick(t.image)}
-            style={{
-              width:'100%',
-              height:'auto',
-              borderRadius:'6px',
-              display:'block',
-              cursor:'zoom-in',
-            }}
-          />
+          <div style={{ position:'sticky', top:'12px' }}>
+            <img
+              src={t.image}
+              alt="chart"
+              onClick={() => onImageClick(t.image)}
+              style={{
+                width:'100%',
+                height:'auto',
+                borderRadius:'6px',
+                display:'block',
+                cursor:'zoom-in'
+              }}
+            />
+          </div>
         </div>
-        {/* RIGHT — info */}
-        <div style={{ display:'flex', flexDirection:'column', flex: 1, minWidth: 0 }}>
+        {/* HÖGER — Textpanelen får växa hur långt den vill nedåt */}
+        <div style={{ display:'table-cell', width:'55%', verticalAlign:'top' }}>
           <InfoPanel />
         </div>
       </div>
     )
   }
 
-  // No image — single column
   return (
     <div style={{ background:'#0a0e10', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden' }}>
       <InfoPanel />
@@ -542,12 +551,12 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
         })}
       </div>
 
-      {/* MODAL */}
+{/* MODAL */}
       {sel && (
         <div
           onClick={closeModal}
           style={{
-            position:'fixed', inset:0, background:'rgba(0,0,0,0.75)', backdropFilter:'blur(6px)',
+            position:'fixed', inset:0, background:'rgba(0,0,0,0.85)', backdropFilter:'blur(8px)',
             zIndex:1000, display:'flex', alignItems: mobile?'flex-end':'center', justifyContent:'center',
             padding: mobile?'0':'24px',
             animation:'fadeIn 0.2s ease',
@@ -558,8 +567,9 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
             style={{
               background:'#111820', border:'1px solid #1e2c32',
               borderRadius: mobile?'16px 16px 0 0':'14px',
-              width: mobile?'100%':'min(860px, 100%)',
-              height: mobile?'92vh':'min(880px, 90vh)',
+              width: mobile?'100%':'min(1020px, 100%)',
+              height: mobile?'92vh':'auto',
+              maxHeight: mobile?'92vh':'85vh',
               display:'flex', flexDirection:'column', overflow:'hidden',
               boxShadow:'0 24px 80px rgba(0,0,0,0.6)',
               animation: mobile?'slideUp 0.25s ease':'scaleIn 0.2s ease',
@@ -613,14 +623,17 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
               </div>
             </div>
 
-            {/* Modal body */}
+            {/* Modal body — HÄR AKTIVERAS ALL SCROLL */}
             <div style={{
-              flex:1, minHeight:0, overflowY:'auto', overflowX:'hidden',
-              padding:'16px 18px', display:'flex', flexDirection:'column', gap:'12px',
+              flex:1,
+              overflowY:'auto',
+              padding:'16px 18px', 
+              display:'block', // Ändrat från flex till block för säkrare scrollhantering
+              background:'#111820',
               WebkitOverflowScrolling:'touch',
             }}>
               {showForm && (
-                <div style={{ background:'#0a0e10', border:'1px solid #263840', borderRadius:'10px', padding:'18px' }}>
+                <div style={{ background:'#0a0e10', border:'1px solid #263840', borderRadius:'10px', padding:'18px', marginBottom:'12px' }}>
                   <div style={{ fontFamily:M, fontSize:'9px', color:'#00e5b0', letterSpacing:'1.5px', marginBottom:'14px', fontWeight:700 }}>NY TRADE</div>
                   <EditForm
                     onSave={trade => { onAddTrade({ date:sel, ...trade, timestamp:new Date().toISOString() }); setShowForm(false) }}
@@ -640,17 +653,18 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
               {selTrades.map((t, i) => {
                 const ji = journal.findIndex(j => j===t)
                 return (
-                  <TradeCard
-                    key={i}
-                    t={t}
-                    ji={ji}
-                    isEd={editingIdx===ji}
-                    onToggleEdit={() => setEditingIdx(editingIdx===ji?null:ji)}
-                    onDelete={() => onDeleteTrade?.(ji)}
-                    onSaveEdit={doEdit}
-                    onCancelEdit={() => setEditingIdx(null)}
-                    onImageClick={img => setLightbox(img)}
-                  />
+                  <div key={i} style={{ marginBottom:'12px' }}>
+                    <TradeCard
+                      t={t}
+                      ji={ji}
+                      isEd={editingIdx===ji}
+                      onToggleEdit={() => setEditingIdx(editingIdx===ji?null:ji)}
+                      onDelete={() => onDeleteTrade?.(ji)}
+                      onSaveEdit={doEdit}
+                      onCancelEdit={() => setEditingIdx(null)}
+                      onImageClick={img => setLightbox(img)}
+                    />
+                  </div>
                 )
               })}
             </div>
