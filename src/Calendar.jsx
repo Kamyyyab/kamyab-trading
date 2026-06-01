@@ -72,7 +72,7 @@ function EditForm({ initial = {}, onSave, onCancel }) {
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:'18px' }}>
 
-      {/* IMAGE — top priority, hero treatment */}
+      {/* IMAGE */}
       <div>
         <span style={lbl}>📷 CHART SCREENSHOT</span>
         <input ref={fileRef} type="file" accept="image/*" onChange={handleImg} style={{ display:'none' }} />
@@ -107,7 +107,7 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         )}
       </div>
 
-      {/* OUTCOME — pill grid */}
+      {/* OUTCOME */}
       <div>
         <span style={lbl}>OUTCOME</span>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:'6px' }}>
@@ -212,6 +212,7 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
   const pv = parseFloat(t.pnl||0)
   const em = parseInt(t.emotion||0)
   const ec = em<=3?'#00e5b0':em>=7?'#ff4f6b':'#ffc030'
+  const hasImage = !!t.image
 
   if (isEd) return (
     <div style={{ background:'#0a0e10', border:'1px solid #263840', borderRadius:'10px', padding:'18px' }}>
@@ -220,10 +221,12 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
     </div>
   )
 
-  return (
-    <div style={{ background:'#0a0e10', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden' }}>
-      {/* Header row */}
-      <div style={{ padding:'14px 14px 12px', display:'flex', justifyContent:'space-between', alignItems:'center', gap:'10px' }}>
+  // Info panel — shared between both layouts
+  const InfoPanel = () => (
+    <div style={{ display:'flex', flexDirection:'column', gap:'0' }}>
+
+      {/* Header row — instrument + outcome + pnl + actions */}
+      <div style={{ padding:'14px 14px 12px', display:'flex', justifyContent:'space-between', alignItems:'center', gap:'10px', flexWrap:'wrap' }}>
         <div style={{ display:'flex', alignItems:'center', gap:'7px', flexWrap:'wrap', minWidth:0 }}>
           <span style={{ fontFamily:M, fontSize:'10px', color:'#88a8ae', background:'#161e24', border:'1px solid #1e2c32', borderRadius:'5px', padding:'3px 8px', fontWeight:600 }}>{t.instrument}</span>
           <span style={{ fontFamily:M, fontSize:'10px', padding:'3px 8px', borderRadius:'5px', background:RBG[t.result]||'#111820', color:RC[t.result]||'#85a4ad', fontWeight:700 }}>{RL[t.result]||t.result}</span>
@@ -241,16 +244,6 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
           >×</button>
         </div>
       </div>
-
-      {/* IMAGE — show first if exists */}
-      {t.image && (
-        <div style={{ padding:'0 14px 12px' }}>
-          <img src={t.image} alt="chart" onClick={() => onImageClick(t.image)} style={{
-            width:'100%', maxHeight:'280px', objectFit:'contain', borderRadius:'8px',
-            border:'1px solid #1e2c32', display:'block', cursor:'zoom-in', background:'#080b0c',
-          }} />
-        </div>
-      )}
 
       {/* Emotion bar */}
       {em>0 && (
@@ -272,11 +265,48 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
 
       {/* Notes */}
       {t.note && (
-        <div style={{ padding:'12px 14px 14px', borderTop:'1px solid #161e24' }}>
+        <div style={{ padding:'12px 14px 14px', borderTop:'1px solid #161e24', flex:1 }}>
           <div style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'1px', marginBottom:'7px', fontWeight:600 }}>NOTES</div>
           <div style={{ fontSize:'13px', color:'#a0c0ca', lineHeight:1.75, whiteSpace:'pre-wrap', wordBreak:'break-word', borderLeft:'2px solid #263840', paddingLeft:'12px' }}>{t.note}</div>
         </div>
       )}
+    </div>
+  )
+
+  // Two-column layout when image exists
+  if (hasImage) {
+    return (
+      <div style={{ background:'#0a0e10', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden', display:'grid', gridTemplateColumns:'1fr 1fr', minHeight:'320px' }}>
+        {/* LEFT — image */}
+        <div style={{ borderRight:'1px solid #161e24', display:'flex', alignItems:'stretch' }}>
+          <img
+            src={t.image}
+            alt="chart"
+            onClick={() => onImageClick(t.image)}
+            style={{
+              width:'100%',
+              height:'100%',
+              minHeight:'280px',
+              objectFit:'cover',
+              objectPosition:'center',
+              display:'block',
+              cursor:'zoom-in',
+              background:'#080b0c',
+            }}
+          />
+        </div>
+        {/* RIGHT — info */}
+        <div style={{ display:'flex', flexDirection:'column', overflow:'hidden' }}>
+          <InfoPanel />
+        </div>
+      </div>
+    )
+  }
+
+  // No image — single column
+  return (
+    <div style={{ background:'#0a0e10', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden' }}>
+      <InfoPanel />
     </div>
   )
 }
@@ -290,7 +320,6 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
   const [editingIdx, setEditingIdx] = useState(null)
   const [lightbox,   setLightbox]   = useState(null)
 
-  // Lock body scroll when modal is open
   useEffect(() => {
     if (sel) {
       const prev = document.body.style.overflow
@@ -299,7 +328,6 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
     }
   }, [sel])
 
-  // ESC to close modal
   useEffect(() => {
     if (!sel) return
     const onKey = e => { if (e.key === 'Escape') { setSel(null); setShowForm(false); setEditingIdx(null) } }
@@ -426,7 +454,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
         </div>
       </div>
 
-      {/* Calendar grid — full width, no side panel */}
+      {/* Calendar grid */}
       <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden' }}>
         <div style={{ display:'grid', gridTemplateColumns:gridCols, background:'#0d1214', borderBottom:'1px solid #1e2c32' }}>
           {dayLabels.map((d,i) => (
@@ -499,7 +527,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
         })}
       </div>
 
-      {/* MODAL — covers viewport */}
+      {/* MODAL */}
       {sel && (
         <div
           onClick={closeModal}
@@ -515,7 +543,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
             style={{
               background:'#111820', border:'1px solid #1e2c32',
               borderRadius: mobile?'16px 16px 0 0':'14px',
-              width: mobile?'100%':'min(680px, 100%)',
+              width: mobile?'100%':'min(860px, 100%)',
               height: mobile?'92vh':'min(880px, 90vh)',
               display:'flex', flexDirection:'column', overflow:'hidden',
               boxShadow:'0 24px 80px rgba(0,0,0,0.6)',
@@ -570,7 +598,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
               </div>
             </div>
 
-            {/* Modal body — scrollable */}
+            {/* Modal body */}
             <div style={{
               flex:1, minHeight:0, overflowY:'auto', overflowX:'hidden',
               padding:'16px 18px', display:'flex', flexDirection:'column', gap:'12px',
