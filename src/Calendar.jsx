@@ -269,9 +269,8 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
 
   if (hasImage) {
     if (isMobile) {
-      // MOBIL-LAYOUT: Bilden överst i full bredd, texten rullar under.
       return (
-        <div style={{ background:'#0a0e10', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden' }}>
+        <div style={{ background:'#0a0e10', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden', display:'block', width:'100%' }}>
           <div style={{ background:'#080b0c', width:'100%', padding:'8px', boxSizing:'border-box' }}>
             <img
               src={t.image}
@@ -285,29 +284,24 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
       )
     }
 
-    // DESKTOP-LAYOUT: Absolut låst bredd för bilden, texten ligger till höger.
+    // SKOTTSÄKER DESKTOP-LAYOUT: Inga konstiga flex-krympningar eller absoluta låsningar
     return (
       <div style={{ 
         background:'#0a0e10', 
         border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, 
         borderRadius:'10px', 
         overflow:'hidden',
-        position:'relative',
-        minHeight:'280px',
-        display:'block'
+        display:'block',
+        width:'100%'
       }}>
-        {/* VÄNSTER — Bildcontainern har en hårdkodad, fast bredd på 440px */}
+        {/* VÄNSTERKOLUMN: Tar upp exakt 45% av bredden, bilden sätter höjden själv */}
         <div style={{ 
-          position:'absolute',
-          top:0,
-          left:0,
-          bottom:0,
-          width:'440px', 
+          float:'left',
+          width:'45%', 
           background:'#080b0c',
           borderRight:'1px solid #161e24',
           padding:'14px',
-          boxSizing:'border-box',
-          overflow:'hidden'
+          boxSizing:'border-box'
         }}>
           <img
             src={t.image}
@@ -315,18 +309,21 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
             onClick={() => onImageClick(t.image)}
             style={{
               width:'100%',
-              height:'auto',
-              borderRadius:'6px',
+              height:'auto', // Låter webbläsaren räkna ut proportionerna perfekt
               display:'block',
+              borderRadius:'6px',
               cursor:'zoom-in'
             }}
           />
         </div>
 
-        {/* HÖGER — Information och text börjar efter bildens 440px */}
-        <div style={{ marginLeft:'440px', boxSizing:'border-box' }}>
+        {/* HÖGERKOLUMN: Tar upp resterande 55% av bredden */}
+        <div style={{ float:'right', width:'55%', boxSizing:'border-box' }}>
           <InfoPanel />
         </div>
+
+        {/* RENSNING: Tvingar ytterramen att omsluta både bild och text helt */}
+        <div style={{ clear:'both' }} />
       </div>
     )
   }
