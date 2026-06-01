@@ -273,36 +273,32 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
     </div>
   )
 
-  // Two-column layout when image exists
-  if (hasImage) {
-    return (
-      <div style={{ background:'#0a0e10', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden', display:'grid', gridTemplateColumns:'1fr 1fr', minHeight:'320px' }}>
-        {/* LEFT — image */}
-        <div style={{ borderRight:'1px solid #161e24', display:'flex', alignItems:'stretch' }}>
-          <img
-            src={t.image}
-            alt="chart"
-            onClick={() => onImageClick(t.image)}
-            style={{
-              width:'100%',
-              height:'100%',
-              minHeight:'280px',
-              objectFit:'cover',
-              objectPosition:'center',
-              display:'block',
-              cursor:'zoom-in',
-              background:'#080b0c',
-            }}
-          />
-        </div>
-        {/* RIGHT — info */}
-        <div style={{ display:'flex', flexDirection:'column', overflow:'hidden' }}>
-          <InfoPanel />
-        </div>
+// Vertical layout when image exists — bild full bredd, info under
+if (hasImage) {
+  return (
+    <div style={{ background:'#0a0e10', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden' }}>
+      {/* TOP — image full width */}
+      <div style={{ borderBottom:'1px solid #161e24', position:'relative' }}>
+        <img
+          src={t.image}
+          alt="chart"
+          onClick={() => onImageClick(t.image)}
+          style={{
+            width:'100%',
+            maxHeight:'420px',
+            objectFit:'contain',
+            objectPosition:'center',
+            display:'block',
+            cursor:'zoom-in',
+            background:'#080b0c',
+          }}
+        />
       </div>
-    )
-  }
-
+      {/* BOTTOM — all info, full width, no clipping */}
+      <InfoPanel />
+    </div>
+  )
+}
   // No image — single column
   return (
     <div style={{ background:'#0a0e10', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden' }}>
