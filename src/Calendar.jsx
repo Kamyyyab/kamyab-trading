@@ -269,15 +269,15 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
 
   if (hasImage) {
     if (isMobile) {
-      // MOBIL-LAYOUT: Bilden hamnar högst upp i full bredd, texten rullar under den.
+      // MOBIL-LAYOUT: Bilden överst i full bredd, texten rullar under.
       return (
-        <div style={{ background:'#0a0e10', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden', marginBottom:'12px' }}>
-          <div style={{ background:'#080b0c', width:'100%', padding:'6px' }}>
+        <div style={{ background:'#0a0e10', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden' }}>
+          <div style={{ background:'#080b0c', width:'100%', padding:'8px', boxSizing:'border-box' }}>
             <img
               src={t.image}
               alt="chart"
               onClick={() => onImageClick(t.image)}
-              style={{ width:'100%', height:'auto', display:'block', borderRadius:'6px' }}
+              style={{ width:'100%', height:'auto', display:'block', borderRadius:'6px', cursor:'zoom-in' }}
             />
           </div>
           <InfoPanel />
@@ -285,43 +285,46 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
       )
     }
 
-    // DESKTOP-LAYOUT: Stabil tvåkolumnslösning som aldrig trycker ihop bilden
+    // DESKTOP-LAYOUT: Absolut låst bredd för bilden, texten ligger till höger.
     return (
       <div style={{ 
         background:'#0a0e10', 
         border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, 
         borderRadius:'10px', 
         overflow:'hidden',
-        display:'table',
-        width:'100%',
-        tableLayout:'fixed'
+        position:'relative',
+        minHeight:'280px',
+        display:'block'
       }}>
-        {/* VÄNSTER — Bilden hålls stor och opåverkad av textens längd */}
+        {/* VÄNSTER — Bildcontainern har en hårdkodad, fast bredd på 440px */}
         <div style={{ 
-          display:'table-cell', 
-          width:'45%', 
-          verticalAlign:'top',
+          position:'absolute',
+          top:0,
+          left:0,
+          bottom:0,
+          width:'440px', 
           background:'#080b0c',
           borderRight:'1px solid #161e24',
-          padding:'12px'
+          padding:'14px',
+          boxSizing:'border-box',
+          overflow:'hidden'
         }}>
-          <div style={{ position:'sticky', top:'12px' }}>
-            <img
-              src={t.image}
-              alt="chart"
-              onClick={() => onImageClick(t.image)}
-              style={{
-                width:'100%',
-                height:'auto',
-                borderRadius:'6px',
-                display:'block',
-                cursor:'zoom-in'
-              }}
-            />
-          </div>
+          <img
+            src={t.image}
+            alt="chart"
+            onClick={() => onImageClick(t.image)}
+            style={{
+              width:'100%',
+              height:'auto',
+              borderRadius:'6px',
+              display:'block',
+              cursor:'zoom-in'
+            }}
+          />
         </div>
-        {/* HÖGER — Textpanelen får växa hur långt den vill nedåt */}
-        <div style={{ display:'table-cell', width:'55%', verticalAlign:'top' }}>
+
+        {/* HÖGER — Information och text börjar efter bildens 440px */}
+        <div style={{ marginLeft:'440px', boxSizing:'border-box' }}>
           <InfoPanel />
         </div>
       </div>
