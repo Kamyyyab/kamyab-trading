@@ -66,7 +66,7 @@ const RESULTS = [
 // Outcomes that count as real trades (require bias)
 const REAL_RESULTS = new Set(['tp1','tp2','tp3','win','win2','loss','be'])
 
-function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, firstTradeWon, isOpen = false, realTradeCount = 0 }) {
+function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, firstTradeWon, isOpen = false, realTradeCount = 0, tiltRisk = false, tiltMins = null }) {
   const [result,     setResult]     = useState(initial.result     || '')
   const [instrument, setInstrument] = useState(initial.instrument || 'MYM')
   const [pnl,        setPnl]        = useState(initial.pnl        || '')
@@ -79,7 +79,13 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
   const [checkRisk,  setCheckRisk]  = useState(false)
   const [image,      setImage]      = useState(initial.image || null)
   const [imgPrev,    setImgPrev]    = useState(initial.image || null)
-  const fileRef = useRef()
+  const [audioUrl,   setAudioUrl]   = useState(initial.audio || null)
+  const [recording,  setRecording]  = useState(false)
+  const fileRef   = useRef()
+  const mediaRef  = useRef(null)
+  const chunksRef = useRef([])
+
+  useEffect(() => () => { if (mediaRef.current?.state === 'recording') mediaRef.current.stop() }, [])
 
   function toggleTag(id) { setPsychTags(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]) }
 
@@ -90,6 +96,26 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
     r.readAsDataURL(f)
   }
   function clearImg() { setImage(null); setImgPrev(null); if (fileRef.current) fileRef.current.value = '' }
+
+  async function startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const mr = new MediaRecorder(stream)
+      chunksRef.current = []
+      mr.ondataavailable = e => { if (e.data.size > 0) chunksRef.current.push(e.data) }
+      mr.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
+        const reader = new FileReader()
+        reader.onload = ev => setAudioUrl(ev.target.result)
+        reader.readAsDataURL(blob)
+        stream.getTracks().forEach(t => t.stop())
+      }
+      mr.start()
+      mediaRef.current = mr
+      setRecording(true)
+    } catch { /* mic denied */ }
+  }
+  function stopRecording() { mediaRef.current?.stop(); setRecording(false) }
 
   const isReal = REAL_RESULTS.has(result)
 
@@ -110,7 +136,7 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
       return
     }
     setBiasError(false)
-    onSave({ result, instrument, pnl: pnl || '0', note, emotion, setup, psychTags, checklistViolation, violatedRules, brokenRules: violatedRules, image: image || null })
+    onSave({ result, instrument, pnl: pnl || '0', note, emotion, setup, psychTags, checklistViolation, violatedRules, brokenRules: violatedRules, image: image || null, audio: audioUrl || null })
   }
 
   return (
@@ -139,6 +165,42 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
           </div>
         )}
       </div>
+
+      {/* Voice memo */}
+      <div>
+        <span style={lbl}>RÖSTMEMO</span>
+        {!audioUrl ? (
+          <button type="button" onClick={recording ? stopRecording : startRecording} style={{
+            width:'100%', background: recording ? '#1a0610' : '#0d1214',
+            border: `2px ${recording ? 'solid' : 'dashed'} ${recording ? 'rgba(255,79,107,0.5)' : '#263840'}`,
+            borderRadius:'8px', color: recording ? '#ff4f6b' : '#85a4ad',
+            fontFamily:M, fontSize:'10px', padding:'13px 14px', cursor:'pointer',
+            transition:'all 0.15s', display:'flex', alignItems:'center', justifyContent:'center', gap:'8px',
+          }}
+            onMouseEnter={e=>{ if(!recording){ e.currentTarget.style.borderColor='#5a7a84'; e.currentTarget.style.color='#d0e8ec' }}}
+            onMouseLeave={e=>{ if(!recording){ e.currentTarget.style.borderColor='#263840'; e.currentTarget.style.color='#85a4ad' }}}>
+            {recording
+              ? <><span style={{ width:'8px', height:'8px', borderRadius:'50%', background:'#ff4f6b', display:'inline-block', flexShrink:0 }} /> Stoppa inspelning</>
+              : <><span style={{ fontSize:'15px' }}>🎙</span> Spela in röstmemo</>}
+          </button>
+        ) : (
+          <div style={{ background:'#0d1214', border:'1px solid #263840', borderRadius:'8px', padding:'10px 12px' }}>
+            <audio src={audioUrl} controls style={{ width:'100%', height:'32px', display:'block' }} />
+            <button type="button" onClick={() => setAudioUrl(null)} style={{ background:'none', border:'none', color:'#5a7a84', fontFamily:M, fontSize:'8px', cursor:'pointer', marginTop:'5px', padding:0 }}>✕ Ta bort memo</button>
+          </div>
+        )}
+      </div>
+
+      {/* Tilt warning */}
+      {tiltRisk && (
+        <div style={{ background:'#1a0010', border:'1px solid rgba(255,79,107,0.5)', borderRadius:'8px', padding:'10px 13px', display:'flex', gap:'9px', alignItems:'flex-start' }}>
+          <span style={{ fontSize:'16px', flexShrink:0 }}>🧠</span>
+          <div>
+            <div style={{ fontFamily:M, fontSize:'10px', color:'#ff4f6b', fontWeight:700, marginBottom:'2px' }}>TILT RISK — {tiltMins} MIN SEDAN FÖRLUST</div>
+            <div style={{ fontFamily:M, fontSize:'9px', color:'#a03050', lineHeight:1.5 }}>Du förlorade nyligen. Är du i rätt mentalt tillstånd? Vänta tills du känner lugn.</div>
+          </div>
+        </div>
+      )}
 
       {/* Trade #2 warning — first trade was a win */}
       {isSecondTrade && firstTradeWon && (
@@ -334,6 +396,12 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
   const firstTradeWon   = firstRealTrade ? ['win','win2','tp1','tp2','tp3'].includes(firstRealTrade.result) : false
   // Is the form about to log trade #2 or more?
   const isSecondTrade   = realTradeCount >= 1
+
+  // Tilt detection — loss < 20 min ago
+  const latestRealTrade = todayRealTrades[0]
+  const minsAgoLatest   = latestRealTrade?.timestamp
+    ? Math.floor((now - new Date(latestRealTrade.timestamp)) / 60000) : null
+  const tiltRisk = latestRealTrade?.result === 'loss' && minsAgoLatest !== null && minsAgoLatest < 20
 
   const REAL_RESULTS_ARR = Array.from(REAL_RESULTS)
   const trades   = journal.filter(t => !['skip','no-setup'].includes(t.result))
@@ -559,6 +627,8 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
                     firstTradeWon={false}
                     isOpen={isOpen}
                     realTradeCount={realTradeCount}
+                    tiltRisk={false}
+                    tiltMins={null}
                   />
                 </div>
               )}
@@ -578,6 +648,12 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
                   {t.image && (
                     <div style={{ padding:'10px 10px 0' }}>
                       <img src={t.image} alt="chart" onClick={() => setZoomImage(t.image)} style={{ width:'100%', borderRadius:'6px', display:'block', maxHeight:'280px', objectFit:'contain', background:'#060809', cursor:'zoom-in' }} />
+                    </div>
+                  )}
+                  {t.audio && (
+                    <div style={{ padding:'10px 12px 0' }}>
+                      <div style={{ fontFamily:M, fontSize:'7px', color:'#85a4ad', letterSpacing:'1px', marginBottom:'5px' }}>RÖSTMEMO</div>
+                      <audio src={t.audio} controls style={{ width:'100%', height:'32px', display:'block' }} />
                     </div>
                   )}
                   {em>0 && (
@@ -628,6 +704,8 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
               firstTradeWon={firstTradeWon}
               isOpen={isOpen}
               realTradeCount={realTradeCount}
+              tiltRisk={tiltRisk}
+              tiltMins={minsAgoLatest}
             />
           </div>
         )}

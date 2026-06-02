@@ -42,9 +42,15 @@ function EditForm({ initial = {}, onSave, onCancel }) {
   const [emotion, setEmotion] = useState(initial.emotion    || '3')
   const [setup,   setSetup]   = useState(initial.setup      || '')
   const [tags,    setTags]    = useState(initial.psychTags  || [])
-  const [image,   setImage]   = useState(initial.image      || null)
-  const [imgPrev, setImgPrev] = useState(initial.image      || null)
-  const fileRef = useRef()
+  const [image,    setImage]    = useState(initial.image  || null)
+  const [imgPrev,  setImgPrev]  = useState(initial.image  || null)
+  const [audioUrl, setAudioUrl] = useState(initial.audio  || null)
+  const [recording,setRecording]= useState(false)
+  const fileRef   = useRef()
+  const mediaRef  = useRef(null)
+  const chunksRef = useRef([])
+
+  useEffect(() => () => { if (mediaRef.current?.state === 'recording') mediaRef.current.stop() }, [])
 
   const toggle = id => setTags(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id])
 
@@ -54,8 +60,25 @@ function EditForm({ initial = {}, onSave, onCancel }) {
     r.onload = ev => { setImage(ev.target.result); setImgPrev(ev.target.result) }
     r.readAsDataURL(f)
   }
-
   function clearImg() { setImage(null); setImgPrev(null); if (fileRef.current) fileRef.current.value = '' }
+
+  async function startRecording() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const mr = new MediaRecorder(stream)
+      chunksRef.current = []
+      mr.ondataavailable = e => { if (e.data.size > 0) chunksRef.current.push(e.data) }
+      mr.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
+        const reader = new FileReader()
+        reader.onload = ev => setAudioUrl(ev.target.result)
+        reader.readAsDataURL(blob)
+        stream.getTracks().forEach(t => t.stop())
+      }
+      mr.start(); mediaRef.current = mr; setRecording(true)
+    } catch { /* mic denied */ }
+  }
+  function stopRecording() { mediaRef.current?.stop(); setRecording(false) }
 
   const outcomeBtns = [
     { v:'win',  l:'Win +3R',  c:'#00e5b0', bg:'#001810' },
@@ -184,6 +207,29 @@ function EditForm({ initial = {}, onSave, onCancel }) {
           style={{...inp, resize:'vertical', minHeight:'120px', lineHeight:1.7, fontSize:'14px' }} />
       </div>
 
+      {/* VOICE MEMO */}
+      <div>
+        <span style={lbl}>RÖSTMEMO</span>
+        {!audioUrl ? (
+          <button type="button" onClick={recording ? stopRecording : startRecording} style={{
+            width:'100%', background:recording?'#1a0610':'#080b0c',
+            border:`2px ${recording?'solid':'dashed'} ${recording?'rgba(255,79,107,0.5)':'#263840'}`,
+            borderRadius:'8px', color:recording?'#ff4f6b':'#85a4ad',
+            fontFamily:M, fontSize:'11px', padding:'13px 14px', cursor:'pointer',
+            transition:'all 0.15s', display:'flex', alignItems:'center', justifyContent:'center', gap:'8px',
+          }}>
+            {recording
+              ? <><span style={{ width:'8px',height:'8px',borderRadius:'50%',background:'#ff4f6b',display:'inline-block',flexShrink:0 }} /> Stoppa inspelning</>
+              : <><span style={{ fontSize:'15px' }}>🎙</span> Spela in röstmemo</>}
+          </button>
+        ) : (
+          <div style={{ background:'#080b0c', border:'1px solid #263840', borderRadius:'8px', padding:'10px 12px' }}>
+            <audio src={audioUrl} controls style={{ width:'100%', height:'32px', display:'block' }} />
+            <button type="button" onClick={() => setAudioUrl(null)} style={{ background:'none', border:'none', color:'#5a7a84', fontFamily:M, fontSize:'9px', cursor:'pointer', marginTop:'5px', padding:0 }}>✕ Ta bort memo</button>
+          </div>
+        )}
+      </div>
+
       {/* ACTIONS */}
       <div style={{ display:'flex', gap:'8px', position:'sticky', bottom:0, background:'#111820', paddingTop:'10px', marginTop:'-4px' }}>
         <button type="button" onClick={onCancel} style={{
@@ -194,7 +240,7 @@ function EditForm({ initial = {}, onSave, onCancel }) {
           onMouseEnter={e=>{e.currentTarget.style.borderColor='#3a5460';e.currentTarget.style.color='#d0e8ec'}}
           onMouseLeave={e=>{e.currentTarget.style.borderColor='#263840';e.currentTarget.style.color='#85a4ad'}}
         >Avbryt</button>
-        <button type="button" onClick={() => onSave({ result, instrument:instr, pnl:pnl||'0', note, emotion, setup, psychTags:tags, image:image||null })} style={{
+        <button type="button" onClick={() => onSave({ result, instrument:instr, pnl:pnl||'0', note, emotion, setup, psychTags:tags, image:image||null, audio:audioUrl||null })} style={{
           flex:1, background:'#00e5b0', color:'#020f08', fontFamily:M, fontSize:'12px', fontWeight:700,
           padding:'14px', borderRadius:'8px', border:'none', cursor:'pointer', letterSpacing:'1px',
           transition:'background 0.15s',
@@ -260,6 +306,14 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
         <div style={{ padding:'16px', borderTop:'1px solid #161e24' }}>
           <div style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'1px', marginBottom:'8px', fontWeight:600 }}>NOTES</div>
           <div style={{ fontSize:'14px', color:'#a0c0ca', lineHeight:1.8, whiteSpace:'pre-wrap', wordBreak:'break-word', borderLeft:'2px solid #263840', paddingLeft:'14px' }}>{t.note}</div>
+        </div>
+      )}
+
+      {/* Audio memo */}
+      {t.audio && (
+        <div style={{ padding:'12px 16px', borderTop:'1px solid #161e24' }}>
+          <div style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'1px', marginBottom:'6px', fontWeight:600 }}>RÖSTMEMO</div>
+          <audio src={t.audio} controls style={{ width:'100%', height:'32px', display:'block' }} />
         </div>
       )}
     </div>

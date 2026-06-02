@@ -119,6 +119,43 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
   trades.forEach(t=>{ (t.psychTags||[]).forEach(id=>{ if(!psychStats[id])psychStats[id]={wins:0,losses:0,total:0,pnl:0}; psychStats[id].total++; psychStats[id].pnl+=parseFloat(t.pnl||0); if(WIN_RESULTS.has(t.result))psychStats[id].wins++; if(t.result==='loss')psychStats[id].losses++ }) })
   const psychList = Object.entries(psychStats).sort(([,a],[,b])=>b.total-a.total)
 
+  // ── Time-of-day analysis (CET) ───────────────────────────────
+  const TIME_BUCKETS = [
+    { label:'15:30–16:00', from:15*60+30, to:16*60     },
+    { label:'16:00–16:30', from:16*60,    to:16*60+30  },
+    { label:'16:30–17:00', from:16*60+30, to:17*60     },
+    { label:'17:00–17:30', from:17*60,    to:17*60+30  },
+  ]
+  function tsToMins(ts) {
+    if (!ts) return null
+    try {
+      const s = new Date(ts).toLocaleTimeString('sv-SE', { timeZone:'Europe/Stockholm', hour:'2-digit', minute:'2-digit', hour12:false }).split(':')
+      return parseInt(s[0])*60+parseInt(s[1])
+    } catch { return null }
+  }
+  const timeStats = TIME_BUCKETS.map(b => {
+    const bt = trades.filter(t => { const m=tsToMins(t.timestamp); return m!==null&&m>=b.from&&m<b.to })
+    const w  = bt.filter(t=>WIN_RESULTS.has(t.result)).length
+    return { label:b.label, total:bt.length, wins:w, wr:bt.length>0?Math.round(w/bt.length*100):null, pnl:bt.reduce((s,t)=>s+parseFloat(t.pnl||0),0) }
+  })
+  const hasTimeData = timeStats.some(b=>b.total>0)
+
+  // ── Setup trend (last 5 vs all-time) ─────────────────────────
+  const setupTrends = {}
+  Object.keys(setupStats).forEach(k => {
+    const st   = trades.filter(t=>(t.setup||'Otaggad')===k).sort((a,b)=>a.date.localeCompare(b.date))
+    const last5 = st.slice(-5)
+    const l5wr  = last5.length>0 ? last5.filter(t=>WIN_RESULTS.has(t.result)).length/last5.length : null
+    const totwr = setupStats[k].total>0 ? setupStats[k].wins/setupStats[k].total : null
+    let arrow='—', color='#5a7a84'
+    if (last5.length>=3&&l5wr!==null&&totwr!==null) {
+      if      (l5wr-totwr >  0.1) { arrow='↑'; color='#00e5b0' }
+      else if (totwr-l5wr >  0.1) { arrow='↓'; color='#ff4f6b' }
+      else                         { arrow='→'; color='#ffc030' }
+    }
+    setupTrends[k] = { arrow, color, l5wr:l5wr!==null?Math.round(l5wr*100):null, last5:last5.length }
+  })
+
   const days = ['Måndag','Tisdag','Onsdag','Torsdag','Fredag']
   const dayStats = days.map((day,i)=>{ const dt=trades.filter(t=>new Date(t.date).getDay()===(i+1)); const dw=dt.filter(t=>WIN_RESULTS.has(t.result)).length; return {day,wr:dt.length>0?Math.round(dw/dt.length*100):0,total:dt.length,reliable:dt.length>=3} })
 
@@ -450,15 +487,18 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
       {setupList.length>0 && section('P&L PER SETUP',
         <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
           {setupList.map(([tag,s],i)=>{
-            const wr=s.total>0?Math.round(s.wins/s.total*100):0
-            const maxP=Math.max(...setupList.map(([,x])=>Math.abs(x.pnl)),1)
+            const wr   = s.total>0?Math.round(s.wins/s.total*100):0
+            const maxP = Math.max(...setupList.map(([,x])=>Math.abs(x.pnl)),1)
+            const tr   = setupTrends[tag]
             return (
               <div key={i}>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'4px'}}>
-                  <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
+                  <div style={{display:'flex',alignItems:'center',gap:'8px',flexWrap:'wrap'}}>
                     <span style={{fontFamily:M,fontSize:'11px',color:'#d0e8ec',fontWeight:600}}>{tag}</span>
                     <span style={{fontFamily:M,fontSize:'9px',color:wr>=50?'#00e5b0':'#ff4f6b'}}>{wr}%</span>
                     <span style={{fontFamily:M,fontSize:'8px',color:'#85a4ad'}}>{s.total}t</span>
+                    {tr?.arrow!=='—'&&<span style={{fontFamily:M,fontSize:'12px',fontWeight:700,color:tr.color}}>{tr.arrow}</span>}
+                    {tr?.l5wr!==null&&tr?.last5>=3&&<span style={{fontFamily:M,fontSize:'7px',color:'#5a7a84'}}>sista 5: {tr.l5wr}%</span>}
                   </div>
                   <span style={{fontFamily:M,fontSize:'12px',fontWeight:700,color:s.pnl>=0?'#00e5b0':'#ff4f6b'}}>{s.pnl>=0?'+':''}${Math.round(s.pnl)}</span>
                 </div>
@@ -609,6 +649,31 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* ── TIME OF DAY ── */}
+      {hasTimeData && section('TID PÅ DAGEN — CET',
+        <div style={{display:'flex',flexDirection:'column',gap:'8px'}}>
+          <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',marginBottom:'4px'}}>Baserat på tidsstämpel — kräver ny data</div>
+          {timeStats.map((b,i) => {
+            const barW = b.total>0&&b.wr!==null ? b.wr : 0
+            const c    = b.wr===null?'#263840':b.wr>=60?'#00e5b0':b.wr>=50?'#4ab89a':b.wr>=40?'#ffc030':'#ff4f6b'
+            return (
+              <div key={i} style={{display:'flex',alignItems:'center',gap:'10px'}}>
+                <div style={{fontFamily:M,fontSize:'9px',color:'#88a8ae',width:'90px',flexShrink:0}}>{b.label}</div>
+                <div style={{flex:1,height:'6px',background:'#0d1214',borderRadius:'3px',overflow:'hidden'}}>
+                  <div style={{height:'100%',width:`${barW}%`,background:c,borderRadius:'3px',transition:'width 0.4s ease'}} />
+                </div>
+                <div style={{fontFamily:M,fontSize:'10px',fontWeight:700,color:c,width:'36px',textAlign:'right',flexShrink:0}}>
+                  {b.wr!==null?`${b.wr}%`:'—'}
+                </div>
+                <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',width:'50px',textAlign:'right',flexShrink:0}}>
+                  {b.total>0?`${b.total}t · ${b.pnl>=0?'+':''}$${Math.round(b.pnl)}`:'ingen data'}
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
 

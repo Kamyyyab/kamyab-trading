@@ -140,17 +140,34 @@ export default function Playbook({ playbook = [], onSaveSetup, onDeleteSetup, jo
   const [zoomImage, setZoomImage] = useState(null)
   const [confirmDel,setConfirmDel]= useState(null)
 
-  // Build per-setup stats from journal (match by name, case-insensitive)
+  // Build per-setup stats + trends from journal (match by name, case-insensitive)
   const setupStats = {}
+  const setupTrades = {}
   journal.filter(t => t.setup && !['skip','no-setup'].includes(t.result)).forEach(t => {
     const k = t.setup.trim().toLowerCase()
-    if (!setupStats[k]) setupStats[k] = { wins:0, total:0, pnl:0 }
+    if (!setupStats[k])  setupStats[k]  = { wins:0, total:0, pnl:0 }
+    if (!setupTrades[k]) setupTrades[k] = []
     setupStats[k].total++
     setupStats[k].pnl += parseFloat(t.pnl||0)
     if (WIN.has(t.result)) setupStats[k].wins++
+    setupTrades[k].push(t)
   })
 
   function getStats(name) { return setupStats[name?.trim().toLowerCase()] || null }
+
+  function getTrend(name) {
+    const k   = name?.trim().toLowerCase()
+    const all = (setupTrades[k] || []).sort((a,b) => a.date.localeCompare(b.date))
+    const s   = setupStats[k]
+    if (!s || s.total < 3) return null
+    const last5 = all.slice(-5)
+    const l5wr  = last5.filter(t => WIN.has(t.result)).length / last5.length
+    const totwr = s.wins / s.total
+    if (last5.length < 3) return null
+    if (l5wr - totwr >  0.1) return { arrow:'↑', color:'#00e5b0', l5pct: Math.round(l5wr*100) }
+    if (totwr - l5wr >  0.1) return { arrow:'↓', color:'#ff4f6b', l5pct: Math.round(l5wr*100) }
+    return { arrow:'→', color:'#ffc030', l5pct: Math.round(l5wr*100) }
+  }
 
   const editSetup = playbook.find(s => s.id === editId)
 
@@ -189,6 +206,7 @@ export default function Playbook({ playbook = [], onSaveSetup, onDeleteSetup, jo
       {/* Setup cards */}
       {playbook.map(setup => {
         const stats   = getStats(setup.name)
+        const trend   = getTrend(setup.name)
         const wr      = stats ? Math.round(stats.wins / stats.total * 100) : null
         const isExp   = expandId === setup.id
         const isEdit  = editId   === setup.id
@@ -201,6 +219,14 @@ export default function Playbook({ playbook = [], onSaveSetup, onDeleteSetup, jo
               <div style={{ flex:1, minWidth:0 }}>
                 <div style={{ display:'flex', alignItems:'center', gap:'8px', flexWrap:'wrap' }}>
                   <span style={{ fontFamily:M, fontSize:'14px', fontWeight:700, color:'#d0e8ec' }}>{setup.name}</span>
+                  {trend && (
+                    <span style={{ fontFamily:M, fontSize:'13px', fontWeight:700, color:trend.color }} title={`Sista 5: ${trend.l5pct}% WR`}>
+                      {trend.arrow}
+                    </span>
+                  )}
+                  {trend && (
+                    <span style={{ fontFamily:M, fontSize:'7px', color:'#5a7a84' }}>sista 5: {trend.l5pct}%</span>
+                  )}
                   {setup.instruments?.length > 0 && setup.instruments.map(instr => (
                     <span key={instr} style={{ fontFamily:M, fontSize:'8px', color:'#88a8ae', background:'#161e24', border:'1px solid #1e2c32', borderRadius:'4px', padding:'2px 6px' }}>{instr}</span>
                   ))}
