@@ -210,7 +210,7 @@ export default function App() {
     const nj = [trade, ...journal]
     const ns = { ...streakLogs }
     // Auto-violation: any of these psychTags = rule broken
-    const VIOLATION_TAGS = new Set(['fomo','revenge','forced','oversize'])
+    const VIOLATION_TAGS = new Set(['fomo','revenge','forced','slmoved'])
     const hasViolationTag = (trade.psychTags||[]).some(t => VIOLATION_TAGS.has(t))
     const isViolation = trade.checklistViolation || hasViolationTag
     if (isViolation) ns[trade.date] = 'violation'

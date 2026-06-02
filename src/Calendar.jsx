@@ -20,7 +20,7 @@ const PSYCH = [
   { id:'fomo',      label:'FOMO',        c:'#ff4f6b', bg:'#1a0610' },
   { id:'revenge',   label:'Hämndtrade',  c:'#ff4f6b', bg:'#1a0610' },
   { id:'forced',    label:'Forcerat',    c:'#ffc030', bg:'#1a1000' },
-  { id:'oversize',  label:'Överposad',   c:'#ff4f6b', bg:'#1a0610' },
+  { id:'slmoved',   label:'SL flytt',    c:'#ff4f6b', bg:'#1a0610' },
 ]
 
 const WIN_RESULTS = new Set(['win','win2','tp1','tp2','tp3'])

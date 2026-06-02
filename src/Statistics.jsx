@@ -3,8 +3,8 @@ import { LineChart, BarChart, Bar, Line, XAxis, YAxis, Tooltip, ResponsiveContai
 
 const M = "'JetBrains Mono', monospace"
 const WIN_RESULTS = new Set(['win','win2','tp1','tp2','tp3'])
-const VIOLATION_TAGS = new Set(['fomo','revenge','forced','oversize'])
-const PSYCH_LABELS = { patient:'Tålmodig', fomo:'FOMO', revenge:'Hämndtrade', aplus:'A+ Setup', forced:'Forcerat', setforget:'Set & Forget', oversize:'Överposad', managed:'Hanterat bra' }
+const VIOLATION_TAGS = new Set(['fomo','revenge','forced','slmoved'])
+const PSYCH_LABELS = { patient:'Tålmodig', fomo:'FOMO', revenge:'Hämndtrade', aplus:'A+ Setup', forced:'Forcerat', setforget:'Set & Forget', slmoved:'SL flytt', managed:'Hanterat bra' }
 
 function exportCSV(journal) {
   const rows = [
