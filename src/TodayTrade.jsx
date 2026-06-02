@@ -186,7 +186,7 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
         ) : (
           <div style={{ background:'#0a1020', border:'1px solid #1c2e4a', borderRadius:'8px', padding:'10px 12px' }}>
             <audio src={audioUrl} controls style={{ width:'100%', height:'32px', display:'block' }} />
-            <button type="button" onClick={() => setAudioUrl(null)} style={{ background:'none', border:'none', color:'#4a6888', fontFamily:M, fontSize:'8px', cursor:'pointer', marginTop:'5px', padding:0 }}>✕ Ta bort memo</button>
+            <button type="button" onClick={() => setAudioUrl(null)} style={{ background:'none', border:'none', color:'#6880a0', fontFamily:M, fontSize:'8px', cursor:'pointer', marginTop:'5px', padding:0 }}>✕ Ta bort memo</button>
           </div>
         )}
       </div>
@@ -563,7 +563,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
             {!isOpen && !isPre && (
               <div style={{ display:'flex', alignItems:'center', gap:'5px', background:'#0a1020', border:'1px solid #162340', borderRadius:'6px', padding:'4px 9px' }}>
                 <div style={{ width:'5px', height:'5px', borderRadius:'50%', background:'#3a5878' }} />
-                <span style={{ fontFamily:M, fontSize:'8px', color:'#4a6888' }}>SESSION STÄNGD</span>
+                <span style={{ fontFamily:M, fontSize:'8px', color:'#6880a0' }}>SESSION STÄNGD</span>
               </div>
             )}
           </div>
@@ -612,7 +612,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
                 <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
                   <span style={{ fontFamily:M, fontSize:'15px', fontWeight:700, color:pv>=0?'#00e5b0':'#ff4f6b' }}>{pv>=0?'+':''}${Math.abs(Math.round(pv))}</span>
                   <button type="button" onClick={() => { setEditing(isEd?null:i); setExpanded(null) }} style={{ background:isEd?'#1c2e4a':'none', border:`1px solid ${isEd?'#4a6888':'#162340'}`, borderRadius:'5px', color:isEd?'#dce8f5':'#7a96b4', fontFamily:M, fontSize:'8px', padding:'3px 8px', cursor:'pointer', transition:'all 0.15s', letterSpacing:'0.5px' }}>✎</button>
-                  <span onClick={() => { setExpanded(isEx?null:i); setEditing(null) }} style={{ color:'#4a6888', fontSize:'9px', cursor:'pointer', transition:'transform 0.2s', display:'inline-block', transform:isEx?'rotate(180deg)':'none' }}>▼</span>
+                  <span onClick={() => { setExpanded(isEx?null:i); setEditing(null) }} style={{ color:'#6880a0', fontSize:'9px', cursor:'pointer', transition:'transform 0.2s', display:'inline-block', transform:isEx?'rotate(180deg)':'none' }}>▼</span>
                 </div>
               </div>
 

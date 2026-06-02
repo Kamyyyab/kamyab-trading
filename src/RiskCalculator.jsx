@@ -47,10 +47,10 @@ const groupColors = {
 
 const inp = {
   width: '100%',
-  background: '#1c2426',
-  border: '1px solid #26383d',
+  background: '#0a1020',
+  border: '1px solid #1c2e4a',
   borderRadius: '10px',
-  color: '#e2eeee',
+  color: '#dce8f5',
   fontSize: '16px',       // ≥16px prevents iOS zoom
   padding: '13px 14px',
   outline: 'none',
@@ -120,8 +120,8 @@ function RiskCalculator({ journal = [] }) {
 
   return (
     <div style={{
-      background: '#161c1e',
-      border: '1px solid #1e2d31',
+      background: '#0c1422',
+      border: '1px solid #162340',
       borderRadius: '14px',
       padding: '18px 16px',
       display: 'flex',
@@ -225,7 +225,7 @@ function RiskCalculator({ journal = [] }) {
                 ${riskDollar.toFixed(0)}
               </div>
             </div>
-            <div style={{ background: '#1c2426', border: '1px solid #26383d', borderRadius: '12px', padding: '16px' }}>
+            <div style={{ background: '#0a1020', border: '1px solid #1c2e4a', borderRadius: '12px', padding: '16px' }}>
               <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#5a7898', letterSpacing: '1.5px', marginBottom: '6px' }}>KONTRAKT</div>
               <div style={{ fontFamily: 'monospace', fontSize: '26px', fontWeight: 700, color: slPts > 0 ? '#00e5b0' : '#3a5878', lineHeight: 1 }}>
                 {slPts > 0 ? contracts : '—'}
@@ -236,7 +236,7 @@ function RiskCalculator({ journal = [] }) {
           {/* SL value per contract */}
           {slPts > 0 && contracts > 0 && (
             <>
-              <div style={{ background: '#1c2426', border: '1px solid #26383d', borderRadius: '10px', padding: '12px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ background: '#0a1020', border: '1px solid #1c2e4a', borderRadius: '10px', padding: '12px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontFamily: 'monospace', fontSize: '10px', color: '#7a96b4', letterSpacing: '1px' }}>SL / kontrakt</span>
                 <span style={{ fontFamily: 'monospace', fontSize: '15px', fontWeight: 700, color: '#ff4f6b' }}>-${slValuePerContract.toFixed(2)}</span>
               </div>
@@ -266,13 +266,13 @@ function RiskCalculator({ journal = [] }) {
       )}
 
       {/* ── PROP FIRM LIMITS ── */}
-      <div style={{ borderTop:'1px solid #1e2d31', paddingTop:'14px' }}>
+      <div style={{ borderTop:'1px solid #162340', paddingTop:'14px' }}>
         <button type="button" onClick={() => setShowPropFirm(v => !v)} style={{
           width:'100%', display:'flex', justifyContent:'space-between', alignItems:'center',
           background:'none', border:'none', cursor:'pointer', padding:0,
         }}>
           <span style={{ fontFamily:'monospace', fontSize:'10px', color:'#5a7898', letterSpacing:'2px' }}>PROP FIRM LIMITS</span>
-          <span style={{ fontFamily:'monospace', fontSize:'11px', color:'#4a6888', transition:'transform 0.2s', display:'inline-block', transform: showPropFirm ? 'rotate(180deg)' : 'none' }}>▼</span>
+          <span style={{ fontFamily:'monospace', fontSize:'11px', color:'#6880a0', transition:'transform 0.2s', display:'inline-block', transform: showPropFirm ? 'rotate(180deg)' : 'none' }}>▼</span>
         </button>
 
         {showPropFirm && (() => {
@@ -291,7 +291,7 @@ function RiskCalculator({ journal = [] }) {
             <div style={{ marginTop:'12px', display:'flex', flexDirection:'column', gap:'12px' }}>
 
               {/* Today auto-P&L */}
-              <div style={{ background:'#1c2426', border:'1px solid #26383d', borderRadius:'8px', padding:'10px 14px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+              <div style={{ background:'#0a1020', border:'1px solid #1c2e4a', borderRadius:'8px', padding:'10px 14px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <span style={{ fontFamily:'monospace', fontSize:'9px', color:'#7a96b4', letterSpacing:'1px' }}>IDAG P&L</span>
                 <span style={{ fontFamily:'monospace', fontSize:'15px', fontWeight:700, color: todayLoss >= 0 ? '#00e5b0' : '#ff4f6b' }}>
                   {todayLoss >= 0 ? '+' : ''}${todayLoss.toFixed(0)}

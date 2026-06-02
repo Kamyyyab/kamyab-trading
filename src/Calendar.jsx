@@ -111,7 +111,7 @@ function EditForm({ initial = {}, onSave, onCancel }) {
           >
             <span style={{ fontSize:'22px' }}>+</span>
             <span>Ladda upp chart-bild</span>
-            <span style={{ fontSize:'9px', color:'#4a6888', fontWeight:400 }}>PNG, JPG, GIF</span>
+            <span style={{ fontSize:'9px', color:'#6880a0', fontWeight:400 }}>PNG, JPG, GIF</span>
           </button>
         ) : (
           <div style={{ position:'relative', borderRadius:'10px', overflow:'hidden', border:'1px solid #1c2e4a' }}>
@@ -225,7 +225,7 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         ) : (
           <div style={{ background:'#080b0c', border:'1px solid #1c2e4a', borderRadius:'8px', padding:'10px 12px' }}>
             <audio src={audioUrl} controls style={{ width:'100%', height:'32px', display:'block' }} />
-            <button type="button" onClick={() => setAudioUrl(null)} style={{ background:'none', border:'none', color:'#4a6888', fontFamily:M, fontSize:'9px', cursor:'pointer', marginTop:'5px', padding:0 }}>✕ Ta bort memo</button>
+            <button type="button" onClick={() => setAudioUrl(null)} style={{ background:'none', border:'none', color:'#6880a0', fontFamily:M, fontSize:'9px', cursor:'pointer', marginTop:'5px', padding:0 }}>✕ Ta bort memo</button>
           </div>
         )}
       </div>
@@ -279,7 +279,7 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
         <div style={{ display:'flex', alignItems:'center', gap:'10px', flexShrink:0 }}>
           <span style={{ fontFamily:M, fontSize:'18px', fontWeight:700, color:pv>=0?'#00e5b0':'#ff4f6b' }}>{pv>=0?'+':''}${Math.abs(Math.round(pv))}</span>
           <button onClick={onToggleEdit} style={{ background:'none', border:'1px solid #162340', borderRadius:'5px', color:'#7a96b4', fontFamily:M, fontSize:'10px', padding:'4px 9px', cursor:'pointer' }}>✎ Edit</button>
-          <button onClick={onDelete} style={{ background:'none', border:'none', color:'#4a6888', cursor:'pointer', fontSize:'16px', padding:'2px 4px' }}>×</button>
+          <button onClick={onDelete} style={{ background:'none', border:'none', color:'#6880a0', cursor:'pointer', fontSize:'16px', padding:'2px 4px' }}>×</button>
         </div>
       </div>
 
@@ -520,7 +520,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
           {dayLabels.map((d,i) => (
             <div key={i} style={{ fontFamily:M, fontSize:'10px', color:'#7a96b4', textAlign:'center', padding:'12px 4px', letterSpacing:'1.5px', fontWeight:600 }}>{d}</div>
           ))}
-          {!mobile && <div style={{ fontFamily:M, fontSize:'9px', color:'#4a6888', textAlign:'center', padding:'12px 4px', borderLeft:'1px solid #162340', fontWeight:600 }}>V</div>}
+          {!mobile && <div style={{ fontFamily:M, fontSize:'9px', color:'#6880a0', textAlign:'center', padding:'12px 4px', borderLeft:'1px solid #162340', fontWeight:600 }}>V</div>}
         </div>
 
         {weeks.map((week, wi) => {
@@ -679,7 +679,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
               )}
 
               {selTrades.length===0 && !showForm && (
-                <div style={{ fontFamily:M, fontSize:'13px', color:'#4a6888', padding:'48px 0', textAlign:'center' }}>
+                <div style={{ fontFamily:M, fontSize:'13px', color:'#6880a0', padding:'48px 0', textAlign:'center' }}>
                   <div style={{ fontSize:'32px', marginBottom:'10px', opacity:0.4 }}>—</div>
                   <div>Inga trades på denna dag</div>
                   <div style={{ fontSize:'10px', marginTop:'6px', color:'#3a5878' }}>Tryck + NY TRADE för att logga</div>

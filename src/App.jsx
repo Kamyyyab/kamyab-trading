@@ -77,11 +77,11 @@ function SessionStatusDesktop() {
       </div>
       <div style={{ width:'1px', height:'16px', background:'#131e38' }} />
       <div>
-        <div style={{ fontFamily:M, fontSize:'7px', color:'#4a6888', letterSpacing:'1px', marginBottom:'1px' }}>SWE</div>
+        <div style={{ fontFamily:M, fontSize:'7px', color:'#6880a0', letterSpacing:'1px', marginBottom:'1px' }}>SWE</div>
         <div style={{ fontFamily:M, fontSize:'11px', color:'#7a96b4' }}>{sweTime}</div>
       </div>
       <div>
-        <div style={{ fontFamily:M, fontSize:'7px', color:'#4a6888', letterSpacing:'1px', marginBottom:'1px' }}>NY</div>
+        <div style={{ fontFamily:M, fontSize:'7px', color:'#6880a0', letterSpacing:'1px', marginBottom:'1px' }}>NY</div>
         <div style={{ fontFamily:M, fontSize:'11px', color:'#7a96b4' }}>{nyTime}</div>
       </div>
     </div>
@@ -112,7 +112,7 @@ function SessionStatusMobile() {
         <span style={{ fontFamily:M, fontSize:'9px', fontWeight:600, color, letterSpacing:'0.5px' }}>{label}</span>
       </div>
       <div style={{ textAlign:'right' }}>
-        <div style={{ fontFamily:M, fontSize:'7px', color:'#4a6888', letterSpacing:'1px' }}>NY</div>
+        <div style={{ fontFamily:M, fontSize:'7px', color:'#6880a0', letterSpacing:'1px' }}>NY</div>
         <div style={{ fontFamily:M, fontSize:'11px', color:'#8aacb4', fontWeight:500 }}>{nyTime}</div>
       </div>
     </div>
@@ -265,7 +265,7 @@ export default function App() {
       </div>
       <div>
         <div style={{ fontFamily:M, fontSize:'13px', fontWeight:700, color:'#f59e0b', lineHeight:1.1 }}>Kamyab</div>
-        <div style={{ fontFamily:M, fontSize:'7px', color:'#4a6888', letterSpacing:'2px' }}>TRADING OS</div>
+        <div style={{ fontFamily:M, fontSize:'7px', color:'#6880a0', letterSpacing:'2px' }}>TRADING OS</div>
       </div>
     </div>
   )
@@ -278,7 +278,7 @@ export default function App() {
           <Logo />
           <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
             <SessionStatusMobile />
-            <button type="button" onClick={() => supabase.auth.signOut()} style={{ background:'none', border:'1px solid #131e38', borderRadius:'7px', color:'#4a6888', fontSize:'13px', width:'30px', height:'30px', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>↩</button>
+            <button type="button" onClick={() => supabase.auth.signOut()} style={{ background:'none', border:'1px solid #131e38', borderRadius:'7px', color:'#6880a0', fontSize:'13px', width:'30px', height:'30px', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>↩</button>
           </div>
         </nav>
       ) : (

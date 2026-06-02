@@ -76,7 +76,7 @@ export default function StreakHistory({ journal=[], onSaveStreakLog, streakLogs=
         <div style={{display:'flex',gap:'14px'}}>
           {[{label:'LÄNGSTA',v:longestStreak,c:'#00e5b0'},{label:'CLEAN',v:cleanDays,c:'#00e5b0'},{label:'VIOLATIONS',v:violationDays,c:'#ff4f6b'}].map((s,i)=>(
             <div key={i} style={{textAlign:'center'}}>
-              <div style={{fontFamily:M,fontSize:'7px',color:'#7a96b4',letterSpacing:'1px',marginBottom:'1px'}}>{s.label}</div>
+              <div style={{fontFamily:M,fontSize:'8px',color:'#7a96b4',letterSpacing:'1px',marginBottom:'1px'}}>{s.label}</div>
               <div style={{fontFamily:M,fontSize:'14px',fontWeight:700,color:s.c}}>{s.v}</div>
             </div>
           ))}
@@ -136,7 +136,7 @@ export default function StreakHistory({ journal=[], onSaveStreakLog, streakLogs=
         {[{bg:'#001810',bdr:'rgba(0,229,176,0.2)',label:'Clean'},{bg:'#1a0610',bdr:'rgba(255,79,107,0.2)',label:'Violation'},{bg:'#0a1020',bdr:'#162340',label:'Ingen trade'}].map((l,i)=>(
           <div key={i} style={{display:'flex',alignItems:'center',gap:'4px'}}>
             <div style={{width:'8px',height:'8px',borderRadius:'2px',background:l.bg,border:`1px solid ${l.bdr}`}} />
-            <span style={{fontFamily:M,fontSize:'8px',color:'#7a96b4'}}>{l.label}</span>
+            <span style={{fontFamily:M,fontSize:'9px',color:'#8aabb8'}}>{l.label}</span>
           </div>
         ))}
       </div>
@@ -145,7 +145,7 @@ export default function StreakHistory({ journal=[], onSaveStreakLog, streakLogs=
         <>
           <div onClick={()=>setPopup(null)} style={{position:'fixed',inset:0,zIndex:98}} />
           <div style={{position:'fixed',left:Math.min(popup.x,window.innerWidth-210),top:Math.min(popup.y,window.innerHeight-160),zIndex:99,background:'#0f1828',border:'1px solid #1c2e4a',borderRadius:'10px',padding:'12px',minWidth:'180px',boxShadow:'0 16px 40px rgba(0,0,0,0.8)'}}>
-            <div style={{fontFamily:M,fontSize:'8px',color:'#7a96b4',marginBottom:'8px',letterSpacing:'1px'}}>
+            <div style={{fontFamily:M,fontSize:'9px',color:'#8aabb8',marginBottom:'8px',letterSpacing:'1px'}}>
               {new Date(popup.date+'T12:00:00').toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'}).toUpperCase()}
             </div>
             <div style={{display:'flex',flexDirection:'column',gap:'5px'}}>

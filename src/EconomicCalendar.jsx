@@ -72,14 +72,14 @@ function groupBy(items, key) {
 
 // ── Sub-components ────────────────────────────────────────────
 function DateRow({ label }) {
-  return <div style={{ fontFamily:M,fontSize:'10px',color:'#7a96b4',letterSpacing:'2px',padding:'10px 0 6px',borderBottom:'1px solid #1a2225',marginBottom:'8px' }}>{label}</div>
+  return <div style={{ fontFamily:M,fontSize:'10px',color:'#7a96b4',letterSpacing:'2px',padding:'10px 0 6px',borderBottom:'1px solid #162340',marginBottom:'8px' }}>{label}</div>
 }
 
 function EconEvent({ e }) {
   return (
-    <div style={{ display:'flex',alignItems:'center',gap:'10px',background:'#0f1618',border:'1px solid #7a1f2e',borderRadius:'10px',padding:'12px 14px',marginBottom:'6px' }}>
+    <div style={{ display:'flex',alignItems:'center',gap:'10px',background:'#0a1020',border:'1px solid #7a1f2e',borderRadius:'10px',padding:'12px 14px',marginBottom:'6px' }}>
       <div style={{ fontFamily:M,fontSize:'11px',color:'#7a96b4',minWidth:'36px',flexShrink:0 }}>{fmtTime(e.time)}</div>
-      <div style={{ fontFamily:M,fontSize:'13px',color:'#d8eaed',flex:1,lineHeight:1.3 }}>{e.event}</div>
+      <div style={{ fontFamily:M,fontSize:'13px',color:'#dce8f5',flex:1,lineHeight:1.3 }}>{e.event}</div>
       <div style={{ fontFamily:M,fontSize:'9px',color:'#ff4f6b',background:'#3d0f1a',border:'1px solid #7a1f2e',borderRadius:'5px',padding:'3px 7px',whiteSpace:'nowrap',flexShrink:0 }}>HÖG</div>
     </div>
   )
@@ -87,14 +87,14 @@ function EconEvent({ e }) {
 
 function EarningRow({ e }) {
   const timing = e.hour==='bmo'?'PRE':e.hour==='amc'?'POST':null
-  const tColor = e.hour==='bmo'?'#ffc030':'#8aacb0'
+  const tColor = e.hour==='bmo'?'#ffc030':'#7a96b4'
   return (
-    <div style={{ background:'#0f1618',border:'1px solid #1a2225',borderRadius:'10px',padding:'13px 14px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:'10px',marginBottom:'6px' }}>
+    <div style={{ background:'#0a1020',border:'1px solid #162340',borderRadius:'10px',padding:'13px 14px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:'10px',marginBottom:'6px' }}>
       <div style={{ display:'flex',alignItems:'center',gap:'10px' }}>
         <img src={`https://assets.parqet.com/logos/symbol/${e.symbol}?format=svg`} alt={e.symbol}
-          style={{ width:'30px',height:'30px',borderRadius:'7px',background:'#1a2225',objectFit:'contain',flexShrink:0 }}
+          style={{ width:'30px',height:'30px',borderRadius:'7px',background:'#162340',objectFit:'contain',flexShrink:0 }}
           onError={ev=>{ev.target.style.display='none';ev.target.nextSibling.style.display='flex'}} />
-        <div style={{ width:'30px',height:'30px',borderRadius:'7px',background:'#1a2225',display:'none',alignItems:'center',justifyContent:'center',flexShrink:0 }}>
+        <div style={{ width:'30px',height:'30px',borderRadius:'7px',background:'#162340',display:'none',alignItems:'center',justifyContent:'center',flexShrink:0 }}>
           <span style={{ fontFamily:M,fontSize:'8px',color:'#5a7898',fontWeight:700 }}>{e.symbol?.slice(0,2)}</span>
         </div>
         <div>
@@ -102,7 +102,7 @@ function EarningRow({ e }) {
           {e.epsEstimate!=null&&<div style={{ fontFamily:M,fontSize:'10px',color:'#7a96b4',marginTop:'1px' }}>EPS est. ${parseFloat(e.epsEstimate).toFixed(2)}</div>}
         </div>
       </div>
-      {timing&&<div style={{ fontFamily:M,fontSize:'9px',color:tColor,background:'#1a2225',border:`1px solid ${tColor}44`,borderRadius:'5px',padding:'4px 9px',letterSpacing:'1px',flexShrink:0 }}>{timing}</div>}
+      {timing&&<div style={{ fontFamily:M,fontSize:'9px',color:tColor,background:'#162340',border:`1px solid ${tColor}44`,borderRadius:'5px',padding:'4px 9px',letterSpacing:'1px',flexShrink:0 }}>{timing}</div>}
     </div>
   )
 }
@@ -110,16 +110,16 @@ function EarningRow({ e }) {
 function NewsItem({ item }) {
   const fut = isFutures(item.headline)
   return (
-    <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration:'none',display:'block',background:fut?'#080e0c':'#0f1618',border:`1px solid ${fut?'rgba(0,229,176,0.18)':'#1a2225'}`,borderRadius:'8px',padding:'12px 14px',marginBottom:'6px',transition:'border-color 0.15s' }}
+    <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration:'none',display:'block',background:fut?'#060c14':'#0a1020',border:`1px solid ${fut?'rgba(0,229,176,0.18)':'#162340'}`,borderRadius:'8px',padding:'12px 14px',marginBottom:'6px',transition:'border-color 0.15s' }}
       onMouseEnter={e=>e.currentTarget.style.borderColor=fut?'rgba(0,229,176,0.4)':'#1c2e4a'}
-      onMouseLeave={e=>e.currentTarget.style.borderColor=fut?'rgba(0,229,176,0.18)':'#1a2225'}
+      onMouseLeave={e=>e.currentTarget.style.borderColor=fut?'rgba(0,229,176,0.18)':'#162340'}
     >
       {fut&&<span style={{ fontFamily:M,fontSize:'7px',color:'#00e5b0',background:'#001810',border:'1px solid rgba(0,229,176,0.2)',borderRadius:'3px',padding:'1px 5px',marginBottom:'5px',display:'inline-block',letterSpacing:'0.5px' }}>FUTURES</span>}
       <div style={{ fontFamily:M,fontSize:'12px',color:'#dce8f5',lineHeight:1.5,marginTop:fut?'4px':0 }}>{item.headline}</div>
       <div style={{ display:'flex',gap:'8px',marginTop:'6px',alignItems:'center' }}>
-        <span style={{ fontFamily:M,fontSize:'9px',color:'#4a6888' }}>{item.source}</span>
-        <span style={{ fontFamily:M,fontSize:'9px',color:'#2a3c44' }}>·</span>
-        <span style={{ fontFamily:M,fontSize:'9px',color:'#4a6888' }}>{fmtNews(item.datetime)}</span>
+        <span style={{ fontFamily:M,fontSize:'9px',color:'#6880a0' }}>{item.source}</span>
+        <span style={{ fontFamily:M,fontSize:'9px',color:'#4a6070' }}>·</span>
+        <span style={{ fontFamily:M,fontSize:'9px',color:'#6880a0' }}>{fmtNews(item.datetime)}</span>
       </div>
     </a>
   )
@@ -131,8 +131,8 @@ function HolidayRow({ h, todayStr }) {
   const isTomorrow= h.date===tomorrow
   const daysUntil = Math.max(0, Math.round((new Date(h.date+'T12:00:00')-new Date())/86400000))
   const urgent    = daysUntil<=3
-  const bg  = isToday?'#1a0610':urgent?'#0d1008':'#0f1618'
-  const bdr = isToday?'rgba(255,79,107,0.3)':urgent?'rgba(255,192,48,0.2)':'#1a2225'
+  const bg  = isToday?'#1a0610':urgent?'#060c14':'#0a1020'
+  const bdr = isToday?'rgba(255,79,107,0.3)':urgent?'rgba(255,192,48,0.2)':'#162340'
   const dc  = isToday?'#ff4f6b':urgent?'#ffc030':'#7a96b4'
   return (
     <div style={{ display:'flex',alignItems:'center',gap:'12px',background:bg,border:`1px solid ${bdr}`,borderRadius:'8px',padding:'12px 14px',marginBottom:'6px' }}>
@@ -140,7 +140,7 @@ function HolidayRow({ h, todayStr }) {
         <div style={{ fontFamily:M,fontSize:'9px',color:dc,fontWeight:700,lineHeight:1 }}>
           {isToday?'IDAG':isTomorrow?'IMORGON':`${daysUntil}d`}
         </div>
-        <div style={{ fontFamily:M,fontSize:'7px',color:'#4a6888',marginTop:'2px' }}>
+        <div style={{ fontFamily:M,fontSize:'8px',color:'#6880a0',marginTop:'2px' }}>
           {new Date(h.date+'T12:00:00').toLocaleDateString('sv-SE',{day:'numeric',month:'short'})}
         </div>
       </div>
@@ -215,7 +215,7 @@ export default function EconomicCalendar() {
   const sortedNews      = [...news].sort((a,b)=>(isFutures(b.headline)?1:0)-(isFutures(a.headline)?1:0)||b.datetime-a.datetime)
 
   const sectionHdr = label => (
-    <div style={{ fontFamily:M,fontSize:'8px',color:'#5a7898',letterSpacing:'2px',marginBottom:'10px' }}>{label}</div>
+    <div style={{ fontFamily:M,fontSize:'8px',color:'#5a7898',letterSpacing:'1.5px',marginBottom:'10px' }}>{label}</div>
   )
 
   function EconContent() {
@@ -261,7 +261,7 @@ export default function EconomicCalendar() {
             {[['general','Generellt'],['forex','Forex'],['crypto','Crypto'],['merger','M&A']].map(([v,l])=>(
               <button key={v} onClick={()=>setNewsCat(v)} style={{
                 fontFamily:M,fontSize:'8px',padding:'4px 9px',borderRadius:'5px',cursor:'pointer',
-                border:`1px solid ${newsCat===v?'#007d5e':'#1e2d31'}`,
+                border:`1px solid ${newsCat===v?'#007d5e':'#162340'}`,
                 background:newsCat===v?'#001810':'transparent',
                 color:newsCat===v?'#00e5b0':'#7a96b4',
                 transition:'all 0.15s',
@@ -280,12 +280,12 @@ export default function EconomicCalendar() {
   }
 
   return (
-    <div style={{ background:'#161c1e',border:'1px solid #1e2d31',borderRadius:'14px',padding:'16px' }}>
+    <div style={{ background:'#0c1422',border:'1px solid #162340',borderRadius:'14px',padding:'16px' }}>
 
       {/* Header */}
       <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom: holWarning?'10px':'14px' }}>
         <div style={{ fontFamily:M,fontSize:'10px',color:'#5a7898',letterSpacing:'2px' }}>MARKET EVENTS</div>
-        <button onClick={()=>{fetchMarketData();if(tab==='news')fetchNews(newsCat)}} style={{ background:'none',border:'1px solid #1e2d31',borderRadius:'8px',color:'#7a96b4',fontFamily:M,fontSize:'12px',padding:'6px 12px',cursor:'pointer',minHeight:'34px' }}>↻</button>
+        <button onClick={()=>{fetchMarketData();if(tab==='news')fetchNews(newsCat)}} style={{ background:'none',border:'1px solid #162340',borderRadius:'8px',color:'#7a96b4',fontFamily:M,fontSize:'12px',padding:'6px 12px',cursor:'pointer',minHeight:'34px' }}>↻</button>
       </div>
 
       {/* Holiday warning banner */}
@@ -310,12 +310,12 @@ export default function EconomicCalendar() {
         IS_MOB ? (
           // ── MOBILE: 4 tabs ──
           <div>
-            <div style={{ display:'grid',gridTemplateColumns:'repeat(4,1fr)',background:'#0f1618',border:'1px solid #1e2d31',borderRadius:'10px',padding:'3px',gap:'2px',marginBottom:'16px' }}>
+            <div style={{ display:'grid',gridTemplateColumns:'repeat(4,1fr)',background:'#0a1020',border:'1px solid #162340',borderRadius:'10px',padding:'3px',gap:'2px',marginBottom:'16px' }}>
               {[['econ','Makro'],['earnings','Earnings'],['news','News'],['holidays','Helgdagar']].map(([id,label])=>(
                 <button key={id} onClick={()=>setTab(id)} style={{
                   background:tab===id?'#1c2f34':'none',
-                  border:tab===id?'1px solid #26383d':'1px solid transparent',
-                  borderRadius:'7px',color:tab===id?'#e2eeee':'#7a96b4',
+                  border:tab===id?'1px solid #1c2e4a':'1px solid transparent',
+                  borderRadius:'7px',color:tab===id?'#dce8f5':'#7a96b4',
                   fontFamily:M,fontSize:'8px',padding:'7px 2px',cursor:'pointer',
                   WebkitTapHighlightColor:'transparent',
                 }}>{label}</button>
@@ -334,7 +334,7 @@ export default function EconomicCalendar() {
               <div style={{ maxHeight:'380px',overflowY:'auto',paddingRight:'4px' }}><EarningsContent /></div>
               <div style={{ maxHeight:'380px',overflowY:'auto',paddingRight:'4px' }}><HolidaysContent /></div>
             </div>
-            <div style={{ borderTop:'1px solid #1e2d31',paddingTop:'16px',maxHeight:'500px',overflowY:'auto' }}>
+            <div style={{ borderTop:'1px solid #162340',paddingTop:'16px',maxHeight:'500px',overflowY:'auto' }}>
               <NewsContent />
             </div>
           </div>
