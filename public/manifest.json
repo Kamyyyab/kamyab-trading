@@ -1,0 +1,19 @@
+{
+  "name": "Kamyab Trading OS",
+  "short_name": "Trading OS",
+  "description": "Professional trading journal and analytics",
+  "start_url": "/kamyab-trading/",
+  "scope": "/kamyab-trading/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#070a14",
+  "theme_color": "#f59e0b",
+  "icons": [
+    {
+      "src": "/kamyab-trading/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

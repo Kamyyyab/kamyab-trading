@@ -34,6 +34,7 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
   const [monthView, setMonthView] = useState('pnl') // 'pnl' | 'wr' | 'r'
   const [editStartBal, setEditStartBal] = useState(false)
   const [startBalInput, setStartBalInput] = useState('')
+  const [setupFilter, setSetupFilter] = useState(null)
 
   function filterTrades(t) {
     const now = new Date()
@@ -45,35 +46,36 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
     return t
   }
 
-  const all    = filterTrades(journal)
-  const trades = all.filter(t=>t.result!=='skip'&&t.result!=='no-setup')
-  const wins   = trades.filter(t=>WIN_RESULTS.has(t.result)).length
-  const losses = trades.filter(t=>t.result==='loss').length
-  const wr     = trades.length>0?((wins/trades.length)*100).toFixed(1):0
-  const tPnl   = trades.reduce((s,t)=>s+parseFloat(t.pnl||0),0)
+  const all      = filterTrades(journal)
+  const trades   = all.filter(t=>t.result!=='skip'&&t.result!=='no-setup')
+  const viewTrades = setupFilter ? trades.filter(t=>(t.setup||'Otaggad')===setupFilter) : trades
+  const wins   = viewTrades.filter(t=>WIN_RESULTS.has(t.result)).length
+  const losses = viewTrades.filter(t=>t.result==='loss').length
+  const wr     = viewTrades.length>0?((wins/viewTrades.length)*100).toFixed(1):0
+  const tPnl   = viewTrades.reduce((s,t)=>s+parseFloat(t.pnl||0),0)
 
-  const wTrades = trades.filter(t=>WIN_RESULTS.has(t.result))
+  const wTrades = viewTrades.filter(t=>WIN_RESULTS.has(t.result))
   const avgRR   = wTrades.length>0?(wTrades.reduce((s,t)=>s+(t.result==='win'||t.result==='tp3'?3:t.result==='win2'||t.result==='tp2'?2:1),0)/wTrades.length).toFixed(2):'0.00'
 
-  const best  = trades.filter(t=>t.pnl).sort((a,b)=>parseFloat(b.pnl)-parseFloat(a.pnl))[0]
-  const worst = trades.filter(t=>t.pnl).sort((a,b)=>parseFloat(a.pnl)-parseFloat(b.pnl))[0]
+  const best  = viewTrades.filter(t=>t.pnl).sort((a,b)=>parseFloat(b.pnl)-parseFloat(a.pnl))[0]
+  const worst = viewTrades.filter(t=>t.pnl).sort((a,b)=>parseFloat(a.pnl)-parseFloat(b.pnl))[0]
 
   let cum=0
-  const eqData = [...trades].reverse().map(t=>{ cum+=parseFloat(t.pnl||0); return {date:t.date.slice(5),pnl:Math.round(cum)} })
+  const eqData = [...viewTrades].reverse().map(t=>{ cum+=parseFloat(t.pnl||0); return {date:t.date.slice(5),pnl:Math.round(cum)} })
   const eqPos  = eqData.length>0&&eqData[eqData.length-1].pnl>=0
 
   let peak=0, maxDD=0
   eqData.forEach(p=>{ if(p.pnl>peak)peak=p.pnl; const dd=peak-p.pnl; if(dd>maxDD)maxDD=dd })
 
-  const totalR = trades.reduce((s,t)=>{ if(t.result==='win'||t.result==='tp3')return s+3; if(t.result==='win2'||t.result==='tp2')return s+2; if(t.result==='tp1')return s+1; if(t.result==='loss')return s-1; return s },0)
-  const avgR   = trades.length>0?(totalR/trades.length).toFixed(2):'0.00'
+  const totalR = viewTrades.reduce((s,t)=>{ if(t.result==='win'||t.result==='tp3')return s+3; if(t.result==='win2'||t.result==='tp2')return s+2; if(t.result==='tp1')return s+1; if(t.result==='loss')return s-1; return s },0)
+  const avgR   = viewTrades.length>0?(totalR/viewTrades.length).toFixed(2):'0.00'
 
   const rData = [
-    {label:'+3R',count:trades.filter(t=>t.result==='win'||t.result==='tp3').length, c:'#00e5b0'},
-    {label:'+2R',count:trades.filter(t=>t.result==='win2'||t.result==='tp2').length,c:'#4ab89a'},
-    {label:'+1R',count:trades.filter(t=>t.result==='tp1').length,                   c:'#2a7a60'},
-    {label:'BE', count:trades.filter(t=>t.result==='be').length,                    c:'#7a96b4'},
-    {label:'-1R',count:trades.filter(t=>t.result==='loss').length,                  c:'#ff4f6b'},
+    {label:'+3R',count:viewTrades.filter(t=>t.result==='win'||t.result==='tp3').length, c:'#00e5b0'},
+    {label:'+2R',count:viewTrades.filter(t=>t.result==='win2'||t.result==='tp2').length,c:'#4ab89a'},
+    {label:'+1R',count:viewTrades.filter(t=>t.result==='tp1').length,                   c:'#2a7a60'},
+    {label:'BE', count:viewTrades.filter(t=>t.result==='be').length,                    c:'#7a96b4'},
+    {label:'-1R',count:viewTrades.filter(t=>t.result==='loss').length,                  c:'#ff4f6b'},
   ]
 
   // ── Monthly breakdown (always uses full journal, not filtered) ──
@@ -161,7 +163,7 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
   })
 
   const days = ['Måndag','Tisdag','Onsdag','Torsdag','Fredag']
-  const dayStats = days.map((day,i)=>{ const dt=trades.filter(t=>new Date(t.date).getDay()===(i+1)); const dw=dt.filter(t=>WIN_RESULTS.has(t.result)).length; return {day,wr:dt.length>0?Math.round(dw/dt.length*100):0,total:dt.length,reliable:dt.length>=3} })
+  const dayStats = days.map((day,i)=>{ const dt=viewTrades.filter(t=>new Date(t.date).getDay()===(i+1)); const dw=dt.filter(t=>WIN_RESULTS.has(t.result)).length; return {day,wr:dt.length>0?Math.round(dw/dt.length*100):0,total:dt.length,reliable:dt.length>=3} })
 
   // ── Instrument breakdown ──────────────────────────────────────
   const instrStats = {}
@@ -252,6 +254,17 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
 
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>
+
+      {setupFilter && (
+        <div style={{background:'#18100a',border:'1px solid rgba(245,158,11,0.3)',borderRadius:'10px',padding:'10px 14px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
+            <span style={{fontFamily:M,fontSize:'8px',color:'#f59e0b',letterSpacing:'1.5px'}}>SETUP-FILTER</span>
+            <span style={{fontFamily:M,fontSize:'11px',fontWeight:700,color:'#f59e0b'}}>{setupFilter}</span>
+            <span style={{fontFamily:M,fontSize:'9px',color:'#a07020'}}>{viewTrades.length} trades</span>
+          </div>
+          <button onClick={()=>setSetupFilter(null)} style={{fontFamily:M,fontSize:'9px',color:'#f59e0b',background:'none',border:'1px solid rgba(245,158,11,0.3)',borderRadius:'5px',padding:'3px 9px',cursor:'pointer'}}>✕ Rensa</button>
+        </div>
+      )}
 
       <div style={{display:'flex',gap:'6px',flexWrap:'wrap',alignItems:'center',justifyContent:'space-between'}}>
         <div style={{display:'flex',gap:'6px'}}>
@@ -494,11 +507,12 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
             const wr   = s.total>0?Math.round(s.wins/s.total*100):0
             const maxP = Math.max(...setupList.map(([,x])=>Math.abs(x.pnl)),1)
             const tr   = setupTrends[tag]
+            const isActive = setupFilter === tag
             return (
-              <div key={i}>
+              <div key={i} onClick={()=>setSetupFilter(isActive?null:tag)} style={{cursor:'pointer',padding:'6px 8px',borderRadius:'8px',margin:'-6px -8px',background:isActive?'#18100a':'transparent',border:`1px solid ${isActive?'rgba(245,158,11,0.25)':'transparent'}`,transition:'all 0.15s'}}>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'4px'}}>
                   <div style={{display:'flex',alignItems:'center',gap:'8px',flexWrap:'wrap'}}>
-                    <span style={{fontFamily:M,fontSize:'11px',color:'#dce8f5',fontWeight:600}}>{tag}</span>
+                    <span style={{fontFamily:M,fontSize:'11px',color:isActive?'#f59e0b':'#dce8f5',fontWeight:600}}>{tag}</span>
                     <span style={{fontFamily:M,fontSize:'9px',color:wr>=50?'#00e5b0':'#ff4f6b'}}>{wr}%</span>
                     <span style={{fontFamily:M,fontSize:'9px',color:'#8aabb8'}}>{s.total}t</span>
                     {tr?.arrow!=='—'&&<span style={{fontFamily:M,fontSize:'12px',fontWeight:700,color:tr.color}}>{tr.arrow}</span>}

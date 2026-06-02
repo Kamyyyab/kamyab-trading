@@ -459,12 +459,68 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
         </div>
       )}
 
+      {/* ── PDL VARNING ── */}
+      {(() => {
+        const pdl = parseFloat(localStorage.getItem('prop-pdl') || '0')
+        if (!pdl || todayPnl >= 0) return null
+        const pct = Math.abs(todayPnl) / pdl * 100
+        if (pct < 50) return null
+        const hit = pct >= 100
+        return (
+          <div style={{ background: hit?'#1a0610':'#1a1000', border:`1px solid ${hit?'rgba(255,79,107,0.45)':'rgba(255,192,48,0.35)'}`, borderRadius:'12px', padding:'12px 16px', display:'flex', gap:'12px', alignItems:'center' }}>
+            <div style={{ flex:1 }}>
+              <div style={{ fontFamily:M, fontSize:'10px', color: hit?'#ff4f6b':'#ffc030', fontWeight:700, letterSpacing:'0.5px', marginBottom:'2px' }}>
+                {hit ? '🚨 MAX DAGLIG FÖRLUST NÅDD — SLUTA TRADEA' : `⚠ ${Math.round(pct)}% AV DAGLIG FÖRLUSTGRÄNS`}
+              </div>
+              <div style={{ fontFamily:M, fontSize:'9px', color: hit?'#7a3040':'#7a6020' }}>
+                -${Math.round(Math.abs(todayPnl))} av ${Math.round(pdl)} PDL
+              </div>
+            </div>
+            <div style={{ fontFamily:M, fontSize:'22px', fontWeight:700, color: hit?'#ff4f6b':'#ffc030', flexShrink:0 }}>{Math.round(pct)}%</div>
+          </div>
+        )
+      })()}
+
       <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(130px, 1fr))', gap:'8px' }}>
         {card('WIN RATE',    `${winRate}%`,                                      '#00e5b0', `${trades.length} trades`)}
         {card('TOTALT P&L',  `${totalPnl>=0?'+':''}$${Math.round(totalPnl)}`,   totalPnl>=0?'#00e5b0':'#ff4f6b')}
         {card('DENNA VECKA', `${weekPnl>=0?'+':''}$${Math.round(weekPnl)}`,     weekPnl>=0?'#00e5b0':'#ff4f6b')}
         {card('STREAK',      `${streak}d`,                                       streak>=5?'#00e5b0':streak>=2?'#ffc030':'#7a96b4')}
       </div>
+
+      {/* ── MÅNADSSAMMANFATTNING ── */}
+      {(() => {
+        const ms = new Date(now.getFullYear(), now.getMonth(), 1)
+        const mt = trades.filter(t => new Date(t.date+'T12:00:00') >= ms)
+        if (mt.length === 0) return null
+        const mw  = mt.filter(t => ['win','win2','tp1','tp2','tp3'].includes(t.result)).length
+        const ml  = mt.filter(t => t.result === 'loss').length
+        const mp  = mt.reduce((s,t) => s + parseFloat(t.pnl||0), 0)
+        const mwr = Math.round(mw / mt.length * 100)
+        const mn  = now.toLocaleDateString('sv-SE', { month:'long' }).toUpperCase()
+        return (
+          <div style={{ background:'#0c1422', border:'1px solid #162340', borderRadius:'12px', padding:'11px 16px', display:'flex', alignItems:'center', gap:'16px' }}>
+            <div style={{ fontFamily:M, fontSize:'8px', color:'#6880a0', letterSpacing:'1.5px', flexShrink:0 }}>{mn}</div>
+            <div style={{ width:'1px', height:'24px', background:'#162340', flexShrink:0 }} />
+            <div style={{ display:'flex', gap:'18px', alignItems:'center', flex:1 }}>
+              <div>
+                <div style={{ fontFamily:M, fontSize:'17px', fontWeight:700, color: mp>=0?'#00e5b0':'#ff4f6b', lineHeight:1 }}>{mp>=0?'+':''}${Math.round(mp)}</div>
+                <div style={{ fontFamily:M, fontSize:'8px', color:'#6880a0', marginTop:'1px' }}>{mt.length} trades</div>
+              </div>
+              <div style={{ width:'1px', height:'24px', background:'#162340' }} />
+              <div>
+                <div style={{ fontFamily:M, fontSize:'17px', fontWeight:700, color: mwr>=50?'#00e5b0':'#ff4f6b', lineHeight:1 }}>{mwr}%</div>
+                <div style={{ fontFamily:M, fontSize:'8px', color:'#6880a0', marginTop:'1px' }}>WR</div>
+              </div>
+              <div style={{ width:'1px', height:'24px', background:'#162340' }} />
+              <div style={{ display:'flex', gap:'8px' }}>
+                <span style={{ fontFamily:M, fontSize:'13px', fontWeight:700, color:'#00e5b0' }}>{mw}W</span>
+                <span style={{ fontFamily:M, fontSize:'13px', fontWeight:700, color:'#ff4f6b' }}>{ml}L</span>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
 
 
       {/* Bias */}
@@ -630,6 +686,23 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
                       <div style={{ fontSize:'12px', color:'#7a96b4', lineHeight:1.7, whiteSpace:'pre-wrap', wordBreak:'break-word', borderLeft:'2px solid #162340', paddingLeft:'10px' }}>{t.note}</div>
                     </div>
                   )}
+                  <div style={{ padding:'8px 12px', borderTop:'1px solid #0f1828', display:'flex', justifyContent:'flex-end' }}>
+                    <button type="button" onClick={() => {
+                      const pv = parseFloat(t.pnl||0)
+                      const lines = [
+                        `${t.date}${t.tradeTime ? ' ' + t.tradeTime : ''}`,
+                        `${t.instrument} · ${RL[t.result]||t.result}`,
+                        `P&L: ${pv>=0?'+':''}$${Math.abs(Math.round(pv))}`,
+                        t.setup ? `Setup: ${t.setup}` : '',
+                        t.emotion ? `Emotion: ${t.emotion}/10` : '',
+                        t.note || '',
+                      ].filter(Boolean).join('\n')
+                      navigator.clipboard?.writeText(lines)
+                    }} style={{ fontFamily:M, fontSize:'8px', color:'#6880a0', background:'#0a1020', border:'1px solid #162340', borderRadius:'5px', padding:'3px 9px', cursor:'pointer', transition:'all 0.15s' }}
+                      onMouseEnter={e=>{e.currentTarget.style.color='#dce8f5';e.currentTarget.style.borderColor='#3a5460'}}
+                      onMouseLeave={e=>{e.currentTarget.style.color='#6880a0';e.currentTarget.style.borderColor='#162340'}}
+                    >kopiera</button>
+                  </div>
                 </div>
               )}
             </div>

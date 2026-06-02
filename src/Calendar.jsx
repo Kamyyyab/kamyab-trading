@@ -248,8 +248,8 @@ function EditForm({ initial = {}, onSave, onCancel }) {
           padding:'14px', borderRadius:'8px', border:'none', cursor:'pointer', letterSpacing:'1px',
           transition:'background 0.15s',
         }}
-          onMouseEnter={e=>e.currentTarget.style.background='#00c49a'}
-          onMouseLeave={e=>e.currentTarget.style.background='#00e5b0'}
+          onMouseEnter={e=>e.currentTarget.style.background='#d97706'}
+          onMouseLeave={e=>e.currentTarget.style.background='#f59e0b'}
         >SPARA TRADE</button>
       </div>
     </div>
@@ -379,9 +379,10 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
   const mobile = useIsMobile()
   const [year,  setYear]  = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth())
-  const [sel,   setSel]   = useState(null)
-  const [showForm,   setShowForm]   = useState(false)
-  const [editingIdx, setEditingIdx] = useState(null)
+  const [sel,          setSel]        = useState(null)
+  const [showForm,     setShowForm]   = useState(false)
+  const [editingIdx,   setEditingIdx] = useState(null)
+  const [tradeFilter,  setTradeFilter] = useState('alla')
   const [lightbox,   setLightbox]   = useState(null)
 
   useEffect(() => {
@@ -482,6 +483,13 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
   const cellH       = mobile ? '60px' : '100px'
 
   const selTrades = sel ? journal.filter(t=>t.date===sel) : []
+  const filteredSelTrades = selTrades.filter(t => {
+    if (tradeFilter === 'wins')   return WIN_RESULTS.has(t.result)
+    if (tradeFilter === 'losses') return t.result === 'loss'
+    if (tradeFilter === 'be')     return t.result === 'be'
+    if (tradeFilter === 'skip')   return t.result === 'skip' || t.result === 'no-setup'
+    return true
+  })
   const selPnl    = selTrades.filter(t=>t.result!=='skip'&&t.result!=='no-setup').reduce((s,t) => s+parseFloat(t.pnl||0), 0)
   const selWins   = selTrades.filter(t=>WIN_RESULTS.has(t.result)).length
   const selLoss   = selTrades.filter(t=>t.result==='loss').length
@@ -643,12 +651,12 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
               <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
                 {!showForm && (
                   <button onClick={() => { setShowForm(true); setEditingIdx(null) }} style={{
-                    background:'#00e5b0', color:'#020f08', fontFamily:M, fontSize:'11px', fontWeight:700,
+                    background:'#f59e0b', color:'#0a0700', fontFamily:M, fontSize:'11px', fontWeight:700,
                     padding:'9px 16px', borderRadius:'7px', border:'none', cursor:'pointer',
                     letterSpacing:'1px', transition:'background 0.15s',
                   }}
-                    onMouseEnter={e=>e.currentTarget.style.background='#00c49a'}
-                    onMouseLeave={e=>e.currentTarget.style.background='#00e5b0'}
+                    onMouseEnter={e=>e.currentTarget.style.background='#d97706'}
+                    onMouseLeave={e=>e.currentTarget.style.background='#f59e0b'}
                   >+ NY TRADE</button>
                 )}
                 <button onClick={closeModal} style={{
@@ -682,7 +690,21 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
                 </div>
               )}
 
-              {selTrades.length===0 && !showForm && (
+              {selTrades.length > 0 && (
+                <div style={{ display:'flex', gap:'5px', marginBottom:'12px', flexWrap:'wrap' }}>
+                  {[['alla','Alla'],['wins','Wins'],['losses','Loss'],['be','BE'],['skip','Skip']].map(([v,l]) => (
+                    <button key={v} onClick={()=>setTradeFilter(v)} style={{
+                      fontFamily:M, fontSize:'8px', padding:'4px 10px', borderRadius:'5px',
+                      border:`1px solid ${tradeFilter===v?'rgba(245,158,11,0.4)':'#162340'}`,
+                      background:tradeFilter===v?'#18100a':'#0a1020',
+                      color:tradeFilter===v?'#f59e0b':'#6880a0',
+                      cursor:'pointer', transition:'all 0.12s',
+                    }}>{l}</button>
+                  ))}
+                </div>
+              )}
+
+              {filteredSelTrades.length===0 && !showForm && (
                 <div style={{ fontFamily:M, fontSize:'13px', color:'#6880a0', padding:'48px 0', textAlign:'center' }}>
                   <div style={{ fontSize:'32px', marginBottom:'10px', opacity:0.4 }}>—</div>
                   <div>Inga trades på denna dag</div>
@@ -690,7 +712,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
                 </div>
               )}
 
-              {selTrades.map((t, i) => {
+              {filteredSelTrades.map((t, i) => {
                 const ji = journal.findIndex(j => j===t)
                 return (
                   <div key={i} style={{ marginBottom:'12px' }}>
