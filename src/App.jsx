@@ -9,6 +9,7 @@ import StreakHistory from './StreakHistory.jsx'
 import EconomicCalendar from './EconomicCalendar.jsx'
 import EquityCurve from './EquityCurve.jsx'
 import Playbook from './Playbook.jsx'
+import TradingViewChart from './TradingViewChart.jsx'
 
 const M = "'JetBrains Mono', monospace"
 
@@ -124,6 +125,7 @@ const NAV = [
   { id:'calendar',   label:'Kalender', path:'M3 4h18a1 1 0 011 1v15a1 1 0 01-1 1H3a1 1 0 01-1-1V5a1 1 0 011-1z M16 2v4 M8 2v4 M2 10h20' },
   { id:'statistics', label:'Stats',    path:'M18 20V10 M12 20V4 M6 20v-6' },
   { id:'calculator', label:'Risk',     path:'M5 3h14a1 1 0 011 1v16a1 1 0 01-1 1H5a1 1 0 01-1-1V4a1 1 0 011-1z M9 7h6 M9 11h1 M12 11h1 M15 11h1 M9 15h1 M12 15h1 M15 15h1 M9 19h4' },
+  { id:'charts',     label:'Charts',   path:'M2 3h7v11H2z M15 3h7v7h-7z M15 13h7v8h-7z M9 14h6 M9 18h2' },
   { id:'playbook',   label:'Playbook', path:'M4 19.5A2.5 2.5 0 016.5 17H20 M4 19.5C4 20.88 5.12 22 6.5 22H20V2H6.5A2.5 2.5 0 004 4.5v15z M8 7h8 M8 11h8 M8 15h5' },
 ]
 
@@ -142,9 +144,10 @@ export default function App() {
   const [streakLogs, setStreakLogs]       = useState({})
   const [biasLogs, setBiasLogs]           = useState({})
   const [playbook, setPlaybook]           = useState([])
-  const [weeklyReviews, setWeeklyReviews] = useState({})
-  const [settings, setSettings]           = useState({})
-  const [page, setPage]                   = useState('home')
+  const [weeklyReviews, setWeeklyReviews]   = useState({})
+  const [settings, setSettings]             = useState({})
+  const [sessionNotes, setSessionNotes]     = useState({})
+  const [page, setPage]                     = useState('home')
   const MOBILE = useIsMobile()
 
   useEffect(() => {
@@ -167,6 +170,7 @@ export default function App() {
     if (data?.data?.playbook)      setPlaybook(Array.isArray(data.data.playbook) ? data.data.playbook : [])
     if (data?.data?.weeklyReviews) setWeeklyReviews(data.data.weeklyReviews || {})
     if (data?.data?.settings)      setSettings(data.data.settings || {})
+    if (data?.data?.sessionNotes)  setSessionNotes(data.data.sessionNotes || {})
   }
 
   async function saveData(nj, ns) {
@@ -175,7 +179,7 @@ export default function App() {
     if (nj) setJournal(nj)
     if (ns) setStreakLogs(ns)
     await supabase.from('trading_data').upsert(
-      { user_id: user.id, data: { journal: j, streakLogs: s, biasLogs, playbook, weeklyReviews, settings }, updated_at: new Date().toISOString() },
+      { user_id: user.id, data: { journal: j, streakLogs: s, biasLogs, playbook, weeklyReviews, settings, sessionNotes }, updated_at: new Date().toISOString() },
       { onConflict: 'user_id' }
     )
   }
@@ -185,25 +189,25 @@ export default function App() {
       ? playbook.map(s => s.id === setup.id ? setup : s)
       : [{ ...setup, id: String(Date.now()), createdAt: new Date().toISOString() }, ...playbook]
     setPlaybook(np)
-    supabase.from('trading_data').upsert({ user_id: user.id, data: { journal, streakLogs, biasLogs, playbook: np, weeklyReviews, settings }, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
+    supabase.from('trading_data').upsert({ user_id: user.id, data: { journal, streakLogs, biasLogs, playbook: np, weeklyReviews, settings, sessionNotes }, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
   }
 
   function handleDeleteSetup(id) {
     const np = playbook.filter(s => s.id !== id)
     setPlaybook(np)
-    supabase.from('trading_data').upsert({ user_id: user.id, data: { journal, streakLogs, biasLogs, playbook: np, weeklyReviews, settings }, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
+    supabase.from('trading_data').upsert({ user_id: user.id, data: { journal, streakLogs, biasLogs, playbook: np, weeklyReviews, settings, sessionNotes }, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
   }
 
   function handleSaveWeeklyReview(weekStart, review) {
     const nr = { ...weeklyReviews, [weekStart]: review }
     setWeeklyReviews(nr)
-    supabase.from('trading_data').upsert({ user_id: user.id, data: { journal, streakLogs, biasLogs, playbook, weeklyReviews: nr, settings }, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
+    supabase.from('trading_data').upsert({ user_id: user.id, data: { journal, streakLogs, biasLogs, playbook, weeklyReviews: nr, settings, sessionNotes }, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
   }
 
   function handleSaveSettings(updates) {
     const ns = { ...settings, ...updates }
     setSettings(ns)
-    supabase.from('trading_data').upsert({ user_id: user.id, data: { journal, streakLogs, biasLogs, playbook, weeklyReviews, settings: ns }, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
+    supabase.from('trading_data').upsert({ user_id: user.id, data: { journal, streakLogs, biasLogs, playbook, weeklyReviews, settings: ns, sessionNotes }, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
   }
 
   function handleAddTrade(trade) {
@@ -230,7 +234,17 @@ export default function App() {
     if (bias === null) delete u[date]; else u[date] = bias
     setBiasLogs(u)
     supabase.from('trading_data').upsert(
-      { user_id: user.id, data: { journal, streakLogs, biasLogs: u, playbook, weeklyReviews, settings }, updated_at: new Date().toISOString() },
+      { user_id: user.id, data: { journal, streakLogs, biasLogs: u, playbook, weeklyReviews, settings, sessionNotes }, updated_at: new Date().toISOString() },
+      { onConflict: 'user_id' }
+    )
+  }
+
+  function handleSaveSessionNote(date, note) {
+    const u = { ...sessionNotes, [date]: note }
+    if (!note) delete u[date]
+    setSessionNotes(u)
+    supabase.from('trading_data').upsert(
+      { user_id: user.id, data: { journal, streakLogs, biasLogs, playbook, weeklyReviews, settings, sessionNotes: u }, updated_at: new Date().toISOString() },
       { onConflict: 'user_id' }
     )
   }
@@ -322,6 +336,8 @@ export default function App() {
               onSaveBias={handleSaveBias}
               isLockedOut={isLockedOut}
               lockoutReason={lockoutReason}
+              sessionNotes={sessionNotes}
+              onSaveSessionNote={handleSaveSessionNote}
             />
             {MOBILE ? (
               <>
@@ -346,6 +362,7 @@ export default function App() {
         {page==='calendar'   && <div style={{ maxWidth:'1400px', margin:'0 auto' }}><Calendar journal={journal} onAddTrade={handleAddTrade} onDeleteTrade={handleDeleteTrade} onEditTrade={handleEditTrade} /></div>}
         {page==='statistics' && <div style={{ maxWidth:'900px',  margin:'0 auto' }}><Statistics journal={journal} weeklyReviews={weeklyReviews} onSaveWeeklyReview={handleSaveWeeklyReview} settings={settings} onSaveSettings={handleSaveSettings} /></div>}
         {page==='calculator' && <div style={{ maxWidth:'520px',  margin:'0 auto', paddingBottom:'12px' }}><RiskCalculator journal={journal} /></div>}
+        {page==='charts'     && <div style={{ maxWidth:'1200px', margin:'0 auto' }}><TradingViewChart /></div>}
         {page==='playbook'   && <div style={{ maxWidth:'1000px', margin:'0 auto' }}><Playbook playbook={playbook} onSaveSetup={handleSaveSetup} onDeleteSetup={handleDeleteSetup} journal={journal} /></div>}
       </div>
 

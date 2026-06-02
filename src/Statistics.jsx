@@ -674,6 +674,34 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
           })}
         </div>
       )}
+
+      {/* ── SETUP-KVALITET PER GRADE ── */}
+      {section('SETUP-KVALITET',
+        (() => {
+          const grades = ['A+','A','B','C']
+          const gc = {'A+':'#f59e0b','A':'#00e5b0','B':'#60a5fa','C':'#7a96b4'}
+          const stats = grades.map(g => {
+            const gt = viewTrades.filter(t=>t.grade===g)
+            const gw = gt.filter(t=>WIN_RESULTS.has(t.result)).length
+            const gp = gt.reduce((s,t)=>s+parseFloat(t.pnl||0),0)
+            return { g, count:gt.length, wr:gt.length>0?Math.round(gw/gt.length*100):null, pnl:gp }
+          }).filter(s=>s.count>0)
+          if (stats.length === 0) return <div style={{fontFamily:M,fontSize:'10px',color:'#3a5878'}}>Inga trades med grade ännu — välj A+/A/B/C i formuläret</div>
+          return (
+            <div style={{display:'grid',gridTemplateColumns:`repeat(${stats.length},1fr)`,gap:'10px'}}>
+              {stats.map(({g,count,wr,pnl})=>(
+                <div key={g} style={{background:'#0a1020',border:`1px solid ${gc[g]}33`,borderRadius:'9px',padding:'14px',textAlign:'center'}}>
+                  <div style={{fontFamily:M,fontSize:'22px',fontWeight:700,color:gc[g],marginBottom:'8px'}}>{g}</div>
+                  <div style={{fontFamily:M,fontSize:'18px',fontWeight:700,color:wr!=null&&wr>=50?'#00e5b0':'#ff4f6b',lineHeight:1}}>{wr!=null?`${wr}%`:'—'}</div>
+                  <div style={{fontFamily:M,fontSize:'8px',color:'#6880a0',marginBottom:'8px'}}>WR</div>
+                  <div style={{fontFamily:M,fontSize:'13px',fontWeight:700,color:pnl>=0?'#00e5b0':'#ff4f6b'}}>{pnl>=0?'+':''}${Math.round(pnl)}</div>
+                  <div style={{fontFamily:M,fontSize:'8px',color:'#6880a0',marginTop:'2px'}}>{count} trades</div>
+                </div>
+              ))}
+            </div>
+          )
+        })()
+      )}
       </>)}
 
       {statsTab === 'journal' && (() => {

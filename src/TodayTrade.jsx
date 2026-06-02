@@ -74,6 +74,7 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
   const [emotion,    setEmotion]    = useState(initial.emotion     || '3')
   const [setup,      setSetup]      = useState(initial.setup      || '')
   const [psychTags,  setPsychTags]  = useState(initial.psychTags  || [])
+  const [grade,      setGrade]      = useState(initial.grade      || '')
   const [biasError,  setBiasError]  = useState(false)
   const [tradeTime,  setTradeTime]  = useState(initial.tradeTime  || (() => new Date().toLocaleTimeString('sv-SE', { timeZone:'Europe/Stockholm', hour:'2-digit', minute:'2-digit', hour12:false }))())
   const [checkAplus, setCheckAplus] = useState(false)
@@ -152,7 +153,7 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
       return
     }
     setBiasError(false)
-    onSave({ result, instrument, pnl: pnl || '0', note, emotion, setup, psychTags, checklistViolation, violatedRules, brokenRules: violatedRules, tradeTime, image: image || null, audio: audioUrl || null })
+    onSave({ result, instrument, pnl: pnl || '0', note, emotion, setup, psychTags, checklistViolation, violatedRules, brokenRules: violatedRules, tradeTime, grade, image: image || null, audio: audioUrl || null })
   }
 
   return (
@@ -263,6 +264,23 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
           ))}
         </div>
       </div>
+
+      {isReal && (
+        <div>
+          <span style={lbl}>SETUP-KVALITET</span>
+          <div style={{ display:'flex', gap:'5px' }}>
+            {[['A+','#f59e0b','#18100a'],['A','#00e5b0','#001810'],['B','#60a5fa','#0a1428'],['C','#7a96b4','#0c1422']].map(([v,c,bg])=>(
+              <button type="button" key={v} onClick={()=>setGrade(grade===v?'':v)} style={{
+                flex:1, padding:'9px 0', borderRadius:'6px',
+                border:`1px solid ${grade===v?c+'66':'#162340'}`,
+                background:grade===v?bg:'#0a1020',
+                color:grade===v?c:'#6880a0',
+                fontFamily:M, fontSize:'13px', fontWeight:700, cursor:'pointer', transition:'all 0.15s',
+              }}>{v}</button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div>
         <span style={lbl}>INSTRUMENT</span>
@@ -378,7 +396,7 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
   )
 }
 
-export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streakLogs={}, biasLogs={}, onSaveBias, isLockedOut=false, lockoutReason='' }) {
+export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streakLogs={}, biasLogs={}, onSaveBias, isLockedOut=false, lockoutReason='', sessionNotes={}, onSaveSessionNote }) {
   const [showForm,   setShowForm]   = useState(false)
   const [expanded,   setExpanded]   = useState(null)
   const [editing,    setEditing]    = useState(null)
@@ -563,6 +581,18 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
         </div>
       </div>
 
+      {/* Session notes */}
+      <div style={{ background:'#0c1422', border:'1px solid #162340', borderRadius:'12px', padding:'12px 14px' }}>
+        <span style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4', letterSpacing:'1.5px', display:'block', marginBottom:'6px' }}>DAGLIG ANALYS</span>
+        <textarea
+          value={sessionNotes[today] || ''}
+          onChange={e => onSaveSessionNote?.(today, e.target.value)}
+          placeholder="Marknadsläge, bias-motivering, vad är planen idag..."
+          style={{ width:'100%', background:'#08101c', border:'1px solid #1c2e4a', borderRadius:'7px', color:'#dce8f5', fontSize:'13px', padding:'9px 11px', outline:'none', boxSizing:'border-box', resize:'vertical', minHeight:'64px', lineHeight:1.6, fontFamily:'inherit', transition:'border-color 0.15s' }}
+          onFocus={e=>e.target.style.borderColor='#4a6888'} onBlur={e=>e.target.style.borderColor='#1c2e4a'}
+        />
+      </div>
+
       {/* Today's trades */}
       <div style={{ background:'#0c1422', border:'1px solid #162340', borderRadius:'12px', padding:'14px' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:todayTrades.length>0||showForm?'12px':'0' }}>
@@ -627,6 +657,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
                   <span style={{ fontFamily:M, fontSize:'9px', color:'#7a96b4', background:'#0f1828', border:'1px solid #162340', borderRadius:'4px', padding:'2px 7px' }}>{t.instrument}</span>
                   <span style={{ fontFamily:M, fontSize:'9px', padding:'2px 8px', borderRadius:'4px', background:RB[t.result]||'#111', color:RC[t.result]||'#7a96b4', fontWeight:600 }}>{RL[t.result]||t.result}</span>
                   {t.setup && <span style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4', background:'#0f1828', border:'1px solid #162340', borderRadius:'4px', padding:'2px 6px' }}>{t.setup}</span>}
+                  {t.grade && (() => { const gc={A:'#00e5b0','A+':'#f59e0b',B:'#60a5fa',C:'#7a96b4'}[t.grade]||'#7a96b4'; return <span style={{ fontFamily:M, fontSize:'8px', color:gc, background:'#0a1020', border:`1px solid ${gc}44`, borderRadius:'4px', padding:'2px 7px', fontWeight:700 }}>{t.grade}</span> })()}
                   {t.checklistViolation && <span style={{ fontFamily:M, fontSize:'7px', color:'#ff4f6b', background:'#1a0610', border:'1px solid rgba(255,79,107,0.25)', borderRadius:'4px', padding:'2px 6px', letterSpacing:'0.5px' }}>RULE VIOLATION</span>}
                 </div>
                 <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>

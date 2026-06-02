@@ -43,6 +43,7 @@ function EditForm({ initial = {}, onSave, onCancel }) {
   const [setup,     setSetup]     = useState(initial.setup      || '')
   const [tags,      setTags]      = useState(initial.psychTags  || [])
   const [tradeTime, setTradeTime] = useState(initial.tradeTime  || '')
+  const [grade,     setGrade]     = useState(initial.grade      || '')
   const [image,    setImage]    = useState(initial.image  || null)
   const [imgPrev,  setImgPrev]  = useState(initial.image  || null)
   const [audioUrl, setAudioUrl] = useState(initial.audio  || null)
@@ -248,6 +249,22 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         )}
       </div>
 
+      {/* GRADE */}
+      <div>
+        <span style={lbl}>SETUP-KVALITET</span>
+        <div style={{ display:'flex', gap:'5px' }}>
+          {[['A+','#f59e0b','#18100a'],['A','#00e5b0','#001810'],['B','#60a5fa','#0a1428'],['C','#7a96b4','#0c1422']].map(([v,c,bg])=>(
+            <button type="button" key={v} onClick={()=>setGrade(grade===v?'':v)} style={{
+              flex:1, padding:'9px 0', borderRadius:'6px',
+              border:`1px solid ${grade===v?c+'66':'#162340'}`,
+              background:grade===v?bg:'#0a1020',
+              color:grade===v?c:'#6880a0',
+              fontFamily:M, fontSize:'13px', fontWeight:700, cursor:'pointer', transition:'all 0.15s',
+            }}>{v}</button>
+          ))}
+        </div>
+      </div>
+
       {/* ACTIONS */}
       <div style={{ display:'flex', gap:'8px', position:'sticky', bottom:0, background:'#0c1422', paddingTop:'10px', marginTop:'-4px' }}>
         <button type="button" onClick={onCancel} style={{
@@ -258,7 +275,7 @@ function EditForm({ initial = {}, onSave, onCancel }) {
           onMouseEnter={e=>{e.currentTarget.style.borderColor='#3a5460';e.currentTarget.style.color='#dce8f5'}}
           onMouseLeave={e=>{e.currentTarget.style.borderColor='#1c2e4a';e.currentTarget.style.color='#7a96b4'}}
         >Avbryt</button>
-        <button type="button" onClick={() => onSave({ result, instrument:instr, pnl:pnl||'0', note, emotion, setup, psychTags:tags, tradeTime, image:image||null, audio:audioUrl||null })} style={{
+        <button type="button" onClick={() => onSave({ result, instrument:instr, pnl:pnl||'0', note, emotion, setup, psychTags:tags, tradeTime, grade, image:image||null, audio:audioUrl||null })} style={{
           flex:1, background:'#00e5b0', color:'#020f08', fontFamily:M, fontSize:'12px', fontWeight:700,
           padding:'14px', borderRadius:'8px', border:'none', cursor:'pointer', letterSpacing:'1px',
           transition:'background 0.15s',
