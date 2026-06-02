@@ -28,7 +28,7 @@ const WIN_RESULTS = new Set(['win','win2','tp1','tp2','tp3'])
 const RBG  = { win:'#001810', win2:'#001810', tp1:'#001410', tp2:'#001810', tp3:'#001a14', loss:'#1a0610', be:'#0c1422', skip:'#0c1422', 'no-setup':'#0c1422' }
 const RBDR = { win:'rgba(0,229,176,0.2)', win2:'rgba(0,229,176,0.2)', tp1:'rgba(0,229,176,0.15)', tp2:'rgba(0,229,176,0.2)', tp3:'rgba(0,229,176,0.2)', loss:'rgba(255,79,107,0.2)', be:'rgba(106,138,144,0.15)', skip:'#162340', 'no-setup':'#162340' }
 const RC   = { win:'#00e5b0', win2:'#00e5b0', tp1:'#4ab89a', tp2:'#00e5b0', tp3:'#00e5b0', loss:'#ff4f6b', be:'#7a96b4', skip:'#7a96b4', 'no-setup':'#7a96b4' }
-const RL   = { win:'Win +3R', win2:'Win +2R', tp1:'TP1', tp2:'TP2', tp3:'TP3', loss:'Loss −1R', be:'BE', skip:'Skip', 'no-setup':'N/A' }
+const RL   = { win:'TP3', win2:'TP2', tp1:'TP1', tp2:'TP2', tp3:'TP3', loss:'Loss −1R', be:'BE', skip:'Skip', 'no-setup':'N/A' }
 
 const inp = { width:'100%', background:'#080b0c', border:'1px solid #1c2e4a', borderRadius:'8px', color:'#dce8f5', fontSize:'15px', padding:'11px 13px', outline:'none', boxSizing:'border-box', transition:'border-color 0.15s', fontFamily:'inherit' }
 const lbl = { fontFamily:M, fontSize:'9px', color:'#7a96b4', letterSpacing:'1.5px', marginBottom:'6px', display:'block', fontWeight:600 }
