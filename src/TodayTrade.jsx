@@ -369,9 +369,6 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
   const [editing,    setEditing]    = useState(null)
   const [now,        setNow]        = useState(new Date())
   const [zoomImage,  setZoomImage]  = useState(null)
-  const [dailyGoal,  setDailyGoal]  = useState(() => parseInt(localStorage.getItem('trading-daily-goal') || '0'))
-  const [editGoal,   setEditGoal]   = useState(false)
-  const [goalInput,  setGoalInput]  = useState('')
 
   const today = (() => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}` })()
 
@@ -469,60 +466,6 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
         {card('STREAK',      `${streak}d`,                                       streak>=5?'#00e5b0':streak>=2?'#ffc030':'#7a96b4')}
       </div>
 
-      {/* Daily P&L goal */}
-      {(() => {
-        const pct   = dailyGoal > 0 ? Math.min(Math.max(todayPnl / dailyGoal * 100, 0), 100) : 0
-        const ahead = dailyGoal > 0 && todayPnl >= dailyGoal
-        const goalC = ahead ? '#00e5b0' : todayPnl > 0 ? '#ffc030' : '#7a96b4'
-        return (
-          <div style={{ background:'#0c1422', border:'1px solid #162340', borderRadius:'12px', padding:'12px 14px' }}>
-            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'8px' }}>
-              <span style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4', letterSpacing:'2px' }}>DAGSMÅL</span>
-              {!editGoal ? (
-                <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
-                  <span style={{ fontFamily:M, fontSize:'11px', fontWeight:700, color:goalC }}>
-                    {todayPnl >= 0 ? '+' : ''}${Math.round(todayPnl)}{dailyGoal > 0 ? ` / $${dailyGoal}` : ''}
-                  </span>
-                  <button type="button" onClick={() => { setGoalInput(String(dailyGoal || '')); setEditGoal(true) }} style={{ background:'none', border:'1px solid #162340', borderRadius:'4px', color:'#7a96b4', fontFamily:M, fontSize:'8px', padding:'2px 7px', cursor:'pointer' }}>
-                    {dailyGoal > 0 ? '✎' : '+ Sätt mål'}
-                  </button>
-                </div>
-              ) : (
-                <div style={{ display:'flex', alignItems:'center', gap:'5px' }}>
-                  <span style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4' }}>$</span>
-                  <input
-                    autoFocus
-                    type="number"
-                    value={goalInput}
-                    onChange={e => setGoalInput(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') {
-                        const v = parseInt(goalInput) || 0
-                        setDailyGoal(v)
-                        localStorage.setItem('trading-daily-goal', String(v))
-                        setEditGoal(false)
-                      }
-                      if (e.key === 'Escape') setEditGoal(false)
-                    }}
-                    placeholder="500"
-                    style={{ width:'70px', background:'#08101c', border:'1px solid #4a6888', borderRadius:'5px', color:'#dce8f5', fontFamily:M, fontSize:'11px', padding:'3px 7px', outline:'none' }}
-                  />
-                  <button type="button" onClick={() => { const v=parseInt(goalInput)||0; setDailyGoal(v); localStorage.setItem('trading-daily-goal',String(v)); setEditGoal(false) }} style={{ background:'#00e5b0', border:'none', borderRadius:'4px', color:'#020f08', fontFamily:M, fontSize:'8px', padding:'3px 8px', cursor:'pointer', fontWeight:700 }}>OK</button>
-                  <button type="button" onClick={() => setEditGoal(false)} style={{ background:'none', border:'1px solid #162340', borderRadius:'4px', color:'#7a96b4', fontFamily:M, fontSize:'8px', padding:'3px 7px', cursor:'pointer' }}>✕</button>
-                </div>
-              )}
-            </div>
-            {dailyGoal > 0 && (
-              <div style={{ height:'5px', background:'#0a1020', borderRadius:'3px', overflow:'hidden' }}>
-                <div style={{ height:'100%', width:`${pct}%`, background: ahead ? '#00e5b0' : '#ffc030', borderRadius:'3px', transition:'width 0.4s ease' }} />
-              </div>
-            )}
-            {!dailyGoal && (
-              <div style={{ fontFamily:M, fontSize:'9px', color:'#3a5878' }}>Inget mål satt — tryck "+ Sätt mål"</div>
-            )}
-          </div>
-        )
-      })()}
 
       {/* Bias */}
       <div style={{ background:'#0c1422', border:`1px solid ${curBias?curBias.bdr:'#162340'}`, borderRadius:'12px', padding:'12px 14px', transition:'border-color 0.2s' }}>
