@@ -172,7 +172,7 @@ export default function EconomicCalendar() {
   const [newsCat,     setNewsCat]     = useState('general')
 
   useEffect(() => { fetchMarketData() }, [])
-  useEffect(() => { if (tab==='news') fetchNews(newsCat) }, [tab, newsCat])
+  useEffect(() => { if (tab==='news' || !IS_MOB) fetchNews(newsCat) }, [tab, newsCat])
 
   async function fetchMarketData() {
     setLoading(true); setError(null)
