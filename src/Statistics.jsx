@@ -76,6 +76,17 @@ export default function Statistics({ journal = [] }) {
     }))
   })()
 
+  // ── Rule-following stats ──
+  const ruleTrades    = trades.filter(t => t.checklistViolation !== undefined) // only trades with checklist data
+  const cleanTrades   = trades.filter(t => t.checklistViolation === false)
+  const brokenTrades  = trades.filter(t => t.checklistViolation === true)
+  const cleanWins     = cleanTrades.filter(t => WIN_RESULTS.has(t.result)).length
+  const brokenWins    = brokenTrades.filter(t => WIN_RESULTS.has(t.result)).length
+  const cleanWR       = cleanTrades.length  > 0 ? Math.round(cleanWins  / cleanTrades.length  * 100) : null
+  const brokenWR      = brokenTrades.length > 0 ? Math.round(brokenWins / brokenTrades.length * 100) : null
+  const cleanPnl      = cleanTrades.reduce((s,t) => s + parseFloat(t.pnl||0), 0)
+  const brokenPnl     = brokenTrades.reduce((s,t) => s + parseFloat(t.pnl||0), 0)
+
   const setupStats = {}
   trades.forEach(t=>{ const k=t.setup||'Otaggad'; if(!setupStats[k])setupStats[k]={pnl:0,wins:0,total:0}; setupStats[k].pnl+=parseFloat(t.pnl||0); setupStats[k].total++; if(WIN_RESULTS.has(t.result))setupStats[k].wins++ })
   const setupList = Object.entries(setupStats).sort(([,a],[,b])=>b.pnl-a.pnl)
@@ -238,6 +249,63 @@ export default function Statistics({ journal = [] }) {
                 <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',minWidth:'24px',textAlign:'right'}}>{m.total}t</div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── REGELFÖLJSAMHET ── */}
+      {(cleanTrades.length > 0 || brokenTrades.length > 0) && section('REGELFÖLJSAMHET — CHECKLISTA',
+        <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
+          <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',marginBottom:'2px'}}>Jämförelse: trades som följde alla regler vs bröt regler</div>
+
+          {/* Clean trades */}
+          <div style={{background:'#0d1214',border:'1px solid rgba(0,229,176,0.15)',borderRadius:'9px',padding:'12px 14px'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'8px'}}>
+              <div style={{display:'flex',alignItems:'center',gap:'7px'}}>
+                <span style={{fontFamily:M,fontSize:'9px',color:'#00e5b0',fontWeight:700}}>✓ FÖLJDE REGLER</span>
+                <span style={{fontFamily:M,fontSize:'8px',color:'#5a7a84'}}>{cleanTrades.length} trades</span>
+              </div>
+              <span style={{fontFamily:M,fontSize:'13px',fontWeight:700,color:cleanPnl>=0?'#00e5b0':'#ff4f6b'}}>{cleanPnl>=0?'+':''}${Math.round(cleanPnl)}</span>
+            </div>
+            <div style={{display:'flex',gap:'14px'}}>
+              <div>
+                <div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'2px'}}>WIN RATE</div>
+                <div style={{fontFamily:M,fontSize:'20px',fontWeight:700,color:cleanWR!=null&&cleanWR>=50?'#00e5b0':'#ffc030',lineHeight:1}}>{cleanWR!=null?`${cleanWR}%`:'—'}</div>
+              </div>
+              <div>
+                <div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'2px'}}>VINSTER</div>
+                <div style={{fontFamily:M,fontSize:'20px',fontWeight:700,color:'#00e5b0',lineHeight:1}}>{cleanWins}</div>
+              </div>
+              <div>
+                <div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'2px'}}>FÖRLUSTER</div>
+                <div style={{fontFamily:M,fontSize:'20px',fontWeight:700,color:'#ff4f6b',lineHeight:1}}>{cleanTrades.filter(t=>t.result==='loss').length}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Broken-rules trades */}
+          <div style={{background:'#0d1214',border:'1px solid rgba(255,79,107,0.15)',borderRadius:'9px',padding:'12px 14px'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'8px'}}>
+              <div style={{display:'flex',alignItems:'center',gap:'7px'}}>
+                <span style={{fontFamily:M,fontSize:'9px',color:'#ff4f6b',fontWeight:700}}>✗ BRÖT REGLER</span>
+                <span style={{fontFamily:M,fontSize:'8px',color:'#5a7a84'}}>{brokenTrades.length} trades</span>
+              </div>
+              <span style={{fontFamily:M,fontSize:'13px',fontWeight:700,color:brokenPnl>=0?'#00e5b0':'#ff4f6b'}}>{brokenPnl>=0?'+':''}${Math.round(brokenPnl)}</span>
+            </div>
+            <div style={{display:'flex',gap:'14px'}}>
+              <div>
+                <div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'2px'}}>WIN RATE</div>
+                <div style={{fontFamily:M,fontSize:'20px',fontWeight:700,color:brokenWR!=null&&brokenWR>=50?'#00e5b0':'#ff4f6b',lineHeight:1}}>{brokenWR!=null?`${brokenWR}%`:'—'}</div>
+              </div>
+              <div>
+                <div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'2px'}}>VINSTER</div>
+                <div style={{fontFamily:M,fontSize:'20px',fontWeight:700,color:'#00e5b0',lineHeight:1}}>{brokenWins}</div>
+              </div>
+              <div>
+                <div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'2px'}}>FÖRLUSTER</div>
+                <div style={{fontFamily:M,fontSize:'20px',fontWeight:700,color:'#ff4f6b',lineHeight:1}}>{brokenTrades.filter(t=>t.result==='loss').length}</div>
+              </div>
+            </div>
           </div>
         </div>
       )}

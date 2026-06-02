@@ -13,6 +13,34 @@ const PSYCH = [
   { id: 'oversize',  label: 'Överposad',   c: '#ff4f6b', bg: '#1a0610' },
 ]
 
+const RULE_LABELS = {
+  bias:     'Bias satt för dagen',
+  aplus:    'A+ setup',
+  window:   'Inom tidsfönster 15:30–17:30',
+  risk:     'Risk uträknad',
+  max2:     'Max 2 trades idag',
+  afterwin: 'Stanna efter vinst',
+}
+
+function ChecklistRow({ label, checked, failed, auto, onClick }) {
+  const c   = failed ? '#ff4f6b' : checked ? '#00e5b0' : '#85a4ad'
+  const bg  = failed ? '#1a0610' : checked ? '#001810' : '#0d1214'
+  const bdr = failed ? 'rgba(255,79,107,0.22)' : checked ? 'rgba(0,229,176,0.18)' : '#1e2c32'
+  const icon = failed ? '✗' : checked ? '✓' : '○'
+  return (
+    <div onClick={!auto ? onClick : undefined} style={{
+      display:'flex', alignItems:'center', gap:'9px', padding:'7px 10px',
+      borderRadius:'6px', background:bg, border:`1px solid ${bdr}`,
+      cursor:!auto?'pointer':'default', transition:'all 0.12s',
+    }}>
+      <span style={{ fontFamily:M, fontSize:'13px', color:c, width:'13px', flexShrink:0, lineHeight:1 }}>{icon}</span>
+      <span style={{ fontFamily:M, fontSize:'9px', color:c, flex:1 }}>{label}</span>
+      {auto && <span style={{ fontFamily:M, fontSize:'7px', color:'#4a6470', letterSpacing:'0.5px' }}>AUTO</span>}
+      {!auto && !checked && <span style={{ fontFamily:M, fontSize:'7px', color:'#4a6470' }}>TAP</span>}
+    </div>
+  )
+}
+
 const RC = { win:'#00e5b0', win2:'#00e5b0', tp1:'#4ab89a', tp2:'#00e5b0', tp3:'#00e5b0', loss:'#ff4f6b', be:'#88a8ae', skip:'#85a4ad', 'no-setup':'#85a4ad' }
 const RB = { win:'#001810', win2:'#001810', tp1:'#001410', tp2:'#001810', tp3:'#001a14', loss:'#1a0610', be:'#111820', skip:'#111820', 'no-setup':'#111820' }
 const RL = { win:'Win +3R', win2:'Win +2R', tp1:'TP1', tp2:'TP2', tp3:'TP3', loss:'Loss −1R', be:'Break Even', skip:'Skip', 'no-setup':'No Setup' }
@@ -38,7 +66,7 @@ const RESULTS = [
 // Outcomes that count as real trades (require bias)
 const REAL_RESULTS = new Set(['tp1','tp2','tp3','win','win2','loss','be'])
 
-function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, firstTradeWon }) {
+function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, firstTradeWon, isOpen = false, realTradeCount = 0 }) {
   const [result,     setResult]     = useState(initial.result     || '')
   const [instrument, setInstrument] = useState(initial.instrument || 'MYM')
   const [pnl,        setPnl]        = useState(initial.pnl        || '')
@@ -47,21 +75,32 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
   const [setup,      setSetup]      = useState(initial.setup      || '')
   const [psychTags,  setPsychTags]  = useState(initial.psychTags  || [])
   const [biasError,  setBiasError]  = useState(false)
+  const [checkAplus, setCheckAplus] = useState(false)
+  const [checkRisk,  setCheckRisk]  = useState(false)
 
   function toggleTag(id) { setPsychTags(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]) }
 
+  const isReal = REAL_RESULTS.has(result)
+
+  const autoRules = {
+    bias:     hasBias,
+    window:   isOpen,
+    max2:     realTradeCount < 2,
+    afterwin: !(isSecondTrade && firstTradeWon),
+  }
+  const allRules = { ...autoRules, aplus: checkAplus, risk: checkRisk }
+  const violatedRules = isReal ? Object.entries(allRules).filter(([, v]) => !v).map(([k]) => k) : []
+  const checklistViolation = violatedRules.length > 0
+
   function save() {
     if (!result) return
-    // Block real trades without bias (skip/no-setup always allowed)
     if (REAL_RESULTS.has(result) && !hasBias) {
       setBiasError(true)
       return
     }
     setBiasError(false)
-    onSave({ result, instrument, pnl: pnl || '0', note, emotion, setup, psychTags })
+    onSave({ result, instrument, pnl: pnl || '0', note, emotion, setup, psychTags, checklistViolation, violatedRules })
   }
-
-  const isReal = REAL_RESULTS.has(result)
 
   return (
     <div style={{ background:'#0a0e10', border:'1px solid #263840', borderRadius:'10px', padding:'16px', display:'flex', flexDirection:'column', gap:'12px' }}>
@@ -168,6 +207,31 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
           style={{...inp, resize:'vertical', minHeight:'140px', lineHeight:1.7, fontSize:'14px'}}
           onFocus={e=>e.target.style.borderColor='#5a7a84'} onBlur={e=>e.target.style.borderColor='#263840'} />
       </div>
+
+      {/* Pre-trade checklist — only for real trades */}
+      {isReal && (
+        <div>
+          <span style={lbl}>PRE-TRADE CHECKLISTA</span>
+          <div style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
+            <ChecklistRow label={RULE_LABELS.bias}     checked={autoRules.bias}     failed={!autoRules.bias}     auto />
+            <ChecklistRow label={RULE_LABELS.aplus}    checked={checkAplus}         failed={false}               auto={false} onClick={() => setCheckAplus(v => !v)} />
+            <ChecklistRow label={RULE_LABELS.window}   checked={autoRules.window}   failed={!autoRules.window}   auto />
+            <ChecklistRow label={RULE_LABELS.risk}     checked={checkRisk}          failed={false}               auto={false} onClick={() => setCheckRisk(v => !v)} />
+            <ChecklistRow label={RULE_LABELS.max2}     checked={autoRules.max2}     failed={!autoRules.max2}     auto />
+            <ChecklistRow label={RULE_LABELS.afterwin} checked={autoRules.afterwin} failed={!autoRules.afterwin} auto />
+          </div>
+          {checklistViolation && (
+            <div style={{ fontFamily:M, fontSize:'8px', color:'#ff4f6b', marginTop:'6px', padding:'5px 8px', background:'#1a0610', borderRadius:'5px', border:'1px solid rgba(255,79,107,0.2)' }}>
+              ⚠ {violatedRules.length} regel{violatedRules.length > 1 ? 'r' : ''} bruten — trade sparas som RULE VIOLATION
+            </div>
+          )}
+          {!checklistViolation && (
+            <div style={{ fontFamily:M, fontSize:'8px', color:'#00e5b0', marginTop:'6px', padding:'5px 8px', background:'#001810', borderRadius:'5px', border:'1px solid rgba(0,229,176,0.15)' }}>
+              ✓ Alla regler uppfyllda
+            </div>
+          )}
+        </div>
+      )}
 
       <div style={{ display:'flex', gap:'8px' }}>
         <button
@@ -381,6 +445,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
                   <span style={{ fontFamily:M, fontSize:'9px', color:'#88a8ae', background:'#161e24', border:'1px solid #1e2c32', borderRadius:'4px', padding:'2px 7px' }}>{t.instrument}</span>
                   <span style={{ fontFamily:M, fontSize:'9px', padding:'2px 8px', borderRadius:'4px', background:RB[t.result]||'#111', color:RC[t.result]||'#88a8ae', fontWeight:600 }}>{RL[t.result]||t.result}</span>
                   {t.setup && <span style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', background:'#161e24', border:'1px solid #1e2c32', borderRadius:'4px', padding:'2px 6px' }}>{t.setup}</span>}
+                  {t.checklistViolation && <span style={{ fontFamily:M, fontSize:'7px', color:'#ff4f6b', background:'#1a0610', border:'1px solid rgba(255,79,107,0.25)', borderRadius:'4px', padding:'2px 6px', letterSpacing:'0.5px' }}>RULE VIOLATION</span>}
                 </div>
                 <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
                   <span style={{ fontFamily:M, fontSize:'15px', fontWeight:700, color:pv>=0?'#00e5b0':'#ff4f6b' }}>{pv>=0?'+':''}${Math.abs(Math.round(pv))}</span>
@@ -398,6 +463,8 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
                     hasBias={!!todayBias}
                     isSecondTrade={false}
                     firstTradeWon={false}
+                    isOpen={isOpen}
+                    realTradeCount={realTradeCount}
                   />
                 </div>
               )}
@@ -450,6 +517,8 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
               hasBias={!!todayBias}
               isSecondTrade={isSecondTrade}
               firstTradeWon={firstTradeWon}
+              isOpen={isOpen}
+              realTradeCount={realTradeCount}
             />
           </div>
         )}
