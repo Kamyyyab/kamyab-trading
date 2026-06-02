@@ -41,7 +41,7 @@ export default function StreakHistory({ journal=[], onSaveStreakLog, streakLogs=
       let status='empty'
       if(!isFut&&!isWe){
         if(streakLogs[dateStr])status=streakLogs[dateStr]
-        else{ const dt=journal.filter(t=>t.date===dateStr); if(dt.length>0)status=dt.some(t=>t.brokenRules?.length>0)?'violation':'clean' }
+        else{ const dt=journal.filter(t=>t.date===dateStr); const VTAGS=new Set(['fomo','revenge','forced','oversize']); if(dt.length>0)status=dt.some(t=>t.checklistViolation||(t.psychTags||[]).some(id=>VTAGS.has(id)))?'violation':'clean' }
       }
       days.push({date:dateStr,day:d,status,isWe,isFut,isToday,pnl:dayPnlMap[dateStr]??null})
     }

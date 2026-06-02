@@ -87,13 +87,20 @@ function Chip({ active, color, onClick, children }) {
   )
 }
 
-function RiskCalculator() {
+function RiskCalculator({ journal = [] }) {
   const [contract, setContract]       = useState('MYM')
   const [acc, setAcc]                 = useState('50000')
   const [pct, setPct]                 = useState('0.5')
   const [slPts, setSlPts]             = useState('')
   const [activeAccount, setActiveAccount] = useState(1)
   const [activeGroup, setActiveGroup] = useState('Equity')
+  const [showPropFirm, setShowPropFirm] = useState(false)
+  const [pdl,  setPdl]  = useState(() => localStorage.getItem('prop-pdl')  || '')
+  const [tdd,  setTdd]  = useState(() => localStorage.getItem('prop-tdd')  || '')
+
+  // Today's realised P&L from journal
+  const today = (() => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}` })()
+  const todayLoss = journal.filter(t => t.date===today && t.result!=='skip' && t.result!=='no-setup').reduce((s,t) => s + parseFloat(t.pnl||0), 0)
 
   const c = CONTRACTS[contract]
   const riskDollar          = parseFloat(acc) * parseFloat(pct) / 100 || 0
@@ -257,6 +264,91 @@ function RiskCalculator() {
           )}
         </div>
       )}
+
+      {/* ── PROP FIRM LIMITS ── */}
+      <div style={{ borderTop:'1px solid #1e2d31', paddingTop:'14px' }}>
+        <button type="button" onClick={() => setShowPropFirm(v => !v)} style={{
+          width:'100%', display:'flex', justifyContent:'space-between', alignItems:'center',
+          background:'none', border:'none', cursor:'pointer', padding:0,
+        }}>
+          <span style={{ fontFamily:'monospace', fontSize:'10px', color:'#7090a0', letterSpacing:'2px' }}>PROP FIRM LIMITS</span>
+          <span style={{ fontFamily:'monospace', fontSize:'11px', color:'#5a7a84', transition:'transform 0.2s', display:'inline-block', transform: showPropFirm ? 'rotate(180deg)' : 'none' }}>▼</span>
+        </button>
+
+        {showPropFirm && (() => {
+          const pdlVal = parseFloat(pdl) || 0
+          const tddVal = parseFloat(tdd) || 0
+          const loss   = Math.min(todayLoss, 0)            // negative or 0
+          const lossAbs = Math.abs(loss)
+          const pdlPct  = pdlVal > 0 ? Math.min(lossAbs / pdlVal * 100, 100) : 0
+          const tddPct  = tddVal > 0 ? Math.min(lossAbs / tddVal * 100, 100) : 0
+          const pdlLeft = pdlVal > 0 ? pdlVal - lossAbs : null
+          const tddLeft = tddVal > 0 ? tddVal - lossAbs : null
+          const pdlWarn = pdlVal > 0 && lossAbs >= pdlVal * 0.7
+          const tddWarn = tddVal > 0 && lossAbs >= tddVal * 0.7
+
+          return (
+            <div style={{ marginTop:'12px', display:'flex', flexDirection:'column', gap:'12px' }}>
+
+              {/* Today auto-P&L */}
+              <div style={{ background:'#1c2426', border:'1px solid #26383d', borderRadius:'8px', padding:'10px 14px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <span style={{ fontFamily:'monospace', fontSize:'9px', color:'#88a8ae', letterSpacing:'1px' }}>IDAG P&L</span>
+                <span style={{ fontFamily:'monospace', fontSize:'15px', fontWeight:700, color: todayLoss >= 0 ? '#00e5b0' : '#ff4f6b' }}>
+                  {todayLoss >= 0 ? '+' : ''}${todayLoss.toFixed(0)}
+                </span>
+              </div>
+
+              {/* PDL input + bar */}
+              <div>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'6px' }}>
+                  <span style={{ fontFamily:'monospace', fontSize:'9px', color: pdlWarn ? '#ff4f6b' : '#88a8ae', letterSpacing:'1px' }}>
+                    {pdlWarn ? '⚠ ' : ''}DAILY LOSS LIMIT
+                  </span>
+                  {pdlLeft !== null && (
+                    <span style={{ fontFamily:'monospace', fontSize:'10px', fontWeight:700, color: pdlWarn ? '#ff4f6b' : '#00e5b0' }}>
+                      ${pdlLeft.toFixed(0)} kvar
+                    </span>
+                  )}
+                </div>
+                <input
+                  type="number" inputMode="decimal" value={pdl} placeholder="t.ex. 1000"
+                  onChange={e => { setPdl(e.target.value); localStorage.setItem('prop-pdl', e.target.value) }}
+                  style={{ ...inp, marginBottom:'6px' }}
+                />
+                {pdlVal > 0 && (
+                  <div style={{ height:'5px', background:'#0d1214', borderRadius:'3px', overflow:'hidden' }}>
+                    <div style={{ height:'100%', width:`${pdlPct}%`, background: pdlWarn ? '#ff4f6b' : '#ffc030', borderRadius:'3px', transition:'width 0.4s ease' }} />
+                  </div>
+                )}
+              </div>
+
+              {/* TDD input + bar */}
+              <div>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'6px' }}>
+                  <span style={{ fontFamily:'monospace', fontSize:'9px', color: tddWarn ? '#ff4f6b' : '#88a8ae', letterSpacing:'1px' }}>
+                    {tddWarn ? '⚠ ' : ''}TRAILING DRAWDOWN
+                  </span>
+                  {tddLeft !== null && (
+                    <span style={{ fontFamily:'monospace', fontSize:'10px', fontWeight:700, color: tddWarn ? '#ff4f6b' : '#00e5b0' }}>
+                      ${tddLeft.toFixed(0)} kvar
+                    </span>
+                  )}
+                </div>
+                <input
+                  type="number" inputMode="decimal" value={tdd} placeholder="t.ex. 2000"
+                  onChange={e => { setTdd(e.target.value); localStorage.setItem('prop-tdd', e.target.value) }}
+                  style={{ ...inp, marginBottom:'6px' }}
+                />
+                {tddVal > 0 && (
+                  <div style={{ height:'5px', background:'#0d1214', borderRadius:'3px', overflow:'hidden' }}>
+                    <div style={{ height:'100%', width:`${tddPct}%`, background: tddWarn ? '#ff4f6b' : '#ffc030', borderRadius:'3px', transition:'width 0.4s ease' }} />
+                  </div>
+                )}
+              </div>
+            </div>
+          )
+        })()}
+      </div>
     </div>
   )
 }

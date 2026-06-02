@@ -178,7 +178,7 @@ export default function App() {
     // Auto-violation: any of these psychTags = rule broken
     const VIOLATION_TAGS = new Set(['fomo','revenge','forced','oversize'])
     const hasViolationTag = (trade.psychTags||[]).some(t => VIOLATION_TAGS.has(t))
-    const isViolation = trade.brokenRules?.length > 0 || hasViolationTag
+    const isViolation = trade.checklistViolation || hasViolationTag
     if (isViolation) ns[trade.date] = 'violation'
     else if (!ns[trade.date] || ns[trade.date] === 'clean') ns[trade.date] = 'clean'
     saveData(nj, ns)
@@ -302,7 +302,7 @@ export default function App() {
                   <EconomicCalendar />
                 </div>
                 <div style={{ display:'flex', flexDirection:'column', gap:'12px' }}>
-                  <RiskCalculator />
+                  <RiskCalculator journal={journal} />
                   <StreakHistory journal={journal} streakLogs={streakLogs} onSaveStreakLog={handleSaveStreakLog} />
                 </div>
               </div>
@@ -311,7 +311,7 @@ export default function App() {
         )}
         {page==='calendar'   && <div style={{ maxWidth:'1400px', margin:'0 auto' }}><Calendar journal={journal} onAddTrade={handleAddTrade} onDeleteTrade={handleDeleteTrade} onEditTrade={handleEditTrade} /></div>}
         {page==='statistics' && <div style={{ maxWidth:'900px',  margin:'0 auto' }}><Statistics journal={journal} /></div>}
-        {page==='calculator' && <div style={{ maxWidth:'520px',  margin:'0 auto', paddingBottom:'12px' }}><RiskCalculator /></div>}
+        {page==='calculator' && <div style={{ maxWidth:'520px',  margin:'0 auto', paddingBottom:'12px' }}><RiskCalculator journal={journal} /></div>}
       </div>
 
       {MOBILE && (

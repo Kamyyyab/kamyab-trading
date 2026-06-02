@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 const M = "'JetBrains Mono', monospace"
 
@@ -77,8 +77,19 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
   const [biasError,  setBiasError]  = useState(false)
   const [checkAplus, setCheckAplus] = useState(false)
   const [checkRisk,  setCheckRisk]  = useState(false)
+  const [image,      setImage]      = useState(initial.image || null)
+  const [imgPrev,    setImgPrev]    = useState(initial.image || null)
+  const fileRef = useRef()
 
   function toggleTag(id) { setPsychTags(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]) }
+
+  function handleImg(e) {
+    const f = e.target.files[0]; if (!f) return
+    const r = new FileReader()
+    r.onload = ev => { setImage(ev.target.result); setImgPrev(ev.target.result) }
+    r.readAsDataURL(f)
+  }
+  function clearImg() { setImage(null); setImgPrev(null); if (fileRef.current) fileRef.current.value = '' }
 
   const isReal = REAL_RESULTS.has(result)
 
@@ -99,11 +110,35 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
       return
     }
     setBiasError(false)
-    onSave({ result, instrument, pnl: pnl || '0', note, emotion, setup, psychTags, checklistViolation, violatedRules })
+    onSave({ result, instrument, pnl: pnl || '0', note, emotion, setup, psychTags, checklistViolation, violatedRules, image: image || null })
   }
 
   return (
     <div style={{ background:'#0a0e10', border:'1px solid #263840', borderRadius:'10px', padding:'16px', display:'flex', flexDirection:'column', gap:'12px' }}>
+
+      {/* Chart image upload */}
+      <div>
+        <span style={lbl}>CHART SCREENSHOT</span>
+        <input ref={fileRef} type="file" accept="image/*" onChange={handleImg} style={{ display:'none' }} />
+        {!imgPrev ? (
+          <button type="button" onClick={() => fileRef.current?.click()} style={{
+            width:'100%', background:'#0d1214', border:'2px dashed #263840', borderRadius:'8px',
+            color:'#85a4ad', fontFamily:M, fontSize:'10px', padding:'16px 14px', cursor:'pointer',
+            transition:'all 0.15s', display:'flex', alignItems:'center', justifyContent:'center', gap:'7px',
+          }}
+            onMouseEnter={e=>{e.currentTarget.style.borderColor='#00e5b0';e.currentTarget.style.color='#00e5b0';e.currentTarget.style.background='#001810'}}
+            onMouseLeave={e=>{e.currentTarget.style.borderColor='#263840';e.currentTarget.style.color='#85a4ad';e.currentTarget.style.background='#0d1214'}}
+          >
+            <span style={{ fontSize:'16px' }}>+</span> Ladda upp chart-bild
+          </button>
+        ) : (
+          <div style={{ position:'relative', borderRadius:'8px', overflow:'hidden', border:'1px solid #263840' }}>
+            <img src={imgPrev} alt="chart preview" style={{ width:'100%', display:'block', maxHeight:'220px', objectFit:'contain', background:'#060809' }} />
+            <button type="button" onClick={() => fileRef.current?.click()} style={{ position:'absolute', top:'6px', left:'6px', background:'rgba(6,8,9,0.88)', border:'1px solid #263840', borderRadius:'5px', color:'#85a4ad', fontFamily:M, fontSize:'9px', padding:'4px 8px', cursor:'pointer' }}>↻ Byt</button>
+            <button type="button" onClick={clearImg} style={{ position:'absolute', top:'6px', right:'6px', background:'rgba(6,8,9,0.88)', border:'1px solid rgba(255,79,107,0.3)', borderRadius:'5px', color:'#ff4f6b', fontFamily:M, fontSize:'9px', padding:'4px 8px', cursor:'pointer' }}>✕</button>
+          </div>
+        )}
+      </div>
 
       {/* Trade #2 warning — first trade was a win */}
       {isSecondTrade && firstTradeWon && (
@@ -261,10 +296,14 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
 }
 
 export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streakLogs={}, biasLogs={}, onSaveBias, isLockedOut=false, lockoutReason='' }) {
-  const [showForm, setShowForm]   = useState(false)
-  const [expanded, setExpanded]   = useState(null)
-  const [editing,  setEditing]    = useState(null)
-  const [now, setNow]             = useState(new Date())
+  const [showForm,   setShowForm]   = useState(false)
+  const [expanded,   setExpanded]   = useState(null)
+  const [editing,    setEditing]    = useState(null)
+  const [now,        setNow]        = useState(new Date())
+  const [zoomImage,  setZoomImage]  = useState(null)
+  const [dailyGoal,  setDailyGoal]  = useState(() => parseInt(localStorage.getItem('trading-daily-goal') || '0'))
+  const [editGoal,   setEditGoal]   = useState(false)
+  const [goalInput,  setGoalInput]  = useState('')
 
   const today = (() => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}` })()
 
@@ -355,6 +394,61 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
         {card('DENNA VECKA', `${weekPnl>=0?'+':''}$${Math.round(weekPnl)}`,     weekPnl>=0?'#00e5b0':'#ff4f6b')}
         {card('STREAK',      `${streak}d`,                                       streak>=5?'#00e5b0':streak>=2?'#ffc030':'#85a4ad')}
       </div>
+
+      {/* Daily P&L goal */}
+      {(() => {
+        const pct   = dailyGoal > 0 ? Math.min(Math.max(todayPnl / dailyGoal * 100, 0), 100) : 0
+        const ahead = dailyGoal > 0 && todayPnl >= dailyGoal
+        const goalC = ahead ? '#00e5b0' : todayPnl > 0 ? '#ffc030' : '#85a4ad'
+        return (
+          <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', padding:'12px 14px' }}>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'8px' }}>
+              <span style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'2px' }}>DAGSMÅL</span>
+              {!editGoal ? (
+                <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+                  <span style={{ fontFamily:M, fontSize:'11px', fontWeight:700, color:goalC }}>
+                    {todayPnl >= 0 ? '+' : ''}${Math.round(todayPnl)}{dailyGoal > 0 ? ` / $${dailyGoal}` : ''}
+                  </span>
+                  <button type="button" onClick={() => { setGoalInput(String(dailyGoal || '')); setEditGoal(true) }} style={{ background:'none', border:'1px solid #1e2c32', borderRadius:'4px', color:'#85a4ad', fontFamily:M, fontSize:'8px', padding:'2px 7px', cursor:'pointer' }}>
+                    {dailyGoal > 0 ? '✎' : '+ Sätt mål'}
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display:'flex', alignItems:'center', gap:'5px' }}>
+                  <span style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad' }}>$</span>
+                  <input
+                    autoFocus
+                    type="number"
+                    value={goalInput}
+                    onChange={e => setGoalInput(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') {
+                        const v = parseInt(goalInput) || 0
+                        setDailyGoal(v)
+                        localStorage.setItem('trading-daily-goal', String(v))
+                        setEditGoal(false)
+                      }
+                      if (e.key === 'Escape') setEditGoal(false)
+                    }}
+                    placeholder="500"
+                    style={{ width:'70px', background:'#0a0e10', border:'1px solid #5a7a84', borderRadius:'5px', color:'#d0e8ec', fontFamily:M, fontSize:'11px', padding:'3px 7px', outline:'none' }}
+                  />
+                  <button type="button" onClick={() => { const v=parseInt(goalInput)||0; setDailyGoal(v); localStorage.setItem('trading-daily-goal',String(v)); setEditGoal(false) }} style={{ background:'#00e5b0', border:'none', borderRadius:'4px', color:'#020f08', fontFamily:M, fontSize:'8px', padding:'3px 8px', cursor:'pointer', fontWeight:700 }}>OK</button>
+                  <button type="button" onClick={() => setEditGoal(false)} style={{ background:'none', border:'1px solid #1e2c32', borderRadius:'4px', color:'#85a4ad', fontFamily:M, fontSize:'8px', padding:'3px 7px', cursor:'pointer' }}>✕</button>
+                </div>
+              )}
+            </div>
+            {dailyGoal > 0 && (
+              <div style={{ height:'5px', background:'#0d1214', borderRadius:'3px', overflow:'hidden' }}>
+                <div style={{ height:'100%', width:`${pct}%`, background: ahead ? '#00e5b0' : '#ffc030', borderRadius:'3px', transition:'width 0.4s ease' }} />
+              </div>
+            )}
+            {!dailyGoal && (
+              <div style={{ fontFamily:M, fontSize:'9px', color:'#4a6470' }}>Inget mål satt — tryck "+ Sätt mål"</div>
+            )}
+          </div>
+        )
+      })()}
 
       {/* Bias */}
       <div style={{ background:'#111820', border:`1px solid ${curBias?curBias.bdr:'#1e2c32'}`, borderRadius:'12px', padding:'12px 14px', transition:'border-color 0.2s' }}>
@@ -471,6 +565,11 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
 
               {isEx && !isEd && (
                 <div style={{ borderTop:'1px solid #161e24' }}>
+                  {t.image && (
+                    <div style={{ padding:'10px 10px 0' }}>
+                      <img src={t.image} alt="chart" onClick={() => setZoomImage(t.image)} style={{ width:'100%', borderRadius:'6px', display:'block', maxHeight:'280px', objectFit:'contain', background:'#060809', cursor:'zoom-in' }} />
+                    </div>
+                  )}
                   {em>0 && (
                     <div style={{ padding:'8px 12px', display:'flex', alignItems:'center', gap:'8px' }}>
                       <span style={{ fontFamily:M, fontSize:'7px', color:'#85a4ad', letterSpacing:'1px', flexShrink:0 }}>EMOTION</span>
@@ -523,6 +622,14 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
           </div>
         )}
       </div>
+
+      {/* Lightbox */}
+      {zoomImage && (
+        <div onClick={() => setZoomImage(null)} style={{ position:'fixed', inset:0, zIndex:999, background:'rgba(0,0,0,0.92)', display:'flex', alignItems:'center', justifyContent:'center', padding:'20px', cursor:'zoom-out' }}>
+          <img src={zoomImage} alt="chart fullscreen" style={{ maxWidth:'100%', maxHeight:'100%', borderRadius:'8px', objectFit:'contain' }} />
+          <button type="button" onClick={() => setZoomImage(null)} style={{ position:'fixed', top:'16px', right:'16px', background:'rgba(6,8,9,0.9)', border:'1px solid #263840', borderRadius:'8px', color:'#85a4ad', fontFamily:M, fontSize:'13px', padding:'6px 12px', cursor:'pointer' }}>✕</button>
+        </div>
+      )}
     </div>
   )
 }

@@ -6,6 +6,29 @@ const WIN_RESULTS = new Set(['win','win2','tp1','tp2','tp3'])
 const VIOLATION_TAGS = new Set(['fomo','revenge','forced','oversize'])
 const PSYCH_LABELS = { patient:'Tålmodig', fomo:'FOMO', revenge:'Hämndtrade', aplus:'A+ Setup', forced:'Forcerat', setforget:'Set & Forget', oversize:'Överposad', managed:'Hanterat bra' }
 
+function exportCSV(journal) {
+  const rows = [
+    ['Datum','Instrument','Outcome','Setup','P&L','Emotion','Psyk-taggar','Rule Violation','Brutna regler','Notes'],
+    ...journal.map(t => [
+      t.date || '',
+      t.instrument || '',
+      t.result || '',
+      t.setup || '',
+      t.pnl || '0',
+      t.emotion || '',
+      (t.psychTags || []).join(';'),
+      t.checklistViolation ? 'JA' : 'NEJ',
+      (t.violatedRules || []).join(';'),
+      (t.note || '').replace(/\n/g,' '),
+    ])
+  ]
+  const csv  = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n')
+  const blob = new Blob(['﻿' + csv], { type:'text/csv;charset=utf-8;' })
+  const url  = URL.createObjectURL(blob)
+  const a    = document.createElement('a'); a.href=url; a.download=`trading-journal-${new Date().toISOString().slice(0,10)}.csv`; a.click()
+  URL.revokeObjectURL(url)
+}
+
 export default function Statistics({ journal = [] }) {
   const [filter, setFilter] = useState('Totalt')
   const [monthView, setMonthView] = useState('pnl') // 'pnl' | 'wr' | 'r'
@@ -77,7 +100,6 @@ export default function Statistics({ journal = [] }) {
   })()
 
   // ── Rule-following stats ──
-  const ruleTrades    = trades.filter(t => t.checklistViolation !== undefined) // only trades with checklist data
   const cleanTrades   = trades.filter(t => t.checklistViolation === false)
   const brokenTrades  = trades.filter(t => t.checklistViolation === true)
   const cleanWins     = cleanTrades.filter(t => WIN_RESULTS.has(t.result)).length
@@ -128,16 +150,26 @@ export default function Statistics({ journal = [] }) {
   return (
     <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>
 
-      <div style={{display:'flex',gap:'6px'}}>
-        {['Totalt','Denna månad','Denna vecka'].map(f=>(
-          <button key={f} onClick={()=>setFilter(f)} style={{
-            fontFamily:M,fontSize:'9px',padding:'7px 13px',borderRadius:'7px',
-            border:`1px solid ${filter===f?'#007d5e':'#1e2c32'}`,
-            background:filter===f?'#001810':'transparent',
-            color:filter===f?'#00e5b0':'#85a4ad',cursor:'pointer',letterSpacing:'1px',
-            transition:'all 0.15s',
-          }}>{f}</button>
-        ))}
+      <div style={{display:'flex',gap:'6px',flexWrap:'wrap',alignItems:'center',justifyContent:'space-between'}}>
+        <div style={{display:'flex',gap:'6px'}}>
+          {['Totalt','Denna månad','Denna vecka'].map(f=>(
+            <button key={f} onClick={()=>setFilter(f)} style={{
+              fontFamily:M,fontSize:'9px',padding:'7px 13px',borderRadius:'7px',
+              border:`1px solid ${filter===f?'#007d5e':'#1e2c32'}`,
+              background:filter===f?'#001810':'transparent',
+              color:filter===f?'#00e5b0':'#85a4ad',cursor:'pointer',letterSpacing:'1px',
+              transition:'all 0.15s',
+            }}>{f}</button>
+          ))}
+        </div>
+        <button onClick={()=>exportCSV(journal)} style={{
+          fontFamily:M,fontSize:'9px',padding:'7px 13px',borderRadius:'7px',
+          border:'1px solid #1e2c32',background:'transparent',color:'#85a4ad',
+          cursor:'pointer',letterSpacing:'1px',transition:'all 0.15s',display:'flex',alignItems:'center',gap:'5px',
+        }}
+          onMouseEnter={e=>{e.currentTarget.style.borderColor='#00e5b0';e.currentTarget.style.color='#00e5b0'}}
+          onMouseLeave={e=>{e.currentTarget.style.borderColor='#1e2c32';e.currentTarget.style.color='#85a4ad'}}
+        >↓ CSV</button>
       </div>
 
       <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:'10px'}}>
