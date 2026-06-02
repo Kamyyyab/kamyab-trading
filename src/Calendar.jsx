@@ -81,8 +81,6 @@ function EditForm({ initial = {}, onSave, onCancel }) {
   function stopRecording() { mediaRef.current?.stop(); setRecording(false) }
 
   const outcomeBtns = [
-    { v:'win',  l:'Win +3R',  c:'#00e5b0', bg:'#001810' },
-    { v:'win2', l:'Win +2R',  c:'#00e5b0', bg:'#001810' },
     { v:'tp1',  l:'TP1',      c:'#4ab89a', bg:'#001410' },
     { v:'tp2',  l:'TP2',      c:'#00e5b0', bg:'#001810' },
     { v:'tp3',  l:'TP3',      c:'#00e5b0', bg:'#001a14' },
