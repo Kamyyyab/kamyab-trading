@@ -181,6 +181,49 @@ export default function Statistics({ journal = [] }) {
         {card('MAX DRAWDOWN', `-$${Math.round(maxDD)}`,                         '#ff4f6b')}
       </div>
 
+      {/* ── REGELFÖLJSAMHET ── */}
+      {trades.length > 0 && (() => {
+        const cleanTrades = trades.filter(t =>
+          !t.checklistViolation &&
+          !(t.brokenRules?.length > 0) &&
+          !(t.psychTags||[]).some(id => VIOLATION_TAGS.has(id))
+        )
+        const violTrades = trades.filter(t =>
+          t.checklistViolation ||
+          (t.brokenRules?.length > 0) ||
+          (t.psychTags||[]).some(id => VIOLATION_TAGS.has(id))
+        )
+        const cleanWins  = cleanTrades.filter(t => WIN_RESULTS.has(t.result)).length
+        const cleanWR    = cleanTrades.length > 0 ? Math.round(cleanWins / cleanTrades.length * 100) : 0
+        const cleanPnl   = cleanTrades.reduce((s,t) => s + parseFloat(t.pnl||0), 0)
+        const violWins   = violTrades.filter(t => WIN_RESULTS.has(t.result)).length
+        const violWR     = violTrades.length > 0 ? Math.round(violWins / violTrades.length * 100) : 0
+        const violPnl    = violTrades.reduce((s,t) => s + parseFloat(t.pnl||0), 0)
+        return (
+          <div style={{background:'#161e24',border:'1px solid #1e2c32',borderRadius:'12px',padding:'16px'}}>
+            <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',letterSpacing:'2px',marginBottom:'12px'}}>REGELFÖLJSAMHET</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
+              <div style={{background:'#001810',border:'1px solid rgba(0,229,176,0.15)',borderRadius:'10px',padding:'14px'}}>
+                <div style={{fontFamily:M,fontSize:'8px',color:'#00e5b0',letterSpacing:'2px',marginBottom:'3px'}}>CLEAN</div>
+                <div style={{fontFamily:M,fontSize:'8px',color:'#4a7060',marginBottom:'12px'}}>Följde alla regler</div>
+                <div style={{fontFamily:M,fontSize:'28px',fontWeight:700,color:'#00e5b0',lineHeight:1}}>{cleanWR}%</div>
+                <div style={{fontFamily:M,fontSize:'8px',color:'#4a7060',marginBottom:'8px'}}>Win Rate</div>
+                <div style={{fontFamily:M,fontSize:'16px',fontWeight:700,color:cleanPnl>=0?'#00e5b0':'#ff4f6b'}}>{cleanPnl>=0?'+':''}${Math.round(cleanPnl)}</div>
+                <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',marginTop:'2px'}}>{cleanTrades.length} trades</div>
+              </div>
+              <div style={{background:'#1a0610',border:'1px solid rgba(255,79,107,0.15)',borderRadius:'10px',padding:'14px'}}>
+                <div style={{fontFamily:M,fontSize:'8px',color:'#ff4f6b',letterSpacing:'2px',marginBottom:'3px'}}>VIOLATION</div>
+                <div style={{fontFamily:M,fontSize:'8px',color:'#5a3040',marginBottom:'12px'}}>Bröt ≥1 regel</div>
+                <div style={{fontFamily:M,fontSize:'28px',fontWeight:700,color:violWR>=50?'#00e5b0':'#ff4f6b',lineHeight:1}}>{violWR}%</div>
+                <div style={{fontFamily:M,fontSize:'8px',color:'#5a3040',marginBottom:'8px'}}>Win Rate</div>
+                <div style={{fontFamily:M,fontSize:'16px',fontWeight:700,color:violPnl>=0?'#00e5b0':'#ff4f6b'}}>{violPnl>=0?'+':''}${Math.round(violPnl)}</div>
+                <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',marginTop:'2px'}}>{violTrades.length} trades</div>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
         {section('R-BREAKDOWN',
           <div style={{display:'flex',flexDirection:'column',gap:'9px'}}>

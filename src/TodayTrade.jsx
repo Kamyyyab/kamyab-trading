@@ -110,7 +110,7 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
       return
     }
     setBiasError(false)
-    onSave({ result, instrument, pnl: pnl || '0', note, emotion, setup, psychTags, checklistViolation, violatedRules, image: image || null })
+    onSave({ result, instrument, pnl: pnl || '0', note, emotion, setup, psychTags, checklistViolation, violatedRules, brokenRules: violatedRules, image: image || null })
   }
 
   return (
@@ -565,6 +565,16 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
 
               {isEx && !isEd && (
                 <div style={{ borderTop:'1px solid #161e24' }}>
+                  {t.violatedRules?.length > 0 && (
+                    <div style={{ padding:'8px 12px 4px', display:'flex', flexWrap:'wrap', gap:'4px' }}>
+                      {t.violatedRules.map(rId => {
+                        const rule = RULE_LABELS[rId]
+                        return rule ? (
+                          <span key={rId} style={{ fontFamily:M, fontSize:'7px', color:'#ff4f6b', background:'#1a0610', border:'1px solid rgba(255,79,107,0.2)', borderRadius:'3px', padding:'2px 6px' }}>✗ {rule}</span>
+                        ) : null
+                      })}
+                    </div>
+                  )}
                   {t.image && (
                     <div style={{ padding:'10px 10px 0' }}>
                       <img src={t.image} alt="chart" onClick={() => setZoomImage(t.image)} style={{ width:'100%', borderRadius:'6px', display:'block', maxHeight:'280px', objectFit:'contain', background:'#060809', cursor:'zoom-in' }} />
