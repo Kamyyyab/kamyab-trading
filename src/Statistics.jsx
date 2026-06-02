@@ -34,7 +34,12 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
   const [monthView, setMonthView] = useState('pnl') // 'pnl' | 'wr' | 'r'
   const [editStartBal, setEditStartBal] = useState(false)
   const [startBalInput, setStartBalInput] = useState('')
-  const [setupFilter, setSetupFilter] = useState(null)
+  const [setupFilter,    setSetupFilter]    = useState(null)
+  const [statsTab,       setStatsTab]       = useState('stats')
+  const [sortCol,        setSortCol]        = useState('date')
+  const [sortDir,        setSortDir]        = useState('desc')
+  const [tableSearch,    setTableSearch]    = useState('')
+  const [tableOutcome,   setTableOutcome]   = useState('all')
 
   function filterTrades(t) {
     const now = new Date()
@@ -288,6 +293,21 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
         >↓ CSV</button>
       </div>
 
+      {/* ── TAB NAV ── */}
+      <div style={{display:'flex',gap:'3px',background:'#0a1020',border:'1px solid #162340',borderRadius:'10px',padding:'3px'}}>
+        {[['stats','Översikt'],['analys','Analys'],['journal','Journal'],['reflektion','Reflektion']].map(([id,label])=>(
+          <button key={id} onClick={()=>setStatsTab(id)} style={{
+            flex:1, background:statsTab===id?'#0f1828':'transparent',
+            border:`1px solid ${statsTab===id?'#1c2e4a':'transparent'}`,
+            borderRadius:'7px', color:statsTab===id?'#dce8f5':'#6880a0',
+            fontFamily:M, fontSize:'9px', padding:'7px 4px', cursor:'pointer',
+            letterSpacing:'0.5px', transition:'all 0.12s',
+            WebkitTapHighlightColor:'transparent',
+          }}>{label}</button>
+        ))}
+      </div>
+
+      {statsTab === 'stats' && (<>
       <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:'10px'}}>
         {card('WIN RATE',     `${wr}%`,                                         '#00e5b0',`${trades.length} trades`)}
         {card('TOTAL P&L',   `${tPnl>=0?'+':''}$${Math.round(tPnl)}`,         tPnl>=0?'#00e5b0':'#ff4f6b')}
@@ -297,48 +317,6 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
         {card('MAX DRAWDOWN', `-$${Math.round(maxDD)}`,                         '#ff4f6b')}
       </div>
 
-      {/* ── REGELFÖLJSAMHET ── */}
-      {trades.length > 0 && (() => {
-        const cleanTrades = trades.filter(t =>
-          !t.checklistViolation &&
-          !(t.brokenRules?.length > 0) &&
-          !(t.psychTags||[]).some(id => VIOLATION_TAGS.has(id))
-        )
-        const violTrades = trades.filter(t =>
-          t.checklistViolation ||
-          (t.brokenRules?.length > 0) ||
-          (t.psychTags||[]).some(id => VIOLATION_TAGS.has(id))
-        )
-        const cleanWins  = cleanTrades.filter(t => WIN_RESULTS.has(t.result)).length
-        const cleanWR    = cleanTrades.length > 0 ? Math.round(cleanWins / cleanTrades.length * 100) : 0
-        const cleanPnl   = cleanTrades.reduce((s,t) => s + parseFloat(t.pnl||0), 0)
-        const violWins   = violTrades.filter(t => WIN_RESULTS.has(t.result)).length
-        const violWR     = violTrades.length > 0 ? Math.round(violWins / violTrades.length * 100) : 0
-        const violPnl    = violTrades.reduce((s,t) => s + parseFloat(t.pnl||0), 0)
-        return (
-          <div style={{background:'#0f1828',border:'1px solid #162340',borderRadius:'12px',padding:'16px'}}>
-            <div style={{fontFamily:M,fontSize:'9px',color:'#8aabb8',letterSpacing:'1.5px',marginBottom:'12px'}}>REGELFÖLJSAMHET</div>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
-              <div style={{background:'#001810',border:'1px solid rgba(0,229,176,0.15)',borderRadius:'10px',padding:'14px'}}>
-                <div style={{fontFamily:M,fontSize:'8px',color:'#00e5b0',letterSpacing:'1.5px',marginBottom:'3px'}}>CLEAN</div>
-                <div style={{fontFamily:M,fontSize:'8px',color:'#4a7060',marginBottom:'12px'}}>Följde alla regler</div>
-                <div style={{fontFamily:M,fontSize:'28px',fontWeight:700,color:'#00e5b0',lineHeight:1}}>{cleanWR}%</div>
-                <div style={{fontFamily:M,fontSize:'8px',color:'#4a7060',marginBottom:'8px'}}>Win Rate</div>
-                <div style={{fontFamily:M,fontSize:'16px',fontWeight:700,color:cleanPnl>=0?'#00e5b0':'#ff4f6b'}}>{cleanPnl>=0?'+':''}${Math.round(cleanPnl)}</div>
-                <div style={{fontFamily:M,fontSize:'9px',color:'#6880a0',marginTop:'2px'}}>{cleanTrades.length} trades</div>
-              </div>
-              <div style={{background:'#1a0610',border:'1px solid rgba(255,79,107,0.15)',borderRadius:'10px',padding:'14px'}}>
-                <div style={{fontFamily:M,fontSize:'8px',color:'#ff4f6b',letterSpacing:'1.5px',marginBottom:'3px'}}>VIOLATION</div>
-                <div style={{fontFamily:M,fontSize:'8px',color:'#5a3040',marginBottom:'12px'}}>Bröt ≥1 regel</div>
-                <div style={{fontFamily:M,fontSize:'28px',fontWeight:700,color:violWR>=50?'#00e5b0':'#ff4f6b',lineHeight:1}}>{violWR}%</div>
-                <div style={{fontFamily:M,fontSize:'8px',color:'#5a3040',marginBottom:'8px'}}>Win Rate</div>
-                <div style={{fontFamily:M,fontSize:'16px',fontWeight:700,color:violPnl>=0?'#00e5b0':'#ff4f6b'}}>{violPnl>=0?'+':''}${Math.round(violPnl)}</div>
-                <div style={{fontFamily:M,fontSize:'9px',color:'#6880a0',marginTop:'2px'}}>{violTrades.length} trades</div>
-              </div>
-            </div>
-          </div>
-        )
-      })()}
 
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
         {section('R-BREAKDOWN',
@@ -443,7 +421,9 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
           </div>
         </div>
       )}
+      </>)}
 
+      {statsTab === 'analys' && (<>
       {/* ── REGELFÖLJSAMHET ── */}
       {(cleanTrades.length > 0 || brokenTrades.length > 0) && section('REGELFÖLJSAMHET — CHECKLISTA',
         <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
@@ -694,7 +674,91 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
           })}
         </div>
       )}
+      </>)}
 
+      {statsTab === 'journal' && (() => {
+        const RL_J = { win:'TP3', win2:'TP2', tp1:'TP1', tp2:'TP2', tp3:'TP3', loss:'Loss', be:'BE', skip:'Skip', 'no-setup':'N/A' }
+        const RC_J = { win:'#00e5b0', win2:'#00e5b0', tp1:'#4ab89a', tp2:'#00e5b0', tp3:'#00e5b0', loss:'#ff4f6b', be:'#7a96b4', skip:'#7a96b4', 'no-setup':'#7a96b4' }
+        const VIOL_TAGS = new Set(['fomo','revenge','forced','slmoved'])
+        const filtered = viewTrades
+          .filter(t => {
+            if (tableOutcome === 'wins')   return WIN_RESULTS.has(t.result)
+            if (tableOutcome === 'losses') return t.result === 'loss'
+            if (tableOutcome === 'be')     return t.result === 'be'
+            return true
+          })
+          .filter(t => !tableSearch ||
+            (t.instrument||'').toLowerCase().includes(tableSearch.toLowerCase()) ||
+            (t.setup||'').toLowerCase().includes(tableSearch.toLowerCase()) ||
+            (t.note||'').toLowerCase().includes(tableSearch.toLowerCase())
+          )
+          .sort((a, b) => {
+            const dir = sortDir === 'asc' ? 1 : -1
+            if (sortCol === 'date')    return dir * (a.date||'').localeCompare(b.date||'')
+            if (sortCol === 'pnl')     return dir * (parseFloat(a.pnl||0) - parseFloat(b.pnl||0))
+            if (sortCol === 'result')  return dir * (a.result||'').localeCompare(b.result||'')
+            if (sortCol === 'instr')   return dir * (a.instrument||'').localeCompare(b.instrument||'')
+            if (sortCol === 'setup')   return dir * (a.setup||'').localeCompare(b.setup||'')
+            if (sortCol === 'emotion') return dir * (parseInt(a.emotion||0) - parseInt(b.emotion||0))
+            return 0
+          })
+        function Th({ col, label, right }) {
+          const active = sortCol === col
+          return (
+            <div onClick={() => { setSortCol(col); setSortDir(p => active ? (p==='desc'?'asc':'desc') : 'desc') }}
+              style={{ fontFamily:M, fontSize:'8px', color:active?'#f59e0b':'#6880a0', cursor:'pointer', userSelect:'none', letterSpacing:'1px', textAlign:right?'right':'left', flexShrink:0 }}>
+              {label}{active ? (sortDir==='desc'?' ↓':' ↑') : ''}
+            </div>
+          )
+        }
+        return (
+          <div style={{background:'#0f1828',border:'1px solid #162340',borderRadius:'12px',padding:'16px'}}>
+            <div style={{fontFamily:M,fontSize:'9px',color:'#8aabb8',letterSpacing:'2px',marginBottom:'14px'}}>ALLA TRADES</div>
+            <div style={{display:'flex',gap:'8px',marginBottom:'12px',flexWrap:'wrap',alignItems:'center'}}>
+              <input value={tableSearch} onChange={e=>setTableSearch(e.target.value)} placeholder="Sök instrument, setup, notes..."
+                style={{flex:1,minWidth:'160px',background:'#08101c',border:'1px solid #1c2e4a',borderRadius:'7px',color:'#dce8f5',fontFamily:M,fontSize:'11px',padding:'7px 11px',outline:'none'}} />
+              <div style={{display:'flex',gap:'4px'}}>
+                {[['all','Alla'],['wins','Wins'],['losses','Loss'],['be','BE']].map(([v,l])=>(
+                  <button key={v} onClick={()=>setTableOutcome(v)} style={{
+                    fontFamily:M,fontSize:'8px',padding:'5px 10px',borderRadius:'5px',
+                    border:`1px solid ${tableOutcome===v?'rgba(245,158,11,0.4)':'#162340'}`,
+                    background:tableOutcome===v?'#18100a':'#0a1020',
+                    color:tableOutcome===v?'#f59e0b':'#6880a0',cursor:'pointer',
+                  }}>{l}</button>
+                ))}
+              </div>
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'74px 46px 52px 60px 52px 1fr 28px 50px',gap:'6px',padding:'5px 8px',borderBottom:'1px solid #162340',marginBottom:'4px'}}>
+              <Th col="date" label="DATUM" /><Th col="instr" label="INST" /><Th col="result" label="OUTCOME" /><Th col="setup" label="SETUP" />
+              <Th col="pnl" label="P&L" right /><div style={{fontFamily:M,fontSize:'8px',color:'#6880a0',letterSpacing:'0.5px'}}>NOTES</div>
+              <Th col="emotion" label="E" /><div style={{fontFamily:M,fontSize:'8px',color:'#6880a0',letterSpacing:'0.5px'}}>REG</div>
+            </div>
+            <div style={{display:'flex',flexDirection:'column',gap:'1px',maxHeight:'480px',overflowY:'auto'}}>
+              {filtered.length === 0 && <div style={{fontFamily:M,fontSize:'11px',color:'#3a5878',padding:'24px',textAlign:'center'}}>Inga trades matchar</div>}
+              {filtered.map((t,i) => {
+                const pv = parseFloat(t.pnl||0)
+                const em = parseInt(t.emotion||0)
+                const isViol = t.checklistViolation || (t.brokenRules?.length > 0) || [...VIOL_TAGS].some(v=>(t.psychTags||[]).includes(v))
+                return (
+                  <div key={i} style={{display:'grid',gridTemplateColumns:'74px 46px 52px 60px 52px 1fr 28px 50px',gap:'6px',padding:'5px 8px',borderRadius:'5px',background:i%2===0?'transparent':'#0a1020',alignItems:'center'}}>
+                    <div style={{fontFamily:M,fontSize:'9px',color:'#7a96b4',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{t.date?.slice(5)}{t.tradeTime?' '+t.tradeTime:''}</div>
+                    <div style={{fontFamily:M,fontSize:'9px',color:'#8aabb8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{t.instrument}</div>
+                    <div style={{fontFamily:M,fontSize:'9px',color:RC_J[t.result]||'#7a96b4',fontWeight:600}}>{RL_J[t.result]||t.result}</div>
+                    <div style={{fontFamily:M,fontSize:'8px',color:'#6880a0',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{t.setup||'—'}</div>
+                    <div style={{fontFamily:M,fontSize:'10px',fontWeight:700,color:pv>=0?'#00e5b0':'#ff4f6b',textAlign:'right'}}>{pv>=0?'+':''}${Math.round(Math.abs(pv))}</div>
+                    <div style={{fontFamily:M,fontSize:'9px',color:'#4a6888',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{t.note?.slice(0,50)||'—'}</div>
+                    <div style={{fontFamily:M,fontSize:'9px',color:em<=3?'#00e5b0':em>=7?'#ff4f6b':'#ffc030',textAlign:'center'}}>{em>0?em:'—'}</div>
+                    <div style={{fontFamily:M,fontSize:'7px',color:isViol?'#ff4f6b':'#3a7060',textAlign:'center',letterSpacing:'0.5px',fontWeight:700}}>{isViol?'VIOL':'OK'}</div>
+                  </div>
+                )
+              })}
+            </div>
+            <div style={{fontFamily:M,fontSize:'9px',color:'#6880a0',marginTop:'10px',textAlign:'right'}}>{filtered.length} / {viewTrades.length} trades</div>
+          </div>
+        )
+      })()}
+
+      {statsTab === 'reflektion' && (<>
       {/* ── WEEKLY REVIEW ── */}
       <div style={{background:'#0f1828',border:'1px solid #162340',borderRadius:'12px',padding:'16px'}}>
         <div style={{fontFamily:M,fontSize:'9px',color:'#8aabb8',letterSpacing:'1.5px',marginBottom:'14px'}}>VECKOREFLEXION</div>
@@ -773,6 +837,7 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
           </div>
         </>
       )}
+      </>)}
     </div>
   )
 }

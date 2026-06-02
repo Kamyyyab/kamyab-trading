@@ -53,6 +53,21 @@ function EditForm({ initial = {}, onSave, onCancel }) {
 
   useEffect(() => () => { if (mediaRef.current?.state === 'recording') mediaRef.current.stop() }, [])
 
+  useEffect(() => {
+    const onPaste = e => {
+      for (const item of e.clipboardData?.items || []) {
+        if (item.type.startsWith('image/')) {
+          const reader = new FileReader()
+          reader.onload = ev => { setImage(ev.target.result); setImgPrev(ev.target.result) }
+          reader.readAsDataURL(item.getAsFile())
+          break
+        }
+      }
+    }
+    window.addEventListener('paste', onPaste)
+    return () => window.removeEventListener('paste', onPaste)
+  }, [])
+
   const toggle = id => setTags(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id])
 
   function handleImg(e) {
