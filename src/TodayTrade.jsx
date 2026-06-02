@@ -23,9 +23,9 @@ const RULE_LABELS = {
 }
 
 function ChecklistRow({ label, checked, failed, auto, onClick }) {
-  const c   = failed ? '#ff4f6b' : checked ? '#00e5b0' : '#85a4ad'
-  const bg  = failed ? '#1a0610' : checked ? '#001810' : '#0d1214'
-  const bdr = failed ? 'rgba(255,79,107,0.22)' : checked ? 'rgba(0,229,176,0.18)' : '#1e2c32'
+  const c   = failed ? '#ff4f6b' : checked ? '#00e5b0' : '#7a96b4'
+  const bg  = failed ? '#1a0610' : checked ? '#001810' : '#0a1020'
+  const bdr = failed ? 'rgba(255,79,107,0.22)' : checked ? 'rgba(0,229,176,0.18)' : '#162340'
   const icon = failed ? '✗' : checked ? '✓' : '○'
   return (
     <div onClick={!auto ? onClick : undefined} style={{
@@ -35,32 +35,32 @@ function ChecklistRow({ label, checked, failed, auto, onClick }) {
     }}>
       <span style={{ fontFamily:M, fontSize:'13px', color:c, width:'13px', flexShrink:0, lineHeight:1 }}>{icon}</span>
       <span style={{ fontFamily:M, fontSize:'9px', color:c, flex:1 }}>{label}</span>
-      {auto && <span style={{ fontFamily:M, fontSize:'7px', color:'#4a6470', letterSpacing:'0.5px' }}>AUTO</span>}
-      {!auto && !checked && <span style={{ fontFamily:M, fontSize:'7px', color:'#4a6470' }}>TAP</span>}
+      {auto && <span style={{ fontFamily:M, fontSize:'7px', color:'#3a5878', letterSpacing:'0.5px' }}>AUTO</span>}
+      {!auto && !checked && <span style={{ fontFamily:M, fontSize:'7px', color:'#3a5878' }}>TAP</span>}
     </div>
   )
 }
 
-const RC = { win:'#00e5b0', win2:'#00e5b0', tp1:'#4ab89a', tp2:'#00e5b0', tp3:'#00e5b0', loss:'#ff4f6b', be:'#88a8ae', skip:'#85a4ad', 'no-setup':'#85a4ad' }
-const RB = { win:'#001810', win2:'#001810', tp1:'#001410', tp2:'#001810', tp3:'#001a14', loss:'#1a0610', be:'#111820', skip:'#111820', 'no-setup':'#111820' }
+const RC = { win:'#00e5b0', win2:'#00e5b0', tp1:'#4ab89a', tp2:'#00e5b0', tp3:'#00e5b0', loss:'#ff4f6b', be:'#7a96b4', skip:'#7a96b4', 'no-setup':'#7a96b4' }
+const RB = { win:'#001810', win2:'#001810', tp1:'#001410', tp2:'#001810', tp3:'#001a14', loss:'#1a0610', be:'#0c1422', skip:'#0c1422', 'no-setup':'#0c1422' }
 const RL = { win:'Win +3R', win2:'Win +2R', tp1:'TP1', tp2:'TP2', tp3:'TP3', loss:'Loss −1R', be:'Break Even', skip:'Skip', 'no-setup':'No Setup' }
 const BIAS = [
   { v:'bullish', label:'▲ Bull', c:'#00e5b0', bg:'#001810', bdr:'rgba(0,229,176,0.25)' },
   { v:'bearish', label:'▼ Bear', c:'#ff4f6b', bg:'#1a0610', bdr:'rgba(255,79,107,0.25)' },
-  { v:'neutral', label:'◆ Neu',  c:'#88a8ae', bg:'#111820', bdr:'rgba(106,138,144,0.2)' },
+  { v:'neutral', label:'◆ Neu',  c:'#7a96b4', bg:'#0c1422', bdr:'rgba(106,138,144,0.2)' },
 ]
 
-const inp = { width:'100%', background:'#0a0e10', border:'1px solid #263840', borderRadius:'8px', color:'#d0e8ec', fontSize:'15px', padding:'10px 12px', outline:'none', boxSizing:'border-box', transition:'border-color 0.15s' }
-const lbl = { fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'2px', marginBottom:'5px', display:'block' }
+const inp = { width:'100%', background:'#08101c', border:'1px solid #1c2e4a', borderRadius:'8px', color:'#dce8f5', fontSize:'15px', padding:'10px 12px', outline:'none', boxSizing:'border-box', transition:'border-color 0.15s' }
+const lbl = { fontFamily:M, fontSize:'8px', color:'#7a96b4', letterSpacing:'2px', marginBottom:'5px', display:'block' }
 
 const RESULTS = [
   { v:"tp1",       label:"TP1",       c:"#4ab89a", bg:"#001410" },
   { v:"tp2",       label:"TP2",       c:"#00e5b0", bg:"#001810" },
   { v:"tp3",       label:"TP3",       c:"#00e5b0", bg:"#001a14" },
   { v:"loss",      label:"Loss -1R",  c:"#ff4f6b", bg:"#1a0610" },
-  { v:"be",        label:"Break Even",c:"#88a8ae", bg:"#111820" },
-  { v:"skip",      label:"Skip",      c:"#85a4ad", bg:"#111820" },
-  { v:"no-setup",  label:"No Setup",  c:"#5a7a84", bg:"#0d1214" },
+  { v:"be",        label:"Break Even",c:"#7a96b4", bg:"#0c1422" },
+  { v:"skip",      label:"Skip",      c:"#7a96b4", bg:"#0c1422" },
+  { v:"no-setup",  label:"No Setup",  c:"#4a6888", bg:"#0a1020" },
 ]
 
 // Outcomes that count as real trades (require bias)
@@ -140,7 +140,7 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
   }
 
   return (
-    <div style={{ background:'#0a0e10', border:'1px solid #263840', borderRadius:'10px', padding:'16px', display:'flex', flexDirection:'column', gap:'12px' }}>
+    <div style={{ background:'#08101c', border:'1px solid #1c2e4a', borderRadius:'10px', padding:'16px', display:'flex', flexDirection:'column', gap:'12px' }}>
 
       {/* Chart image upload */}
       <div>
@@ -148,19 +148,19 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
         <input ref={fileRef} type="file" accept="image/*" onChange={handleImg} style={{ display:'none' }} />
         {!imgPrev ? (
           <button type="button" onClick={() => fileRef.current?.click()} style={{
-            width:'100%', background:'#0d1214', border:'2px dashed #263840', borderRadius:'8px',
-            color:'#85a4ad', fontFamily:M, fontSize:'10px', padding:'16px 14px', cursor:'pointer',
+            width:'100%', background:'#0a1020', border:'2px dashed #1c2e4a', borderRadius:'8px',
+            color:'#7a96b4', fontFamily:M, fontSize:'10px', padding:'16px 14px', cursor:'pointer',
             transition:'all 0.15s', display:'flex', alignItems:'center', justifyContent:'center', gap:'7px',
           }}
             onMouseEnter={e=>{e.currentTarget.style.borderColor='#00e5b0';e.currentTarget.style.color='#00e5b0';e.currentTarget.style.background='#001810'}}
-            onMouseLeave={e=>{e.currentTarget.style.borderColor='#263840';e.currentTarget.style.color='#85a4ad';e.currentTarget.style.background='#0d1214'}}
+            onMouseLeave={e=>{e.currentTarget.style.borderColor='#1c2e4a';e.currentTarget.style.color='#7a96b4';e.currentTarget.style.background='#0a1020'}}
           >
             <span style={{ fontSize:'16px' }}>+</span> Ladda upp chart-bild
           </button>
         ) : (
-          <div style={{ position:'relative', borderRadius:'8px', overflow:'hidden', border:'1px solid #263840' }}>
-            <img src={imgPrev} alt="chart preview" style={{ width:'100%', display:'block', maxHeight:'220px', objectFit:'contain', background:'#060809' }} />
-            <button type="button" onClick={() => fileRef.current?.click()} style={{ position:'absolute', top:'6px', left:'6px', background:'rgba(6,8,9,0.88)', border:'1px solid #263840', borderRadius:'5px', color:'#85a4ad', fontFamily:M, fontSize:'9px', padding:'4px 8px', cursor:'pointer' }}>↻ Byt</button>
+          <div style={{ position:'relative', borderRadius:'8px', overflow:'hidden', border:'1px solid #1c2e4a' }}>
+            <img src={imgPrev} alt="chart preview" style={{ width:'100%', display:'block', maxHeight:'220px', objectFit:'contain', background:'#070a14' }} />
+            <button type="button" onClick={() => fileRef.current?.click()} style={{ position:'absolute', top:'6px', left:'6px', background:'rgba(6,8,9,0.88)', border:'1px solid #1c2e4a', borderRadius:'5px', color:'#7a96b4', fontFamily:M, fontSize:'9px', padding:'4px 8px', cursor:'pointer' }}>↻ Byt</button>
             <button type="button" onClick={clearImg} style={{ position:'absolute', top:'6px', right:'6px', background:'rgba(6,8,9,0.88)', border:'1px solid rgba(255,79,107,0.3)', borderRadius:'5px', color:'#ff4f6b', fontFamily:M, fontSize:'9px', padding:'4px 8px', cursor:'pointer' }}>✕</button>
           </div>
         )}
@@ -171,22 +171,22 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
         <span style={lbl}>RÖSTMEMO</span>
         {!audioUrl ? (
           <button type="button" onClick={recording ? stopRecording : startRecording} style={{
-            width:'100%', background: recording ? '#1a0610' : '#0d1214',
-            border: `2px ${recording ? 'solid' : 'dashed'} ${recording ? 'rgba(255,79,107,0.5)' : '#263840'}`,
-            borderRadius:'8px', color: recording ? '#ff4f6b' : '#85a4ad',
+            width:'100%', background: recording ? '#1a0610' : '#0a1020',
+            border: `2px ${recording ? 'solid' : 'dashed'} ${recording ? 'rgba(255,79,107,0.5)' : '#1c2e4a'}`,
+            borderRadius:'8px', color: recording ? '#ff4f6b' : '#7a96b4',
             fontFamily:M, fontSize:'10px', padding:'13px 14px', cursor:'pointer',
             transition:'all 0.15s', display:'flex', alignItems:'center', justifyContent:'center', gap:'8px',
           }}
-            onMouseEnter={e=>{ if(!recording){ e.currentTarget.style.borderColor='#5a7a84'; e.currentTarget.style.color='#d0e8ec' }}}
-            onMouseLeave={e=>{ if(!recording){ e.currentTarget.style.borderColor='#263840'; e.currentTarget.style.color='#85a4ad' }}}>
+            onMouseEnter={e=>{ if(!recording){ e.currentTarget.style.borderColor='#4a6888'; e.currentTarget.style.color='#dce8f5' }}}
+            onMouseLeave={e=>{ if(!recording){ e.currentTarget.style.borderColor='#1c2e4a'; e.currentTarget.style.color='#7a96b4' }}}>
             {recording
               ? <><span style={{ width:'8px', height:'8px', borderRadius:'50%', background:'#ff4f6b', display:'inline-block', flexShrink:0 }} /> Stoppa inspelning</>
               : <><span style={{ fontSize:'15px' }}>🎙</span> Spela in röstmemo</>}
           </button>
         ) : (
-          <div style={{ background:'#0d1214', border:'1px solid #263840', borderRadius:'8px', padding:'10px 12px' }}>
+          <div style={{ background:'#0a1020', border:'1px solid #1c2e4a', borderRadius:'8px', padding:'10px 12px' }}>
             <audio src={audioUrl} controls style={{ width:'100%', height:'32px', display:'block' }} />
-            <button type="button" onClick={() => setAudioUrl(null)} style={{ background:'none', border:'none', color:'#5a7a84', fontFamily:M, fontSize:'8px', cursor:'pointer', marginTop:'5px', padding:0 }}>✕ Ta bort memo</button>
+            <button type="button" onClick={() => setAudioUrl(null)} style={{ background:'none', border:'none', color:'#4a6888', fontFamily:M, fontSize:'8px', cursor:'pointer', marginTop:'5px', padding:0 }}>✕ Ta bort memo</button>
           </div>
         )}
       </div>
@@ -215,11 +215,11 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
 
       {/* Trade #2 reminder — first trade was a loss */}
       {isSecondTrade && !firstTradeWon && (
-        <div style={{ background:'#0d1214', border:'1px solid rgba(90,122,132,0.3)', borderRadius:'8px', padding:'10px 13px', display:'flex', gap:'9px', alignItems:'flex-start' }}>
+        <div style={{ background:'#0a1020', border:'1px solid rgba(90,122,132,0.3)', borderRadius:'8px', padding:'10px 13px', display:'flex', gap:'9px', alignItems:'flex-start' }}>
           <span style={{ fontSize:'14px', flexShrink:0 }}>ℹ️</span>
           <div>
-            <div style={{ fontFamily:M, fontSize:'10px', color:'#88a8ae', fontWeight:700, marginBottom:'2px' }}>TRADE #2 — KONTROLLERA</div>
-            <div style={{ fontFamily:M, fontSize:'9px', color:'#7090a0', lineHeight:1.5 }}>Samma bias? Ingen emotionell drivkraft? Max 50% risk. Annars — stanna.</div>
+            <div style={{ fontFamily:M, fontSize:'10px', color:'#7a96b4', fontWeight:700, marginBottom:'2px' }}>TRADE #2 — KONTROLLERA</div>
+            <div style={{ fontFamily:M, fontSize:'9px', color:'#5a7898', lineHeight:1.5 }}>Samma bias? Ingen emotionell drivkraft? Max 50% risk. Annars — stanna.</div>
           </div>
         </div>
       )}
@@ -238,9 +238,9 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
           {RESULTS.map(r => (
             <button type="button" key={r.v} onClick={() => { setResult(r.v); setBiasError(false) }} style={{
               fontFamily:M, fontSize:'10px', padding:'7px 11px', borderRadius:'6px',
-              background: result===r.v ? r.bg : '#0d1214',
-              border: `1px solid ${result===r.v ? r.c+'55' : '#263840'}`,
-              color: result===r.v ? r.c : '#85a4ad',
+              background: result===r.v ? r.bg : '#0a1020',
+              border: `1px solid ${result===r.v ? r.c+'55' : '#1c2e4a'}`,
+              color: result===r.v ? r.c : '#7a96b4',
               cursor:'pointer', transition:'all 0.15s',
               WebkitTapHighlightColor:'transparent',
             }}>{r.label}</button>
@@ -251,19 +251,19 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
       <div>
         <span style={lbl}>INSTRUMENT</span>
         <input value={instrument} onChange={e => setInstrument(e.target.value)} style={inp}
-          onFocus={e=>e.target.style.borderColor='#5a7a84'} onBlur={e=>e.target.style.borderColor='#263840'} />
+          onFocus={e=>e.target.style.borderColor='#4a6888'} onBlur={e=>e.target.style.borderColor='#1c2e4a'} />
       </div>
 
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px' }}>
         <div>
           <span style={lbl}>P&L ($)</span>
           <input type="number" inputMode="decimal" value={pnl} onChange={e => setPnl(e.target.value)} placeholder="450" style={inp}
-            onFocus={e=>e.target.style.borderColor='#5a7a84'} onBlur={e=>e.target.style.borderColor='#263840'} />
+            onFocus={e=>e.target.style.borderColor='#4a6888'} onBlur={e=>e.target.style.borderColor='#1c2e4a'} />
         </div>
         <div>
           <span style={lbl}>SETUP</span>
           <input value={setup} onChange={e => setSetup(e.target.value)} placeholder="BTB" style={inp}
-            onFocus={e=>e.target.style.borderColor='#5a7a84'} onBlur={e=>e.target.style.borderColor='#263840'} />
+            onFocus={e=>e.target.style.borderColor='#4a6888'} onBlur={e=>e.target.style.borderColor='#1c2e4a'} />
         </div>
       </div>
 
@@ -273,9 +273,9 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
           {[1,2,3,4,5,6,7,8,9,10].map(n => (
             <button type="button" key={n} onClick={() => setEmotion(String(n))} style={{
               flex:1, padding:'8px 0', borderRadius:'5px',
-              border:`1px solid ${emotion===String(n)?'#007d5e':'#263840'}`,
-              background:emotion===String(n)?'#001810':'#161e24',
-              color:emotion===String(n)?'#00e5b0':'#85a4ad',
+              border:`1px solid ${emotion===String(n)?'#007d5e':'#1c2e4a'}`,
+              background:emotion===String(n)?'#001810':'#0f1828',
+              color:emotion===String(n)?'#00e5b0':'#7a96b4',
               fontFamily:M, fontSize:'11px', cursor:'pointer', transition:'all 0.15s',
             }}>{n}</button>
           ))}
@@ -290,8 +290,8 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
             return (
               <button type="button" key={tag.id} onClick={() => toggleTag(tag.id)} style={{
                 fontFamily:M, fontSize:'9px', padding:'5px 10px', borderRadius:'5px',
-                background:a?tag.bg:'#161e24', border:`1px solid ${a?tag.c+'33':'#1e2c32'}`,
-                color:a?tag.c:'#85a4ad', cursor:'pointer', transition:'all 0.15s',
+                background:a?tag.bg:'#0f1828', border:`1px solid ${a?tag.c+'33':'#162340'}`,
+                color:a?tag.c:'#7a96b4', cursor:'pointer', transition:'all 0.15s',
               }}>{tag.label}</button>
             )
           })}
@@ -302,7 +302,7 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
         <span style={lbl}>NOTES</span>
         <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Analys, tankar..."
           style={{...inp, resize:'vertical', minHeight:'140px', lineHeight:1.7, fontSize:'14px'}}
-          onFocus={e=>e.target.style.borderColor='#5a7a84'} onBlur={e=>e.target.style.borderColor='#263840'} />
+          onFocus={e=>e.target.style.borderColor='#4a6888'} onBlur={e=>e.target.style.borderColor='#1c2e4a'} />
       </div>
 
       {/* Pre-trade checklist — only for real trades */}
@@ -336,22 +336,22 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
           onClick={save}
           disabled={isSecondTrade && firstTradeWon}
           style={{
-            flex:1, background: (isSecondTrade && firstTradeWon) ? '#1a1000' : '#00e5b0',
-            color: (isSecondTrade && firstTradeWon) ? '#5a4020' : '#020f08',
+            flex:1, background: (isSecondTrade && firstTradeWon) ? '#1a1000' : '#f59e0b',
+            color: (isSecondTrade && firstTradeWon) ? '#5a4020' : '#0a0700',
             fontFamily:M, fontSize:'11px', fontWeight:700, padding:'12px',
             borderRadius:'8px', border:'none',
             cursor: (isSecondTrade && firstTradeWon) ? 'not-allowed' : 'pointer',
             letterSpacing:'1px', transition:'background 0.15s',
             opacity: (isSecondTrade && firstTradeWon) ? 0.5 : 1,
           }}
-          onMouseEnter={e=>{ if(!(isSecondTrade && firstTradeWon)) e.currentTarget.style.background='#00c49a' }}
-          onMouseLeave={e=>{ if(!(isSecondTrade && firstTradeWon)) e.currentTarget.style.background='#00e5b0' }}
+          onMouseEnter={e=>{ if(!(isSecondTrade && firstTradeWon)) e.currentTarget.style.background='#d97706' }}
+          onMouseLeave={e=>{ if(!(isSecondTrade && firstTradeWon)) e.currentTarget.style.background='#f59e0b' }}
         >
           {(isSecondTrade && firstTradeWon) ? 'STANNA FÖR DAGEN' : 'SPARA'}
         </button>
-        <button type="button" onClick={onCancel} style={{ background:'transparent', color:'#85a4ad', fontFamily:M, fontSize:'10px', padding:'12px 14px', borderRadius:'8px', border:'1px solid #1e2c32', cursor:'pointer', transition:'all 0.15s' }}
-          onMouseEnter={e=>{e.currentTarget.style.borderColor='#5a7a84';e.currentTarget.style.color='#8aacb4'}}
-          onMouseLeave={e=>{e.currentTarget.style.borderColor='#1e2c32';e.currentTarget.style.color='#85a4ad'}}>Avbryt</button>
+        <button type="button" onClick={onCancel} style={{ background:'transparent', color:'#7a96b4', fontFamily:M, fontSize:'10px', padding:'12px 14px', borderRadius:'8px', border:'1px solid #162340', cursor:'pointer', transition:'all 0.15s' }}
+          onMouseEnter={e=>{e.currentTarget.style.borderColor='#4a6888';e.currentTarget.style.color='#8aacb4'}}
+          onMouseLeave={e=>{e.currentTarget.style.borderColor='#162340';e.currentTarget.style.color='#7a96b4'}}>Avbryt</button>
       </div>
     </div>
   )
@@ -420,10 +420,10 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
 
   function card(label, value, color, sub) {
     return (
-      <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', padding:'14px 16px' }}>
-        <div style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'2px', marginBottom:'6px' }}>{label}</div>
+      <div style={{ background:'#0c1422', border:'1px solid #162340', borderRadius:'12px', padding:'14px 16px' }}>
+        <div style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4', letterSpacing:'2px', marginBottom:'6px' }}>{label}</div>
         <div style={{ fontFamily:M, fontSize:'24px', fontWeight:700, color, lineHeight:1 }}>{value}</div>
-        {sub && <div style={{ fontFamily:M, fontSize:'9px', color:'#85a4ad', marginTop:'4px' }}>{sub}</div>}
+        {sub && <div style={{ fontFamily:M, fontSize:'9px', color:'#7a96b4', marginTop:'4px' }}>{sub}</div>}
       </div>
     )
   }
@@ -460,30 +460,30 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
         {card('WIN RATE',    `${winRate}%`,                                      '#00e5b0', `${trades.length} trades`)}
         {card('TOTALT P&L',  `${totalPnl>=0?'+':''}$${Math.round(totalPnl)}`,   totalPnl>=0?'#00e5b0':'#ff4f6b')}
         {card('DENNA VECKA', `${weekPnl>=0?'+':''}$${Math.round(weekPnl)}`,     weekPnl>=0?'#00e5b0':'#ff4f6b')}
-        {card('STREAK',      `${streak}d`,                                       streak>=5?'#00e5b0':streak>=2?'#ffc030':'#85a4ad')}
+        {card('STREAK',      `${streak}d`,                                       streak>=5?'#00e5b0':streak>=2?'#ffc030':'#7a96b4')}
       </div>
 
       {/* Daily P&L goal */}
       {(() => {
         const pct   = dailyGoal > 0 ? Math.min(Math.max(todayPnl / dailyGoal * 100, 0), 100) : 0
         const ahead = dailyGoal > 0 && todayPnl >= dailyGoal
-        const goalC = ahead ? '#00e5b0' : todayPnl > 0 ? '#ffc030' : '#85a4ad'
+        const goalC = ahead ? '#00e5b0' : todayPnl > 0 ? '#ffc030' : '#7a96b4'
         return (
-          <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', padding:'12px 14px' }}>
+          <div style={{ background:'#0c1422', border:'1px solid #162340', borderRadius:'12px', padding:'12px 14px' }}>
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'8px' }}>
-              <span style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'2px' }}>DAGSMÅL</span>
+              <span style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4', letterSpacing:'2px' }}>DAGSMÅL</span>
               {!editGoal ? (
                 <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
                   <span style={{ fontFamily:M, fontSize:'11px', fontWeight:700, color:goalC }}>
                     {todayPnl >= 0 ? '+' : ''}${Math.round(todayPnl)}{dailyGoal > 0 ? ` / $${dailyGoal}` : ''}
                   </span>
-                  <button type="button" onClick={() => { setGoalInput(String(dailyGoal || '')); setEditGoal(true) }} style={{ background:'none', border:'1px solid #1e2c32', borderRadius:'4px', color:'#85a4ad', fontFamily:M, fontSize:'8px', padding:'2px 7px', cursor:'pointer' }}>
+                  <button type="button" onClick={() => { setGoalInput(String(dailyGoal || '')); setEditGoal(true) }} style={{ background:'none', border:'1px solid #162340', borderRadius:'4px', color:'#7a96b4', fontFamily:M, fontSize:'8px', padding:'2px 7px', cursor:'pointer' }}>
                     {dailyGoal > 0 ? '✎' : '+ Sätt mål'}
                   </button>
                 </div>
               ) : (
                 <div style={{ display:'flex', alignItems:'center', gap:'5px' }}>
-                  <span style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad' }}>$</span>
+                  <span style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4' }}>$</span>
                   <input
                     autoFocus
                     type="number"
@@ -499,30 +499,30 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
                       if (e.key === 'Escape') setEditGoal(false)
                     }}
                     placeholder="500"
-                    style={{ width:'70px', background:'#0a0e10', border:'1px solid #5a7a84', borderRadius:'5px', color:'#d0e8ec', fontFamily:M, fontSize:'11px', padding:'3px 7px', outline:'none' }}
+                    style={{ width:'70px', background:'#08101c', border:'1px solid #4a6888', borderRadius:'5px', color:'#dce8f5', fontFamily:M, fontSize:'11px', padding:'3px 7px', outline:'none' }}
                   />
                   <button type="button" onClick={() => { const v=parseInt(goalInput)||0; setDailyGoal(v); localStorage.setItem('trading-daily-goal',String(v)); setEditGoal(false) }} style={{ background:'#00e5b0', border:'none', borderRadius:'4px', color:'#020f08', fontFamily:M, fontSize:'8px', padding:'3px 8px', cursor:'pointer', fontWeight:700 }}>OK</button>
-                  <button type="button" onClick={() => setEditGoal(false)} style={{ background:'none', border:'1px solid #1e2c32', borderRadius:'4px', color:'#85a4ad', fontFamily:M, fontSize:'8px', padding:'3px 7px', cursor:'pointer' }}>✕</button>
+                  <button type="button" onClick={() => setEditGoal(false)} style={{ background:'none', border:'1px solid #162340', borderRadius:'4px', color:'#7a96b4', fontFamily:M, fontSize:'8px', padding:'3px 7px', cursor:'pointer' }}>✕</button>
                 </div>
               )}
             </div>
             {dailyGoal > 0 && (
-              <div style={{ height:'5px', background:'#0d1214', borderRadius:'3px', overflow:'hidden' }}>
+              <div style={{ height:'5px', background:'#0a1020', borderRadius:'3px', overflow:'hidden' }}>
                 <div style={{ height:'100%', width:`${pct}%`, background: ahead ? '#00e5b0' : '#ffc030', borderRadius:'3px', transition:'width 0.4s ease' }} />
               </div>
             )}
             {!dailyGoal && (
-              <div style={{ fontFamily:M, fontSize:'9px', color:'#4a6470' }}>Inget mål satt — tryck "+ Sätt mål"</div>
+              <div style={{ fontFamily:M, fontSize:'9px', color:'#3a5878' }}>Inget mål satt — tryck "+ Sätt mål"</div>
             )}
           </div>
         )
       })()}
 
       {/* Bias */}
-      <div style={{ background:'#111820', border:`1px solid ${curBias?curBias.bdr:'#1e2c32'}`, borderRadius:'12px', padding:'12px 14px', transition:'border-color 0.2s' }}>
+      <div style={{ background:'#0c1422', border:`1px solid ${curBias?curBias.bdr:'#162340'}`, borderRadius:'12px', padding:'12px 14px', transition:'border-color 0.2s' }}>
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'9px' }}>
           <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
-            <span style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'2px' }}>DAGLIG BIAS</span>
+            <span style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4', letterSpacing:'2px' }}>DAGLIG BIAS</span>
             {!todayBias && (
               <span style={{ fontFamily:M, fontSize:'8px', color:'#ffc030', background:'#1a1000', border:'1px solid rgba(255,192,48,0.25)', borderRadius:'4px', padding:'1px 6px', letterSpacing:'0.5px' }}>
                 OBLIGATORISK
@@ -534,9 +534,9 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
         <div style={{ display:'flex', gap:'6px' }}>
           {BIAS.map(b => (
             <button type="button" key={b.v} onClick={() => onSaveBias?.(today, todayBias===b.v?null:b.v)} style={{
-              flex:1, minHeight:'36px', background:todayBias===b.v?b.bg:'#0d1214',
-              border:`1px solid ${todayBias===b.v?b.bdr:'#1e2c32'}`,
-              borderRadius:'8px', color:todayBias===b.v?b.c:'#85a4ad',
+              flex:1, minHeight:'36px', background:todayBias===b.v?b.bg:'#0a1020',
+              border:`1px solid ${todayBias===b.v?b.bdr:'#162340'}`,
+              borderRadius:'8px', color:todayBias===b.v?b.c:'#7a96b4',
               fontFamily:M, fontSize:'11px', cursor:'pointer', transition:'all 0.15s',
             }}>{b.label}</button>
           ))}
@@ -544,15 +544,15 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
       </div>
 
       {/* Today's trades */}
-      <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', padding:'14px' }}>
+      <div style={{ background:'#0c1422', border:'1px solid #162340', borderRadius:'12px', padding:'14px' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:todayTrades.length>0||showForm?'12px':'0' }}>
           <div style={{ display:'flex', alignItems:'center', gap:'10px', flexWrap:'wrap' }}>
             <div>
-              <div style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'2px', marginBottom:'2px' }}>DAGENS TRADES</div>
-              <div style={{ fontSize:'11px', color:'#85a4ad' }}>{new Date().toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'})}</div>
+              <div style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4', letterSpacing:'2px', marginBottom:'2px' }}>DAGENS TRADES</div>
+              <div style={{ fontSize:'11px', color:'#7a96b4' }}>{new Date().toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'})}</div>
             </div>
             {timerStr && (
-              <div style={{ display:'flex', alignItems:'center', gap:'5px', background:'#0d1214', border:`1px solid ${isOpen?'rgba(0,229,176,0.2)':'#1e2c32'}`, borderRadius:'6px', padding:'4px 9px' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:'5px', background:'#0a1020', border:`1px solid ${isOpen?'rgba(0,229,176,0.2)':'#162340'}`, borderRadius:'6px', padding:'4px 9px' }}>
                 <div style={{ width:'5px', height:'5px', borderRadius:'50%', background:isOpen?'#00e5b0':'#ffc030' }} />
                 <span style={{ fontFamily:M, fontSize:'8px', color:isOpen?'#00e5b0':'#ffc030' }}>
                   {isOpen ? 'STÄNGER' : 'ÖPPNAR'} {timerStr}
@@ -561,9 +561,9 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
             )}
             {/* After window — show closed */}
             {!isOpen && !isPre && (
-              <div style={{ display:'flex', alignItems:'center', gap:'5px', background:'#0d1214', border:'1px solid #1e2c32', borderRadius:'6px', padding:'4px 9px' }}>
-                <div style={{ width:'5px', height:'5px', borderRadius:'50%', background:'#4a6470' }} />
-                <span style={{ fontFamily:M, fontSize:'8px', color:'#5a7a84' }}>SESSION STÄNGD</span>
+              <div style={{ display:'flex', alignItems:'center', gap:'5px', background:'#0a1020', border:'1px solid #162340', borderRadius:'6px', padding:'4px 9px' }}>
+                <div style={{ width:'5px', height:'5px', borderRadius:'50%', background:'#3a5878' }} />
+                <span style={{ fontFamily:M, fontSize:'8px', color:'#4a6888' }}>SESSION STÄNGD</span>
               </div>
             )}
           </div>
@@ -572,23 +572,23 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
             onClick={() => setShowForm(!showForm)}
             disabled={isLockedOut}
             style={{
-              background: isLockedOut ? '#1a0610' : '#00e5b0',
-              color: isLockedOut ? '#5a3040' : '#020f08',
+              background: isLockedOut ? '#1a0610' : '#f59e0b',
+              color: isLockedOut ? '#5a3040' : '#0a0700',
               fontFamily:M, fontSize:'10px', fontWeight:700,
               padding:'8px 14px', borderRadius:'8px', border:'none',
               cursor: isLockedOut ? 'not-allowed' : 'pointer',
               letterSpacing:'1px', flexShrink:0, transition:'background 0.15s',
               opacity: isLockedOut ? 0.5 : 1,
             }}
-            onMouseEnter={e=>{ if(!isLockedOut) e.currentTarget.style.background='#00c49a' }}
-            onMouseLeave={e=>{ if(!isLockedOut) e.currentTarget.style.background='#00e5b0' }}
+            onMouseEnter={e=>{ if(!isLockedOut) e.currentTarget.style.background='#d97706' }}
+            onMouseLeave={e=>{ if(!isLockedOut) e.currentTarget.style.background='#f59e0b' }}
           >
             {isLockedOut ? '🔒 LOCKOUT' : '+ LOG'}
           </button>
         </div>
 
         {todayTrades.length===0 && !showForm && (
-          <div style={{ fontFamily:M, fontSize:'11px', color:'#4a6470' }}>Inga trades loggade idag</div>
+          <div style={{ fontFamily:M, fontSize:'11px', color:'#3a5878' }}>Inga trades loggade idag</div>
         )}
 
         {todayTrades.map((t, i) => {
@@ -597,22 +597,22 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
           const ec  = em<=3?'#00e5b0':em>=7?'#ff4f6b':'#ffc030'
           const isEx = expanded===i
           const isEd = editing===i
-          const bdr  = ['win','win2','tp1','tp2','tp3'].includes(t.result)?'rgba(0,229,176,0.18)':t.result==='loss'?'rgba(255,79,107,0.18)':'#1e2c32'
+          const bdr  = ['win','win2','tp1','tp2','tp3'].includes(t.result)?'rgba(0,229,176,0.18)':t.result==='loss'?'rgba(255,79,107,0.18)':'#162340'
           const ji   = journal.findIndex(j => j === t)
 
           return (
-            <div key={i} style={{ marginBottom:'6px', background:'#0d1214', border:`1px solid ${bdr}`, borderRadius:'9px', overflow:'hidden', transition:'border-color 0.15s' }}>
+            <div key={i} style={{ marginBottom:'6px', background:'#0a1020', border:`1px solid ${bdr}`, borderRadius:'9px', overflow:'hidden', transition:'border-color 0.15s' }}>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 12px' }}>
                 <div onClick={() => { setExpanded(isEx?null:i); setEditing(null) }} style={{ display:'flex', gap:'6px', alignItems:'center', flexWrap:'wrap', cursor:'pointer', flex:1 }}>
-                  <span style={{ fontFamily:M, fontSize:'9px', color:'#88a8ae', background:'#161e24', border:'1px solid #1e2c32', borderRadius:'4px', padding:'2px 7px' }}>{t.instrument}</span>
-                  <span style={{ fontFamily:M, fontSize:'9px', padding:'2px 8px', borderRadius:'4px', background:RB[t.result]||'#111', color:RC[t.result]||'#88a8ae', fontWeight:600 }}>{RL[t.result]||t.result}</span>
-                  {t.setup && <span style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', background:'#161e24', border:'1px solid #1e2c32', borderRadius:'4px', padding:'2px 6px' }}>{t.setup}</span>}
+                  <span style={{ fontFamily:M, fontSize:'9px', color:'#7a96b4', background:'#0f1828', border:'1px solid #162340', borderRadius:'4px', padding:'2px 7px' }}>{t.instrument}</span>
+                  <span style={{ fontFamily:M, fontSize:'9px', padding:'2px 8px', borderRadius:'4px', background:RB[t.result]||'#111', color:RC[t.result]||'#7a96b4', fontWeight:600 }}>{RL[t.result]||t.result}</span>
+                  {t.setup && <span style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4', background:'#0f1828', border:'1px solid #162340', borderRadius:'4px', padding:'2px 6px' }}>{t.setup}</span>}
                   {t.checklistViolation && <span style={{ fontFamily:M, fontSize:'7px', color:'#ff4f6b', background:'#1a0610', border:'1px solid rgba(255,79,107,0.25)', borderRadius:'4px', padding:'2px 6px', letterSpacing:'0.5px' }}>RULE VIOLATION</span>}
                 </div>
                 <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
                   <span style={{ fontFamily:M, fontSize:'15px', fontWeight:700, color:pv>=0?'#00e5b0':'#ff4f6b' }}>{pv>=0?'+':''}${Math.abs(Math.round(pv))}</span>
-                  <button type="button" onClick={() => { setEditing(isEd?null:i); setExpanded(null) }} style={{ background:isEd?'#263840':'none', border:`1px solid ${isEd?'#5a7a84':'#1e2c32'}`, borderRadius:'5px', color:isEd?'#d0e8ec':'#85a4ad', fontFamily:M, fontSize:'8px', padding:'3px 8px', cursor:'pointer', transition:'all 0.15s', letterSpacing:'0.5px' }}>✎</button>
-                  <span onClick={() => { setExpanded(isEx?null:i); setEditing(null) }} style={{ color:'#5a7a84', fontSize:'9px', cursor:'pointer', transition:'transform 0.2s', display:'inline-block', transform:isEx?'rotate(180deg)':'none' }}>▼</span>
+                  <button type="button" onClick={() => { setEditing(isEd?null:i); setExpanded(null) }} style={{ background:isEd?'#1c2e4a':'none', border:`1px solid ${isEd?'#4a6888':'#162340'}`, borderRadius:'5px', color:isEd?'#dce8f5':'#7a96b4', fontFamily:M, fontSize:'8px', padding:'3px 8px', cursor:'pointer', transition:'all 0.15s', letterSpacing:'0.5px' }}>✎</button>
+                  <span onClick={() => { setExpanded(isEx?null:i); setEditing(null) }} style={{ color:'#4a6888', fontSize:'9px', cursor:'pointer', transition:'transform 0.2s', display:'inline-block', transform:isEx?'rotate(180deg)':'none' }}>▼</span>
                 </div>
               </div>
 
@@ -634,7 +634,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
               )}
 
               {isEx && !isEd && (
-                <div style={{ borderTop:'1px solid #161e24' }}>
+                <div style={{ borderTop:'1px solid #0f1828' }}>
                   {t.violatedRules?.length > 0 && (
                     <div style={{ padding:'8px 12px 4px', display:'flex', flexWrap:'wrap', gap:'4px' }}>
                       {t.violatedRules.map(rId => {
@@ -647,21 +647,21 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
                   )}
                   {t.image && (
                     <div style={{ padding:'10px 10px 0' }}>
-                      <img src={t.image} alt="chart" onClick={() => setZoomImage(t.image)} style={{ width:'100%', borderRadius:'6px', display:'block', maxHeight:'280px', objectFit:'contain', background:'#060809', cursor:'zoom-in' }} />
+                      <img src={t.image} alt="chart" onClick={() => setZoomImage(t.image)} style={{ width:'100%', borderRadius:'6px', display:'block', maxHeight:'280px', objectFit:'contain', background:'#070a14', cursor:'zoom-in' }} />
                     </div>
                   )}
                   {t.audio && (
                     <div style={{ padding:'10px 12px 0' }}>
-                      <div style={{ fontFamily:M, fontSize:'7px', color:'#85a4ad', letterSpacing:'1px', marginBottom:'5px' }}>RÖSTMEMO</div>
+                      <div style={{ fontFamily:M, fontSize:'7px', color:'#7a96b4', letterSpacing:'1px', marginBottom:'5px' }}>RÖSTMEMO</div>
                       <audio src={t.audio} controls style={{ width:'100%', height:'32px', display:'block' }} />
                     </div>
                   )}
                   {em>0 && (
                     <div style={{ padding:'8px 12px', display:'flex', alignItems:'center', gap:'8px' }}>
-                      <span style={{ fontFamily:M, fontSize:'7px', color:'#85a4ad', letterSpacing:'1px', flexShrink:0 }}>EMOTION</span>
+                      <span style={{ fontFamily:M, fontSize:'7px', color:'#7a96b4', letterSpacing:'1px', flexShrink:0 }}>EMOTION</span>
                       <div style={{ display:'flex', gap:'2px', flex:1 }}>
                         {[1,2,3,4,5,6,7,8,9,10].map(n=>(
-                          <div key={n} style={{ flex:1, height:'3px', borderRadius:'2px', background:n<=em?ec:'#1e2c32' }} />
+                          <div key={n} style={{ flex:1, height:'3px', borderRadius:'2px', background:n<=em?ec:'#162340' }} />
                         ))}
                       </div>
                       <span style={{ fontFamily:M, fontSize:'9px', color:ec, flexShrink:0 }}>{em}/10</span>
@@ -676,9 +676,9 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
                     </div>
                   )}
                   {t.note && (
-                    <div style={{ padding:'8px 12px', borderTop:'1px solid #161e24' }}>
-                      <div style={{ fontFamily:M, fontSize:'7px', color:'#85a4ad', letterSpacing:'1px', marginBottom:'5px' }}>NOTES</div>
-                      <div style={{ fontSize:'12px', color:'#88a8ae', lineHeight:1.7, whiteSpace:'pre-wrap', wordBreak:'break-word', borderLeft:'2px solid #1e2c32', paddingLeft:'10px' }}>{t.note}</div>
+                    <div style={{ padding:'8px 12px', borderTop:'1px solid #0f1828' }}>
+                      <div style={{ fontFamily:M, fontSize:'7px', color:'#7a96b4', letterSpacing:'1px', marginBottom:'5px' }}>NOTES</div>
+                      <div style={{ fontSize:'12px', color:'#7a96b4', lineHeight:1.7, whiteSpace:'pre-wrap', wordBreak:'break-word', borderLeft:'2px solid #162340', paddingLeft:'10px' }}>{t.note}</div>
                     </div>
                   )}
                 </div>
@@ -689,7 +689,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
 
         {todayTrades.filter(t => REAL_RESULTS.has(t.result)).length > 0 && (
           <div style={{ display:'flex', justifyContent:'flex-end', marginTop:'6px', gap:'4px' }}>
-            <span style={{ fontFamily:M, fontSize:'10px', color:'#85a4ad' }}>Idag:</span>
+            <span style={{ fontFamily:M, fontSize:'10px', color:'#7a96b4' }}>Idag:</span>
             <span style={{ fontFamily:M, fontSize:'10px', fontWeight:700, color:todayPnl>=0?'#00e5b0':'#ff4f6b' }}>{todayPnl>=0?'+':''}${Math.round(todayPnl)}</span>
           </div>
         )}
@@ -715,7 +715,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
       {zoomImage && (
         <div onClick={() => setZoomImage(null)} style={{ position:'fixed', inset:0, zIndex:999, background:'rgba(0,0,0,0.92)', display:'flex', alignItems:'center', justifyContent:'center', padding:'20px', cursor:'zoom-out' }}>
           <img src={zoomImage} alt="chart fullscreen" style={{ maxWidth:'100%', maxHeight:'100%', borderRadius:'8px', objectFit:'contain' }} />
-          <button type="button" onClick={() => setZoomImage(null)} style={{ position:'fixed', top:'16px', right:'16px', background:'rgba(6,8,9,0.9)', border:'1px solid #263840', borderRadius:'8px', color:'#85a4ad', fontFamily:M, fontSize:'13px', padding:'6px 12px', cursor:'pointer' }}>✕</button>
+          <button type="button" onClick={() => setZoomImage(null)} style={{ position:'fixed', top:'16px', right:'16px', background:'rgba(6,8,9,0.9)', border:'1px solid #1c2e4a', borderRadius:'8px', color:'#7a96b4', fontFamily:M, fontSize:'13px', padding:'6px 12px', cursor:'pointer' }}>✕</button>
         </div>
       )}
     </div>

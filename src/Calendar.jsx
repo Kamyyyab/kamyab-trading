@@ -25,13 +25,13 @@ const PSYCH = [
 
 const WIN_RESULTS = new Set(['win','win2','tp1','tp2','tp3'])
 
-const RBG  = { win:'#001810', win2:'#001810', tp1:'#001410', tp2:'#001810', tp3:'#001a14', loss:'#1a0610', be:'#111820', skip:'#111820', 'no-setup':'#111820' }
-const RBDR = { win:'rgba(0,229,176,0.2)', win2:'rgba(0,229,176,0.2)', tp1:'rgba(0,229,176,0.15)', tp2:'rgba(0,229,176,0.2)', tp3:'rgba(0,229,176,0.2)', loss:'rgba(255,79,107,0.2)', be:'rgba(106,138,144,0.15)', skip:'#1e2c32', 'no-setup':'#1e2c32' }
-const RC   = { win:'#00e5b0', win2:'#00e5b0', tp1:'#4ab89a', tp2:'#00e5b0', tp3:'#00e5b0', loss:'#ff4f6b', be:'#88a8ae', skip:'#85a4ad', 'no-setup':'#85a4ad' }
+const RBG  = { win:'#001810', win2:'#001810', tp1:'#001410', tp2:'#001810', tp3:'#001a14', loss:'#1a0610', be:'#0c1422', skip:'#0c1422', 'no-setup':'#0c1422' }
+const RBDR = { win:'rgba(0,229,176,0.2)', win2:'rgba(0,229,176,0.2)', tp1:'rgba(0,229,176,0.15)', tp2:'rgba(0,229,176,0.2)', tp3:'rgba(0,229,176,0.2)', loss:'rgba(255,79,107,0.2)', be:'rgba(106,138,144,0.15)', skip:'#162340', 'no-setup':'#162340' }
+const RC   = { win:'#00e5b0', win2:'#00e5b0', tp1:'#4ab89a', tp2:'#00e5b0', tp3:'#00e5b0', loss:'#ff4f6b', be:'#7a96b4', skip:'#7a96b4', 'no-setup':'#7a96b4' }
 const RL   = { win:'Win +3R', win2:'Win +2R', tp1:'TP1', tp2:'TP2', tp3:'TP3', loss:'Loss −1R', be:'BE', skip:'Skip', 'no-setup':'N/A' }
 
-const inp = { width:'100%', background:'#080b0c', border:'1px solid #263840', borderRadius:'8px', color:'#d0e8ec', fontSize:'15px', padding:'11px 13px', outline:'none', boxSizing:'border-box', transition:'border-color 0.15s', fontFamily:'inherit' }
-const lbl = { fontFamily:M, fontSize:'9px', color:'#85a4ad', letterSpacing:'1.5px', marginBottom:'6px', display:'block', fontWeight:600 }
+const inp = { width:'100%', background:'#080b0c', border:'1px solid #1c2e4a', borderRadius:'8px', color:'#dce8f5', fontSize:'15px', padding:'11px 13px', outline:'none', boxSizing:'border-box', transition:'border-color 0.15s', fontFamily:'inherit' }
+const lbl = { fontFamily:M, fontSize:'9px', color:'#7a96b4', letterSpacing:'1.5px', marginBottom:'6px', display:'block', fontWeight:600 }
 
 // ── EditForm ────────────────────────────────────────────────
 function EditForm({ initial = {}, onSave, onCancel }) {
@@ -87,9 +87,9 @@ function EditForm({ initial = {}, onSave, onCancel }) {
     { v:'tp2',  l:'TP2',      c:'#00e5b0', bg:'#001810' },
     { v:'tp3',  l:'TP3',      c:'#00e5b0', bg:'#001a14' },
     { v:'loss', l:'Loss −1R', c:'#ff4f6b', bg:'#1a0610' },
-    { v:'be',   l:'BE',       c:'#88a8ae', bg:'#111820' },
-    { v:'skip', l:'Skip',     c:'#85a4ad', bg:'#111820' },
-    { v:'no-setup', l:'No Setup', c:'#85a4ad', bg:'#111820' },
+    { v:'be',   l:'BE',       c:'#7a96b4', bg:'#0c1422' },
+    { v:'skip', l:'Skip',     c:'#7a96b4', bg:'#0c1422' },
+    { v:'no-setup', l:'No Setup', c:'#7a96b4', bg:'#0c1422' },
   ]
 
   return (
@@ -101,24 +101,24 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         <input ref={fileRef} type="file" accept="image/*" onChange={handleImg} style={{ display:'none' }} />
         {!imgPrev ? (
           <button type="button" onClick={() => fileRef.current?.click()} style={{
-            width:'100%', background:'#080b0c', border:'2px dashed #263840', borderRadius:'10px',
-            color:'#85a4ad', fontFamily:M, fontSize:'11px', padding:'28px 14px', cursor:'pointer',
+            width:'100%', background:'#080b0c', border:'2px dashed #1c2e4a', borderRadius:'10px',
+            color:'#7a96b4', fontFamily:M, fontSize:'11px', padding:'28px 14px', cursor:'pointer',
             transition:'all 0.2s', letterSpacing:'0.5px', display:'flex', flexDirection:'column',
             alignItems:'center', gap:'6px', fontWeight:600,
           }}
             onMouseEnter={e=>{e.currentTarget.style.borderColor='#00e5b0';e.currentTarget.style.color='#00e5b0';e.currentTarget.style.background='#001810'}}
-            onMouseLeave={e=>{e.currentTarget.style.borderColor='#263840';e.currentTarget.style.color='#85a4ad';e.currentTarget.style.background='#080b0c'}}
+            onMouseLeave={e=>{e.currentTarget.style.borderColor='#1c2e4a';e.currentTarget.style.color='#7a96b4';e.currentTarget.style.background='#080b0c'}}
           >
             <span style={{ fontSize:'22px' }}>+</span>
             <span>Ladda upp chart-bild</span>
-            <span style={{ fontSize:'9px', color:'#5a7a84', fontWeight:400 }}>PNG, JPG, GIF</span>
+            <span style={{ fontSize:'9px', color:'#4a6888', fontWeight:400 }}>PNG, JPG, GIF</span>
           </button>
         ) : (
-          <div style={{ position:'relative', borderRadius:'10px', overflow:'hidden', border:'1px solid #263840' }}>
+          <div style={{ position:'relative', borderRadius:'10px', overflow:'hidden', border:'1px solid #1c2e4a' }}>
             <img src={imgPrev} alt="preview" style={{ width:'100%', display:'block', maxHeight:'320px', objectFit:'contain', background:'#080b0c' }} />
             <button type="button" onClick={() => fileRef.current?.click()} style={{
               position:'absolute', top:'8px', left:'8px', background:'rgba(6,8,9,0.9)',
-              border:'1px solid #263840', borderRadius:'6px', color:'#85a4ad',
+              border:'1px solid #1c2e4a', borderRadius:'6px', color:'#7a96b4',
               fontFamily:M, fontSize:'10px', padding:'5px 10px', cursor:'pointer', backdropFilter:'blur(8px)',
             }}>↻ Byt</button>
             <button type="button" onClick={clearImg} style={{
@@ -138,9 +138,9 @@ function EditForm({ initial = {}, onSave, onCancel }) {
             const active = result===o.v
             return (
               <button key={o.v} type="button" onClick={() => setResult(o.v)} style={{
-                background: active?o.bg:'#0d1214',
-                border:`1px solid ${active?o.c+'66':'#1e2c32'}`,
-                color: active?o.c:'#85a4ad',
+                background: active?o.bg:'#0a1020',
+                border:`1px solid ${active?o.c+'66':'#162340'}`,
+                color: active?o.c:'#7a96b4',
                 fontFamily:M, fontSize:'10px', fontWeight:active?700:500,
                 padding:'10px 6px', borderRadius:'7px', cursor:'pointer',
                 transition:'all 0.15s', letterSpacing:'0.5px',
@@ -173,9 +173,9 @@ function EditForm({ initial = {}, onSave, onCancel }) {
           {[1,2,3,4,5,6,7,8,9,10].map(n => (
             <button key={n} type="button" onClick={() => setEmotion(String(n))} style={{
               flex:1, padding:'10px 0', borderRadius:'6px',
-              border:`1px solid ${emotion===String(n)?'#007d5e':'#263840'}`,
-              background:emotion===String(n)?'#001810':'#0d1214',
-              color:emotion===String(n)?'#00e5b0':'#85a4ad',
+              border:`1px solid ${emotion===String(n)?'#007d5e':'#1c2e4a'}`,
+              background:emotion===String(n)?'#001810':'#0a1020',
+              color:emotion===String(n)?'#00e5b0':'#7a96b4',
               fontFamily:M, fontSize:'12px', fontWeight:emotion===String(n)?700:500,
               cursor:'pointer', transition:'all 0.15s',
             }}>{n}</button>
@@ -191,9 +191,9 @@ function EditForm({ initial = {}, onSave, onCancel }) {
             const a = tags.includes(tag.id)
             return <button key={tag.id} type="button" onClick={() => toggle(tag.id)} style={{
               fontFamily:M, fontSize:'10px', padding:'7px 12px', borderRadius:'6px',
-              background:a?tag.bg:'#0d1214',
-              border:`1px solid ${a?tag.c+'55':'#1e2c32'}`,
-              color:a?tag.c:'#85a4ad', cursor:'pointer', transition:'all 0.15s',
+              background:a?tag.bg:'#0a1020',
+              border:`1px solid ${a?tag.c+'55':'#162340'}`,
+              color:a?tag.c:'#7a96b4', cursor:'pointer', transition:'all 0.15s',
               fontWeight:a?600:500,
             }}>{tag.label}</button>
           })}
@@ -213,8 +213,8 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         {!audioUrl ? (
           <button type="button" onClick={recording ? stopRecording : startRecording} style={{
             width:'100%', background:recording?'#1a0610':'#080b0c',
-            border:`2px ${recording?'solid':'dashed'} ${recording?'rgba(255,79,107,0.5)':'#263840'}`,
-            borderRadius:'8px', color:recording?'#ff4f6b':'#85a4ad',
+            border:`2px ${recording?'solid':'dashed'} ${recording?'rgba(255,79,107,0.5)':'#1c2e4a'}`,
+            borderRadius:'8px', color:recording?'#ff4f6b':'#7a96b4',
             fontFamily:M, fontSize:'11px', padding:'13px 14px', cursor:'pointer',
             transition:'all 0.15s', display:'flex', alignItems:'center', justifyContent:'center', gap:'8px',
           }}>
@@ -223,22 +223,22 @@ function EditForm({ initial = {}, onSave, onCancel }) {
               : <><span style={{ fontSize:'15px' }}>🎙</span> Spela in röstmemo</>}
           </button>
         ) : (
-          <div style={{ background:'#080b0c', border:'1px solid #263840', borderRadius:'8px', padding:'10px 12px' }}>
+          <div style={{ background:'#080b0c', border:'1px solid #1c2e4a', borderRadius:'8px', padding:'10px 12px' }}>
             <audio src={audioUrl} controls style={{ width:'100%', height:'32px', display:'block' }} />
-            <button type="button" onClick={() => setAudioUrl(null)} style={{ background:'none', border:'none', color:'#5a7a84', fontFamily:M, fontSize:'9px', cursor:'pointer', marginTop:'5px', padding:0 }}>✕ Ta bort memo</button>
+            <button type="button" onClick={() => setAudioUrl(null)} style={{ background:'none', border:'none', color:'#4a6888', fontFamily:M, fontSize:'9px', cursor:'pointer', marginTop:'5px', padding:0 }}>✕ Ta bort memo</button>
           </div>
         )}
       </div>
 
       {/* ACTIONS */}
-      <div style={{ display:'flex', gap:'8px', position:'sticky', bottom:0, background:'#111820', paddingTop:'10px', marginTop:'-4px' }}>
+      <div style={{ display:'flex', gap:'8px', position:'sticky', bottom:0, background:'#0c1422', paddingTop:'10px', marginTop:'-4px' }}>
         <button type="button" onClick={onCancel} style={{
-          background:'transparent', color:'#85a4ad', fontFamily:M, fontSize:'11px', fontWeight:600,
-          padding:'14px 20px', borderRadius:'8px', border:'1px solid #263840', cursor:'pointer',
+          background:'transparent', color:'#7a96b4', fontFamily:M, fontSize:'11px', fontWeight:600,
+          padding:'14px 20px', borderRadius:'8px', border:'1px solid #1c2e4a', cursor:'pointer',
           transition:'all 0.15s',
         }}
-          onMouseEnter={e=>{e.currentTarget.style.borderColor='#3a5460';e.currentTarget.style.color='#d0e8ec'}}
-          onMouseLeave={e=>{e.currentTarget.style.borderColor='#263840';e.currentTarget.style.color='#85a4ad'}}
+          onMouseEnter={e=>{e.currentTarget.style.borderColor='#3a5460';e.currentTarget.style.color='#dce8f5'}}
+          onMouseLeave={e=>{e.currentTarget.style.borderColor='#1c2e4a';e.currentTarget.style.color='#7a96b4'}}
         >Avbryt</button>
         <button type="button" onClick={() => onSave({ result, instrument:instr, pnl:pnl||'0', note, emotion, setup, psychTags:tags, image:image||null, audio:audioUrl||null })} style={{
           flex:1, background:'#00e5b0', color:'#020f08', fontFamily:M, fontSize:'12px', fontWeight:700,
@@ -261,8 +261,8 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
   const hasImage = !!t.image
 
   if (isEd) return (
-    <div style={{ background:'#0a0e10', border:'1px solid #263840', borderRadius:'10px', padding:'18px' }}>
-      <div style={{ fontFamily:M, fontSize:'9px', color:'#85a4ad', letterSpacing:'1.5px', marginBottom:'14px', fontWeight:600 }}>REDIGERA TRADE</div>
+    <div style={{ background:'#08101c', border:'1px solid #1c2e4a', borderRadius:'10px', padding:'18px' }}>
+      <div style={{ fontFamily:M, fontSize:'9px', color:'#7a96b4', letterSpacing:'1.5px', marginBottom:'14px', fontWeight:600 }}>REDIGERA TRADE</div>
       <EditForm initial={t} onSave={updated => onSaveEdit(ji, updated)} onCancel={onCancelEdit} />
     </div>
   )
@@ -272,23 +272,23 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
       {/* Header row — instrument + outcome + pnl + actions */}
       <div style={{ padding:'16px 16px 14px', display:'flex', justifyContent:'space-between', alignItems:'center', gap:'10px', flexWrap:'wrap' }}>
         <div style={{ display:'flex', alignItems:'center', gap:'7px', flexWrap:'wrap', minWidth:0 }}>
-          <span style={{ fontFamily:M, fontSize:'10px', color:'#88a8ae', background:'#161e24', border:'1px solid #1e2c32', borderRadius:'5px', padding:'3px 8px', fontWeight:600 }}>{t.instrument}</span>
-          <span style={{ fontFamily:M, fontSize:'10px', padding:'3px 8px', borderRadius:'5px', background:RBG[t.result]||'#111820', color:RC[t.result]||'#85a4ad', fontWeight:700 }}>{RL[t.result]||t.result}</span>
-          {t.setup && <span style={{ fontFamily:M, fontSize:'9px', color:'#85a4ad', background:'#161e24', border:'1px solid #1e2c32', borderRadius:'5px', padding:'3px 7px' }}>{t.setup}</span>}
+          <span style={{ fontFamily:M, fontSize:'10px', color:'#7a96b4', background:'#0f1828', border:'1px solid #162340', borderRadius:'5px', padding:'3px 8px', fontWeight:600 }}>{t.instrument}</span>
+          <span style={{ fontFamily:M, fontSize:'10px', padding:'3px 8px', borderRadius:'5px', background:RBG[t.result]||'#0c1422', color:RC[t.result]||'#7a96b4', fontWeight:700 }}>{RL[t.result]||t.result}</span>
+          {t.setup && <span style={{ fontFamily:M, fontSize:'9px', color:'#7a96b4', background:'#0f1828', border:'1px solid #162340', borderRadius:'5px', padding:'3px 7px' }}>{t.setup}</span>}
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:'10px', flexShrink:0 }}>
           <span style={{ fontFamily:M, fontSize:'18px', fontWeight:700, color:pv>=0?'#00e5b0':'#ff4f6b' }}>{pv>=0?'+':''}${Math.abs(Math.round(pv))}</span>
-          <button onClick={onToggleEdit} style={{ background:'none', border:'1px solid #1e2c32', borderRadius:'5px', color:'#85a4ad', fontFamily:M, fontSize:'10px', padding:'4px 9px', cursor:'pointer' }}>✎ Edit</button>
-          <button onClick={onDelete} style={{ background:'none', border:'none', color:'#5a7a84', cursor:'pointer', fontSize:'16px', padding:'2px 4px' }}>×</button>
+          <button onClick={onToggleEdit} style={{ background:'none', border:'1px solid #162340', borderRadius:'5px', color:'#7a96b4', fontFamily:M, fontSize:'10px', padding:'4px 9px', cursor:'pointer' }}>✎ Edit</button>
+          <button onClick={onDelete} style={{ background:'none', border:'none', color:'#4a6888', cursor:'pointer', fontSize:'16px', padding:'2px 4px' }}>×</button>
         </div>
       </div>
 
       {/* Emotion bar */}
       {em>0 && (
-        <div style={{ padding:'12px 16px', display:'flex', alignItems:'center', gap:'10px', borderTop:'1px solid #161e24' }}>
-          <span style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'1px', flexShrink:0, fontWeight:600 }}>EMOTION</span>
+        <div style={{ padding:'12px 16px', display:'flex', alignItems:'center', gap:'10px', borderTop:'1px solid #0f1828' }}>
+          <span style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4', letterSpacing:'1px', flexShrink:0, fontWeight:600 }}>EMOTION</span>
           <div style={{ display:'flex', gap:'2px', flex:1 }}>
-            {[1,2,3,4,5,6,7,8,9,10].map(n=><div key={n} style={{ flex:1, height:'4px', borderRadius:'2px', background:n<=em?ec:'#1e2c32' }} />)}
+            {[1,2,3,4,5,6,7,8,9,10].map(n=><div key={n} style={{ flex:1, height:'4px', borderRadius:'2px', background:n<=em?ec:'#162340' }} />)}
           </div>
           <span style={{ fontFamily:M, fontSize:'10px', color:ec, flexShrink:0, fontWeight:700 }}>{em}/10</span>
         </div>
@@ -296,23 +296,23 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
 
       {/* Psych tags */}
       {t.psychTags?.length>0 && (
-        <div style={{ padding:'10px 16px 12px', display:'flex', gap:'5px', flexWrap:'wrap', borderTop:'1px solid #161e24' }}>
+        <div style={{ padding:'10px 16px 12px', display:'flex', gap:'5px', flexWrap:'wrap', borderTop:'1px solid #0f1828' }}>
           {t.psychTags.map(id => { const tag=PSYCH.find(p=>p.id===id); return tag?<span key={id} style={{ fontFamily:M, fontSize:'9px', color:tag.c, background:tag.bg, border:`1px solid ${tag.c}33`, borderRadius:'5px', padding:'3px 8px', fontWeight:600 }}>{tag.label}</span>:null })}
         </div>
       )}
 
       {/* Notes */}
       {t.note && (
-        <div style={{ padding:'16px', borderTop:'1px solid #161e24' }}>
-          <div style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'1px', marginBottom:'8px', fontWeight:600 }}>NOTES</div>
-          <div style={{ fontSize:'14px', color:'#a0c0ca', lineHeight:1.8, whiteSpace:'pre-wrap', wordBreak:'break-word', borderLeft:'2px solid #263840', paddingLeft:'14px' }}>{t.note}</div>
+        <div style={{ padding:'16px', borderTop:'1px solid #0f1828' }}>
+          <div style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4', letterSpacing:'1px', marginBottom:'8px', fontWeight:600 }}>NOTES</div>
+          <div style={{ fontSize:'14px', color:'#a0c0ca', lineHeight:1.8, whiteSpace:'pre-wrap', wordBreak:'break-word', borderLeft:'2px solid #1c2e4a', paddingLeft:'14px' }}>{t.note}</div>
         </div>
       )}
 
       {/* Audio memo */}
       {t.audio && (
-        <div style={{ padding:'12px 16px', borderTop:'1px solid #161e24' }}>
-          <div style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'1px', marginBottom:'6px', fontWeight:600 }}>RÖSTMEMO</div>
+        <div style={{ padding:'12px 16px', borderTop:'1px solid #0f1828' }}>
+          <div style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4', letterSpacing:'1px', marginBottom:'6px', fontWeight:600 }}>RÖSTMEMO</div>
           <audio src={t.audio} controls style={{ width:'100%', height:'32px', display:'block' }} />
         </div>
       )}
@@ -323,8 +323,8 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
   if (hasImage) {
     return (
       <div style={{ 
-        background:'#0a0e10', 
-        border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, 
+        background:'#08101c', 
+        border:`1px solid ${RBDR[t.result]||'#162340'}`, 
         borderRadius:'10px', 
         overflow:'hidden',
         display:'block',
@@ -337,7 +337,7 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
           width:'100%', 
           padding:'12px', 
           boxSizing:'border-box',
-          borderBottom:'1px solid #161e24'
+          borderBottom:'1px solid #0f1828'
         }}>
           <img
             src={t.image}
@@ -365,7 +365,7 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
 
   // Om ingen bild finns visas bara textpanelen som vanligt
   return (
-    <div style={{ background:'#0a0e10', border:`1px solid ${RBDR[t.result]||'#1e2c32'}`, borderRadius:'10px', overflow:'hidden', marginBottom:'14px' }}>
+    <div style={{ background:'#08101c', border:`1px solid ${RBDR[t.result]||'#162340'}`, borderRadius:'10px', overflow:'hidden', marginBottom:'14px' }}>
       <InfoPanel />
     </div>
   )
@@ -432,8 +432,8 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
   function getDayStyle(status, pnl) {
     if (status==='win')  return { bg:`rgba(0,40,30,${Math.min(0.2+Math.abs(pnl)/1500,0.5)})`, bdr:'rgba(0,229,176,0.25)', dot:'#00e5b0' }
     if (status==='loss') return { bg:`rgba(40,0,10,${Math.min(0.2+Math.abs(pnl)/800,0.5)})`,  bdr:'rgba(255,79,107,0.25)', dot:'#ff4f6b' }
-    if (status==='skip') return { bg:'#111820', bdr:'#1e2c32', dot:'#5a7a84' }
-    return { bg:'#111820', bdr:'#1e2c32', dot:'#ffc030' }
+    if (status==='skip') return { bg:'#0c1422', bdr:'#162340', dot:'#4a6888' }
+    return { bg:'#0c1422', bdr:'#162340', dot:'#ffc030' }
   }
 
   function closeModal() { setSel(null); setShowForm(false); setEditingIdx(null) }
@@ -492,11 +492,11 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
           { l:'WIN RATE',  v:`${mWr}%`,                                   c:'#00e5b0' },
           { l:'WINS',      v:String(mW),                                  c:'#00e5b0' },
           { l:'LOSSES',    v:String(mL),                                  c:'#ff4f6b' },
-          { l:'SKIPS',     v:String(mS),                                  c:'#85a4ad' },
+          { l:'SKIPS',     v:String(mS),                                  c:'#7a96b4' },
           { l:'SNITT/DAG', v:`${avgDay>=0?'+':''}$${Math.round(avgDay)}`, c:avgDay>=0?'#00e5b0':'#ff4f6b' },
         ].map((s,i) => (
-          <div key={i} style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'10px', padding:'10px 12px' }}>
-            <div style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'1.5px', marginBottom:'4px', fontWeight:600 }}>{s.l}</div>
+          <div key={i} style={{ background:'#0c1422', border:'1px solid #162340', borderRadius:'10px', padding:'10px 12px' }}>
+            <div style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4', letterSpacing:'1.5px', marginBottom:'4px', fontWeight:600 }}>{s.l}</div>
             <div style={{ fontFamily:M, fontSize:'16px', fontWeight:700, color:s.c }}>{s.v}</div>
           </div>
         ))}
@@ -504,23 +504,23 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
 
       {/* Month nav */}
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-        <div style={{ fontFamily:M, fontSize:'14px', fontWeight:700, color:'#d0e8ec', letterSpacing:'2px' }}>{MONTHS[month].toUpperCase()} {year}</div>
+        <div style={{ fontFamily:M, fontSize:'14px', fontWeight:700, color:'#dce8f5', letterSpacing:'2px' }}>{MONTHS[month].toUpperCase()} {year}</div>
         <div style={{ display:'flex', gap:'5px' }}>
           {[{fn:prevM,l:'‹'},{fn:nextM,l:'›'}].map((b,i) => (
-            <button key={i} onClick={b.fn} style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'7px', padding:'8px 16px', cursor:'pointer', color:'#88a8ae', fontFamily:M, fontSize:'14px', transition:'all 0.15s' }}
-              onMouseEnter={e=>{e.currentTarget.style.borderColor='#3a5460';e.currentTarget.style.color='#d0e8ec'}}
-              onMouseLeave={e=>{e.currentTarget.style.borderColor='#1e2c32';e.currentTarget.style.color='#88a8ae'}}>{b.l}</button>
+            <button key={i} onClick={b.fn} style={{ background:'#0c1422', border:'1px solid #162340', borderRadius:'7px', padding:'8px 16px', cursor:'pointer', color:'#7a96b4', fontFamily:M, fontSize:'14px', transition:'all 0.15s' }}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor='#3a5460';e.currentTarget.style.color='#dce8f5'}}
+              onMouseLeave={e=>{e.currentTarget.style.borderColor='#162340';e.currentTarget.style.color='#7a96b4'}}>{b.l}</button>
           ))}
         </div>
       </div>
 
       {/* Calendar grid */}
-      <div style={{ background:'#111820', border:'1px solid #1e2c32', borderRadius:'12px', overflow:'hidden' }}>
-        <div style={{ display:'grid', gridTemplateColumns:gridCols, background:'#0d1214', borderBottom:'1px solid #1e2c32' }}>
+      <div style={{ background:'#0c1422', border:'1px solid #162340', borderRadius:'12px', overflow:'hidden' }}>
+        <div style={{ display:'grid', gridTemplateColumns:gridCols, background:'#0a1020', borderBottom:'1px solid #162340' }}>
           {dayLabels.map((d,i) => (
-            <div key={i} style={{ fontFamily:M, fontSize:'10px', color:'#85a4ad', textAlign:'center', padding:'12px 4px', letterSpacing:'1.5px', fontWeight:600 }}>{d}</div>
+            <div key={i} style={{ fontFamily:M, fontSize:'10px', color:'#7a96b4', textAlign:'center', padding:'12px 4px', letterSpacing:'1.5px', fontWeight:600 }}>{d}</div>
           ))}
-          {!mobile && <div style={{ fontFamily:M, fontSize:'9px', color:'#5a7a84', textAlign:'center', padding:'12px 4px', borderLeft:'1px solid #1e2c32', fontWeight:600 }}>V</div>}
+          {!mobile && <div style={{ fontFamily:M, fontSize:'9px', color:'#4a6888', textAlign:'center', padding:'12px 4px', borderLeft:'1px solid #162340', fontWeight:600 }}>V</div>}
         </div>
 
         {weeks.map((week, wi) => {
@@ -533,7 +533,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
           return (
             <div key={wi} style={{ display:'grid', gridTemplateColumns:gridCols }}>
               {week.map((cell, ci) => {
-                if (cell.empty) return <div key={ci} style={{ minHeight:cellH, borderRight:'1px solid #161e24', borderBottom:'1px solid #161e24', background:'#0d1214' }} />
+                if (cell.empty) return <div key={ci} style={{ minHeight:cellH, borderRight:'1px solid #0f1828', borderBottom:'1px solid #0f1828', background:'#0a1020' }} />
                 const { day, ds } = cell
                 const dT   = journal.filter(t=>t.date===ds)
                 const aT   = dT.filter(t=>t.result!=='skip'&&t.result!=='no-setup')
@@ -546,7 +546,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
                   <div key={ci}
                     onClick={() => { setSel(ds); setShowForm(false); setEditingIdx(null) }}
                     style={{
-                      minHeight:cellH, borderRight:'1px solid #161e24', borderBottom:'1px solid #161e24',
+                      minHeight:cellH, borderRight:'1px solid #0f1828', borderBottom:'1px solid #0f1828',
                       padding: mobile?'8px 6px':'8px',
                       background: sc?.bg||(isTd?'rgba(0,229,176,0.03)':'transparent'),
                       cursor:'pointer', position:'relative', transition:'background 0.15s, transform 0.1s',
@@ -557,7 +557,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
                     {isTd && <div style={{ position:'absolute', top:0, left:0, right:0, height:'2px', background:'#007d5e' }} />}
                     <div style={{ fontFamily:M, fontSize:'11px', color:isTd?'#00e5b0':'#a0c0ca', fontWeight:isTd?700:500, marginBottom:'4px' }}>{day}</div>
                     {!mobile && aT.map((t,ti) => (
-                      <div key={ti} style={{ fontFamily:M, fontSize:'8px', padding:'2px 5px', borderRadius:'3px', background:RBG[t.result]||'#111820', color:RC[t.result]||'#85a4ad', display:'inline-block', marginBottom:'2px', marginRight:'2px', fontWeight:600 }}>
+                      <div key={ti} style={{ fontFamily:M, fontSize:'8px', padding:'2px 5px', borderRadius:'3px', background:RBG[t.result]||'#0c1422', color:RC[t.result]||'#7a96b4', display:'inline-block', marginBottom:'2px', marginRight:'2px', fontWeight:600 }}>
                         {RL[t.result]||t.result}
                       </div>
                     ))}
@@ -572,14 +572,14 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
               })}
 
               {!mobile && (
-                <div style={{ minHeight:cellH, borderBottom:'1px solid #161e24', borderLeft:'1px solid #1e2c32', padding:'8px 6px', display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center', gap:'2px', background:'#0d1214' }}>
+                <div style={{ minHeight:cellH, borderBottom:'1px solid #0f1828', borderLeft:'1px solid #162340', padding:'8px 6px', display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center', gap:'2px', background:'#0a1020' }}>
                   {wT.length>0 ? (
                     <>
                       <div style={{ fontFamily:M, fontSize:'11px', fontWeight:700, color:wPnl>=0?'#00e5b0':'#ff4f6b' }}>{wPnl>=0?'+':''}${Math.abs(Math.round(wPnl))}</div>
                       {wWr!==null && <div style={{ fontFamily:M, fontSize:'9px', color:wWr>=50?'#00e5b0':'#ff4f6b' }}>{wWr}%</div>}
-                      <div style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad' }}>{wT.length}t</div>
+                      <div style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4' }}>{wT.length}t</div>
                     </>
-                  ) : <div style={{ fontFamily:M, fontSize:'10px', color:'#4a6470' }}>—</div>}
+                  ) : <div style={{ fontFamily:M, fontSize:'10px', color:'#3a5878' }}>—</div>}
                 </div>
               )}
             </div>
@@ -601,7 +601,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
           <div
             onClick={e => e.stopPropagation()}
             style={{
-              background:'#111820', border:'1px solid #1e2c32',
+              background:'#0c1422', border:'1px solid #162340',
               borderRadius: mobile?'16px 16px 0 0':'14px',
               width: mobile?'100%':'min(1020px, 100%)',
               height: mobile?'92vh':'auto',
@@ -613,12 +613,12 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
           >
             {/* Modal header */}
             <div style={{
-              padding:'16px 18px', borderBottom:'1px solid #1e2c32',
+              padding:'16px 18px', borderBottom:'1px solid #162340',
               display:'flex', justifyContent:'space-between', alignItems:'center',
-              flexShrink:0, background:'#0d1214',
+              flexShrink:0, background:'#0a1020',
             }}>
               <div>
-                <div style={{ fontFamily:M, fontSize:'9px', color:'#85a4ad', letterSpacing:'2px', marginBottom:'4px', fontWeight:600 }}>
+                <div style={{ fontFamily:M, fontSize:'9px', color:'#7a96b4', letterSpacing:'2px', marginBottom:'4px', fontWeight:600 }}>
                   {new Date(sel+'T12:00:00').toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'}).toUpperCase()}
                 </div>
                 {selTrades.filter(t=>t.result!=='skip'&&t.result!=='no-setup').length>0 ? (
@@ -626,14 +626,14 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
                     <span style={{ fontFamily:M, fontSize:'24px', fontWeight:700, color:selPnl>=0?'#00e5b0':'#ff4f6b' }}>
                       {selPnl>=0?'+':''}${Math.round(selPnl)}
                     </span>
-                    <span style={{ fontFamily:M, fontSize:'10px', color:'#85a4ad' }}>
+                    <span style={{ fontFamily:M, fontSize:'10px', color:'#7a96b4' }}>
                       {selWins>0 && <span style={{ color:'#00e5b0' }}>{selWins}W</span>}
                       {selWins>0 && selLoss>0 && ' · '}
                       {selLoss>0 && <span style={{ color:'#ff4f6b' }}>{selLoss}L</span>}
                     </span>
                   </div>
                 ) : (
-                  <div style={{ fontFamily:M, fontSize:'13px', color:'#88a8ae' }}>Ingen aktivitet</div>
+                  <div style={{ fontFamily:M, fontSize:'13px', color:'#7a96b4' }}>Ingen aktivitet</div>
                 )}
               </div>
               <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
@@ -648,13 +648,13 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
                   >+ NY TRADE</button>
                 )}
                 <button onClick={closeModal} style={{
-                  background:'transparent', border:'1px solid #263840', borderRadius:'7px',
-                  color:'#85a4ad', cursor:'pointer', fontSize:'18px',
+                  background:'transparent', border:'1px solid #1c2e4a', borderRadius:'7px',
+                  color:'#7a96b4', cursor:'pointer', fontSize:'18px',
                   width:'34px', height:'34px', lineHeight:1, transition:'all 0.15s',
                   display:'flex', alignItems:'center', justifyContent:'center',
                 }}
-                  onMouseEnter={e=>{e.currentTarget.style.borderColor='#3a5460';e.currentTarget.style.color='#d0e8ec'}}
-                  onMouseLeave={e=>{e.currentTarget.style.borderColor='#263840';e.currentTarget.style.color='#85a4ad'}}
+                  onMouseEnter={e=>{e.currentTarget.style.borderColor='#3a5460';e.currentTarget.style.color='#dce8f5'}}
+                  onMouseLeave={e=>{e.currentTarget.style.borderColor='#1c2e4a';e.currentTarget.style.color='#7a96b4'}}
                 >×</button>
               </div>
             </div>
@@ -665,11 +665,11 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
               overflowY:'auto',
               padding:'16px 18px', 
               display:'block', // Ändrat från flex till block för säkrare scrollhantering
-              background:'#111820',
+              background:'#0c1422',
               WebkitOverflowScrolling:'touch',
             }}>
               {showForm && (
-                <div style={{ background:'#0a0e10', border:'1px solid #263840', borderRadius:'10px', padding:'18px', marginBottom:'12px' }}>
+                <div style={{ background:'#08101c', border:'1px solid #1c2e4a', borderRadius:'10px', padding:'18px', marginBottom:'12px' }}>
                   <div style={{ fontFamily:M, fontSize:'9px', color:'#00e5b0', letterSpacing:'1.5px', marginBottom:'14px', fontWeight:700 }}>NY TRADE</div>
                   <EditForm
                     onSave={trade => { onAddTrade({ date:sel, ...trade, timestamp:new Date().toISOString() }); setShowForm(false) }}
@@ -679,10 +679,10 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
               )}
 
               {selTrades.length===0 && !showForm && (
-                <div style={{ fontFamily:M, fontSize:'13px', color:'#5a7a84', padding:'48px 0', textAlign:'center' }}>
+                <div style={{ fontFamily:M, fontSize:'13px', color:'#4a6888', padding:'48px 0', textAlign:'center' }}>
                   <div style={{ fontSize:'32px', marginBottom:'10px', opacity:0.4 }}>—</div>
                   <div>Inga trades på denna dag</div>
-                  <div style={{ fontSize:'10px', marginTop:'6px', color:'#4a6470' }}>Tryck + NY TRADE för att logga</div>
+                  <div style={{ fontSize:'10px', marginTop:'6px', color:'#3a5878' }}>Tryck + NY TRADE för att logga</div>
                 </div>
               )}
 
@@ -711,7 +711,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
       {/* Lightbox */}
       {lightbox && (
         <div onClick={() => setLightbox(null)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.96)', zIndex:1100, display:'flex', alignItems:'center', justifyContent:'center', cursor:'zoom-out', padding:'20px' }}>
-          <img src={lightbox} alt="chart" style={{ maxWidth:'96vw', maxHeight:'92vh', borderRadius:'10px', border:'1px solid #263840', objectFit:'contain' }} />
+          <img src={lightbox} alt="chart" style={{ maxWidth:'96vw', maxHeight:'92vh', borderRadius:'10px', border:'1px solid #1c2e4a', objectFit:'contain' }} />
         </div>
       )}
 

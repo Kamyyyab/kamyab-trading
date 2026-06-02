@@ -64,10 +64,10 @@ function SessionStatusDesktop() {
   const isPre     = nyMins >= 0   && nyMins < 570
   const nyTime    = clock.toLocaleTimeString('sv-SE', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit' })
   const sweTime   = clock.toLocaleTimeString('sv-SE', { timeZone: 'Europe/Stockholm', hour: '2-digit', minute: '2-digit' })
-  const color  = isOpen ? '#00e5b0' : isPre ? '#ffc030' : '#4a6470'
+  const color  = isOpen ? '#00e5b0' : isPre ? '#ffc030' : '#3a5878'
   const label  = isOpen ? 'ÖPPEN' : isPre ? 'PRE' : 'STÄNGD'
   const bg     = isOpen ? 'rgba(0,229,176,0.07)' : isPre ? 'rgba(255,192,48,0.06)' : 'transparent'
-  const bdr    = isOpen ? 'rgba(0,229,176,0.18)' : isPre ? 'rgba(255,192,48,0.14)' : '#182025'
+  const bdr    = isOpen ? 'rgba(0,229,176,0.18)' : isPre ? 'rgba(255,192,48,0.14)' : '#131e38'
 
   return (
     <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
@@ -75,14 +75,14 @@ function SessionStatusDesktop() {
         <div style={{ width:'6px', height:'6px', borderRadius:'50%', background:color }} />
         <span style={{ fontFamily:M, fontSize:'9px', fontWeight:600, color, letterSpacing:'1px' }}>{label}</span>
       </div>
-      <div style={{ width:'1px', height:'16px', background:'#182025' }} />
+      <div style={{ width:'1px', height:'16px', background:'#131e38' }} />
       <div>
-        <div style={{ fontFamily:M, fontSize:'7px', color:'#5a7a84', letterSpacing:'1px', marginBottom:'1px' }}>SWE</div>
-        <div style={{ fontFamily:M, fontSize:'11px', color:'#88a8ae' }}>{sweTime}</div>
+        <div style={{ fontFamily:M, fontSize:'7px', color:'#4a6888', letterSpacing:'1px', marginBottom:'1px' }}>SWE</div>
+        <div style={{ fontFamily:M, fontSize:'11px', color:'#7a96b4' }}>{sweTime}</div>
       </div>
       <div>
-        <div style={{ fontFamily:M, fontSize:'7px', color:'#5a7a84', letterSpacing:'1px', marginBottom:'1px' }}>NY</div>
-        <div style={{ fontFamily:M, fontSize:'11px', color:'#88a8ae' }}>{nyTime}</div>
+        <div style={{ fontFamily:M, fontSize:'7px', color:'#4a6888', letterSpacing:'1px', marginBottom:'1px' }}>NY</div>
+        <div style={{ fontFamily:M, fontSize:'11px', color:'#7a96b4' }}>{nyTime}</div>
       </div>
     </div>
   )
@@ -100,10 +100,10 @@ function SessionStatusMobile() {
   const isOpen  = nyMins >= 570 && nyMins < 690
   const isPre   = nyMins >= 0   && nyMins < 570
   const nyTime  = clock.toLocaleTimeString('sv-SE', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit' })
-  const color   = isOpen ? '#00e5b0' : isPre ? '#ffc030' : '#85a4ad'
+  const color   = isOpen ? '#00e5b0' : isPre ? '#ffc030' : '#7a96b4'
   const label   = isOpen ? 'ÖPPEN' : isPre ? 'PRE' : 'STÄNGD'
   const bg      = isOpen ? 'rgba(0,229,176,0.07)' : isPre ? 'rgba(255,192,48,0.06)' : 'transparent'
-  const bdr     = isOpen ? 'rgba(0,229,176,0.18)' : isPre ? 'rgba(255,192,48,0.14)' : '#1e2c32'
+  const bdr     = isOpen ? 'rgba(0,229,176,0.18)' : isPre ? 'rgba(255,192,48,0.14)' : '#162340'
 
   return (
     <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
@@ -112,7 +112,7 @@ function SessionStatusMobile() {
         <span style={{ fontFamily:M, fontSize:'9px', fontWeight:600, color, letterSpacing:'0.5px' }}>{label}</span>
       </div>
       <div style={{ textAlign:'right' }}>
-        <div style={{ fontFamily:M, fontSize:'7px', color:'#5a7a84', letterSpacing:'1px' }}>NY</div>
+        <div style={{ fontFamily:M, fontSize:'7px', color:'#4a6888', letterSpacing:'1px' }}>NY</div>
         <div style={{ fontFamily:M, fontSize:'11px', color:'#8aacb4', fontWeight:500 }}>{nyTime}</div>
       </div>
     </div>
@@ -244,68 +244,68 @@ export default function App() {
   const { isLockedOut, lockoutReason } = computeLockout(streakLogs)
 
   if (loading) return (
-    <div style={{ background:'#060809', minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center' }}>
-      <div style={{ fontFamily:M, fontSize:'12px', color:'#4a6470', letterSpacing:'3px' }}>LADDAR...</div>
+    <div style={{ background:'#070a14', minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center' }}>
+      <div style={{ fontFamily:M, fontSize:'12px', color:'#3a5878', letterSpacing:'3px' }}>LADDAR...</div>
     </div>
   )
 
   if (!user) return <Auth onLogin={setUser} />
 
-  const navH = { height:'54px', background:'rgba(6,8,9,0.95)', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', borderBottom:'1px solid #182025', display:'flex', alignItems:'center', padding:'0 16px', justifyContent:'space-between', position:'sticky', top:0, zIndex:40 }
+  const navH = { height:'54px', background:'rgba(7,10,20,0.98)', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', borderTop:'2px solid #f59e0b', borderBottom:'1px solid #131e38', display:'flex', alignItems:'center', padding:'0 16px', justifyContent:'space-between', position:'sticky', top:0, zIndex:40 }
 
   const Logo = () => (
     <div style={{ display:'flex', alignItems:'center', gap:'9px' }}>
-      <div style={{ width:'30px', height:'30px', background:'#001810', border:'1px solid rgba(0,229,176,0.2)', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center' }}>
+      <div style={{ width:'30px', height:'30px', background:'#18100a', border:'1px solid rgba(245,158,11,0.3)', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center' }}>
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-          <rect x="1" y="5" width="6" height="10" rx="1.5" fill="#00e5b0" opacity=".25"/>
-          <rect x="1" y="8" width="6" height="7"  rx="1.5" fill="#00e5b0"/>
-          <rect x="9" y="1" width="6" height="14" rx="1.5" fill="#00e5b0" opacity=".4"/>
-          <rect x="9" y="4" width="6" height="11" rx="1.5" fill="#00e5b0"/>
+          <rect x="1" y="5" width="6" height="10" rx="1.5" fill="#f59e0b" opacity=".3"/>
+          <rect x="1" y="8" width="6" height="7"  rx="1.5" fill="#f59e0b"/>
+          <rect x="9" y="1" width="6" height="14" rx="1.5" fill="#f59e0b" opacity=".5"/>
+          <rect x="9" y="4" width="6" height="11" rx="1.5" fill="#f59e0b"/>
         </svg>
       </div>
       <div>
-        <div style={{ fontFamily:M, fontSize:'13px', fontWeight:700, color:'#00e5b0', lineHeight:1.1 }}>Kamyab</div>
-        <div style={{ fontFamily:M, fontSize:'7px', color:'#5a7a84', letterSpacing:'2px' }}>TRADING OS</div>
+        <div style={{ fontFamily:M, fontSize:'13px', fontWeight:700, color:'#f59e0b', lineHeight:1.1 }}>Kamyab</div>
+        <div style={{ fontFamily:M, fontSize:'7px', color:'#4a6888', letterSpacing:'2px' }}>TRADING OS</div>
       </div>
     </div>
   )
 
   return (
-    <div style={{ background:'#060809', minHeight:'100vh', color:'#d0e8ec' }}>
+    <div style={{ background:'#070a14', minHeight:'100vh', color:'#dce8f5' }}>
 
       {MOBILE ? (
         <nav style={navH}>
           <Logo />
           <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
             <SessionStatusMobile />
-            <button type="button" onClick={() => supabase.auth.signOut()} style={{ background:'none', border:'1px solid #182025', borderRadius:'7px', color:'#5a7a84', fontSize:'13px', width:'30px', height:'30px', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>↩</button>
+            <button type="button" onClick={() => supabase.auth.signOut()} style={{ background:'none', border:'1px solid #131e38', borderRadius:'7px', color:'#4a6888', fontSize:'13px', width:'30px', height:'30px', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>↩</button>
           </div>
         </nav>
       ) : (
         <nav style={navH}>
           <div style={{ display:'flex', alignItems:'center', gap:'6px' }}>
             <Logo />
-            <div style={{ width:'1px', height:'18px', background:'#182025', margin:'0 8px' }} />
+            <div style={{ width:'1px', height:'18px', background:'#131e38', margin:'0 8px' }} />
             {NAV.map(({ id, label, path }) => (
               <button type="button" key={id} onClick={() => setPage(id)} style={{
-                background: page===id ? '#0d1214' : 'none',
-                border: `1px solid ${page===id ? '#1e2c32' : 'transparent'}`,
+                background: page===id ? '#0a1020' : 'none',
+                border: `1px solid ${page===id ? '#162340' : 'transparent'}`,
                 borderRadius:'8px', padding:'6px 13px', cursor:'pointer',
                 display:'flex', alignItems:'center', gap:'6px',
-                color: page===id ? '#d0e8ec' : '#7090a0',
+                color: page===id ? '#dce8f5' : '#5a7898',
                 fontSize:'13px', fontWeight:500, transition:'all 0.15s',
               }}>
-                <Icon path={path} color={page===id ? '#00e5b0' : '#7090a0'} />
+                <Icon path={path} color={page===id ? '#f59e0b' : '#5a7898'} />
                 {label}
               </button>
             ))}
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
             <SessionStatusDesktop />
-            <div style={{ width:'1px', height:'16px', background:'#182025' }} />
-            <button type="button" onClick={() => supabase.auth.signOut()} style={{ fontFamily:M, fontSize:'9px', color:'#7090a0', background:'none', border:'none', cursor:'pointer', letterSpacing:'0.5px', transition:'color 0.15s' }}
+            <div style={{ width:'1px', height:'16px', background:'#131e38' }} />
+            <button type="button" onClick={() => supabase.auth.signOut()} style={{ fontFamily:M, fontSize:'9px', color:'#5a7898', background:'none', border:'none', cursor:'pointer', letterSpacing:'0.5px', transition:'color 0.15s' }}
               onMouseEnter={e=>e.currentTarget.style.color='#a0c0ca'}
-              onMouseLeave={e=>e.currentTarget.style.color='#7090a0'}>logga ut</button>
+              onMouseLeave={e=>e.currentTarget.style.color='#5a7898'}>logga ut</button>
           </div>
         </nav>
       )}
@@ -350,16 +350,16 @@ export default function App() {
       </div>
 
       {MOBILE && (
-        <nav style={{ position:'fixed', bottom:0, left:0, right:0, zIndex:40, background:'rgba(6,8,9,0.96)', backdropFilter:'blur(12px)', borderTop:'1px solid #182025', display:'flex', paddingBottom:'env(safe-area-inset-bottom)' }}>
+        <nav style={{ position:'fixed', bottom:0, left:0, right:0, zIndex:40, background:'rgba(7,10,20,0.98)', backdropFilter:'blur(12px)', borderTop:'1px solid #131e38', display:'flex', paddingBottom:'env(safe-area-inset-bottom)' }}>
           {NAV.map(({ id, label, path }) => (
             <button type="button" key={id} onClick={() => setPage(id)} style={{
               flex:1, background:'none', border:'none', padding:'10px 0 8px', cursor:'pointer',
               display:'flex', flexDirection:'column', alignItems:'center', gap:'3px',
-              borderTop:`2px solid ${page===id?'#00e5b0':'transparent'}`, marginTop:'-1px',
+              borderTop:`2px solid ${page===id?'#f59e0b':'transparent'}`, marginTop:'-1px',
               transition:'border-color 0.2s',
             }}>
-              <Icon path={path} color={page===id?'#00e5b0':'#5a7a84'} />
-              <span style={{ fontFamily:M, fontSize:'9px', fontWeight:page===id?600:400, color:page===id?'#00e5b0':'#5a7a84', letterSpacing:'0.5px', transition:'color 0.15s' }}>{label}</span>
+              <Icon path={path} color={page===id?'#f59e0b':'#4a6888'} />
+              <span style={{ fontFamily:M, fontSize:'9px', fontWeight:page===id?600:400, color:page===id?'#f59e0b':'#4a6888', letterSpacing:'0.5px', transition:'color 0.15s' }}>{label}</span>
             </button>
           ))}
         </nav>

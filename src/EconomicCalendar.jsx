@@ -72,13 +72,13 @@ function groupBy(items, key) {
 
 // ── Sub-components ────────────────────────────────────────────
 function DateRow({ label }) {
-  return <div style={{ fontFamily:M,fontSize:'10px',color:'#88a8ae',letterSpacing:'2px',padding:'10px 0 6px',borderBottom:'1px solid #1a2225',marginBottom:'8px' }}>{label}</div>
+  return <div style={{ fontFamily:M,fontSize:'10px',color:'#7a96b4',letterSpacing:'2px',padding:'10px 0 6px',borderBottom:'1px solid #1a2225',marginBottom:'8px' }}>{label}</div>
 }
 
 function EconEvent({ e }) {
   return (
     <div style={{ display:'flex',alignItems:'center',gap:'10px',background:'#0f1618',border:'1px solid #7a1f2e',borderRadius:'10px',padding:'12px 14px',marginBottom:'6px' }}>
-      <div style={{ fontFamily:M,fontSize:'11px',color:'#88a8ae',minWidth:'36px',flexShrink:0 }}>{fmtTime(e.time)}</div>
+      <div style={{ fontFamily:M,fontSize:'11px',color:'#7a96b4',minWidth:'36px',flexShrink:0 }}>{fmtTime(e.time)}</div>
       <div style={{ fontFamily:M,fontSize:'13px',color:'#d8eaed',flex:1,lineHeight:1.3 }}>{e.event}</div>
       <div style={{ fontFamily:M,fontSize:'9px',color:'#ff4f6b',background:'#3d0f1a',border:'1px solid #7a1f2e',borderRadius:'5px',padding:'3px 7px',whiteSpace:'nowrap',flexShrink:0 }}>HÖG</div>
     </div>
@@ -95,11 +95,11 @@ function EarningRow({ e }) {
           style={{ width:'30px',height:'30px',borderRadius:'7px',background:'#1a2225',objectFit:'contain',flexShrink:0 }}
           onError={ev=>{ev.target.style.display='none';ev.target.nextSibling.style.display='flex'}} />
         <div style={{ width:'30px',height:'30px',borderRadius:'7px',background:'#1a2225',display:'none',alignItems:'center',justifyContent:'center',flexShrink:0 }}>
-          <span style={{ fontFamily:M,fontSize:'8px',color:'#7090a0',fontWeight:700 }}>{e.symbol?.slice(0,2)}</span>
+          <span style={{ fontFamily:M,fontSize:'8px',color:'#5a7898',fontWeight:700 }}>{e.symbol?.slice(0,2)}</span>
         </div>
         <div>
           <div style={{ fontFamily:M,fontSize:'14px',fontWeight:700,color:'#00e5b0' }}>{e.symbol}</div>
-          {e.epsEstimate!=null&&<div style={{ fontFamily:M,fontSize:'10px',color:'#88a8ae',marginTop:'1px' }}>EPS est. ${parseFloat(e.epsEstimate).toFixed(2)}</div>}
+          {e.epsEstimate!=null&&<div style={{ fontFamily:M,fontSize:'10px',color:'#7a96b4',marginTop:'1px' }}>EPS est. ${parseFloat(e.epsEstimate).toFixed(2)}</div>}
         </div>
       </div>
       {timing&&<div style={{ fontFamily:M,fontSize:'9px',color:tColor,background:'#1a2225',border:`1px solid ${tColor}44`,borderRadius:'5px',padding:'4px 9px',letterSpacing:'1px',flexShrink:0 }}>{timing}</div>}
@@ -111,15 +111,15 @@ function NewsItem({ item }) {
   const fut = isFutures(item.headline)
   return (
     <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration:'none',display:'block',background:fut?'#080e0c':'#0f1618',border:`1px solid ${fut?'rgba(0,229,176,0.18)':'#1a2225'}`,borderRadius:'8px',padding:'12px 14px',marginBottom:'6px',transition:'border-color 0.15s' }}
-      onMouseEnter={e=>e.currentTarget.style.borderColor=fut?'rgba(0,229,176,0.4)':'#263840'}
+      onMouseEnter={e=>e.currentTarget.style.borderColor=fut?'rgba(0,229,176,0.4)':'#1c2e4a'}
       onMouseLeave={e=>e.currentTarget.style.borderColor=fut?'rgba(0,229,176,0.18)':'#1a2225'}
     >
       {fut&&<span style={{ fontFamily:M,fontSize:'7px',color:'#00e5b0',background:'#001810',border:'1px solid rgba(0,229,176,0.2)',borderRadius:'3px',padding:'1px 5px',marginBottom:'5px',display:'inline-block',letterSpacing:'0.5px' }}>FUTURES</span>}
-      <div style={{ fontFamily:M,fontSize:'12px',color:'#d0e8ec',lineHeight:1.5,marginTop:fut?'4px':0 }}>{item.headline}</div>
+      <div style={{ fontFamily:M,fontSize:'12px',color:'#dce8f5',lineHeight:1.5,marginTop:fut?'4px':0 }}>{item.headline}</div>
       <div style={{ display:'flex',gap:'8px',marginTop:'6px',alignItems:'center' }}>
-        <span style={{ fontFamily:M,fontSize:'9px',color:'#5a7a84' }}>{item.source}</span>
+        <span style={{ fontFamily:M,fontSize:'9px',color:'#4a6888' }}>{item.source}</span>
         <span style={{ fontFamily:M,fontSize:'9px',color:'#2a3c44' }}>·</span>
-        <span style={{ fontFamily:M,fontSize:'9px',color:'#5a7a84' }}>{fmtNews(item.datetime)}</span>
+        <span style={{ fontFamily:M,fontSize:'9px',color:'#4a6888' }}>{fmtNews(item.datetime)}</span>
       </div>
     </a>
   )
@@ -133,19 +133,19 @@ function HolidayRow({ h, todayStr }) {
   const urgent    = daysUntil<=3
   const bg  = isToday?'#1a0610':urgent?'#0d1008':'#0f1618'
   const bdr = isToday?'rgba(255,79,107,0.3)':urgent?'rgba(255,192,48,0.2)':'#1a2225'
-  const dc  = isToday?'#ff4f6b':urgent?'#ffc030':'#88a8ae'
+  const dc  = isToday?'#ff4f6b':urgent?'#ffc030':'#7a96b4'
   return (
     <div style={{ display:'flex',alignItems:'center',gap:'12px',background:bg,border:`1px solid ${bdr}`,borderRadius:'8px',padding:'12px 14px',marginBottom:'6px' }}>
       <div style={{ minWidth:'44px',flexShrink:0,textAlign:'center' }}>
         <div style={{ fontFamily:M,fontSize:'9px',color:dc,fontWeight:700,lineHeight:1 }}>
           {isToday?'IDAG':isTomorrow?'IMORGON':`${daysUntil}d`}
         </div>
-        <div style={{ fontFamily:M,fontSize:'7px',color:'#5a7a84',marginTop:'2px' }}>
+        <div style={{ fontFamily:M,fontSize:'7px',color:'#4a6888',marginTop:'2px' }}>
           {new Date(h.date+'T12:00:00').toLocaleDateString('sv-SE',{day:'numeric',month:'short'})}
         </div>
       </div>
       <div style={{ flex:1 }}>
-        <div style={{ fontFamily:M,fontSize:'12px',color:'#d0e8ec' }}>{h.name}</div>
+        <div style={{ fontFamily:M,fontSize:'12px',color:'#dce8f5' }}>{h.name}</div>
         {h.note&&<div style={{ fontFamily:M,fontSize:'9px',color:'#ffc030',marginTop:'2px' }}>{h.note}</div>}
       </div>
       <span style={{ fontFamily:M,fontSize:'8px',padding:'3px 7px',borderRadius:'4px',flexShrink:0,
@@ -215,7 +215,7 @@ export default function EconomicCalendar() {
   const sortedNews      = [...news].sort((a,b)=>(isFutures(b.headline)?1:0)-(isFutures(a.headline)?1:0)||b.datetime-a.datetime)
 
   const sectionHdr = label => (
-    <div style={{ fontFamily:M,fontSize:'8px',color:'#7090a0',letterSpacing:'2px',marginBottom:'10px' }}>{label}</div>
+    <div style={{ fontFamily:M,fontSize:'8px',color:'#5a7898',letterSpacing:'2px',marginBottom:'10px' }}>{label}</div>
   )
 
   function EconContent() {
@@ -223,7 +223,7 @@ export default function EconomicCalendar() {
       <div>
         {sectionHdr('ECONOMIC — HIGH IMPACT')}
         {econGroups.length===0
-          ? <div style={{ fontFamily:M,fontSize:'11px',color:'#4a6470',padding:'12px 0' }}>Inga high-impact events kommande 7 dagar</div>
+          ? <div style={{ fontFamily:M,fontSize:'11px',color:'#3a5878',padding:'12px 0' }}>Inga high-impact events kommande 7 dagar</div>
           : econGroups.map(([d,items])=><div key={d}><DateRow label={fmtDate(d)} />{items.map((e,i)=><EconEvent key={i} e={e} />)}</div>)
         }
       </div>
@@ -235,7 +235,7 @@ export default function EconomicCalendar() {
       <div>
         {sectionHdr('EARNINGS')}
         {earnGroups.length===0
-          ? <div style={{ fontFamily:M,fontSize:'11px',color:'#4a6470',padding:'12px 0' }}>Inga earnings kommande 7 dagar</div>
+          ? <div style={{ fontFamily:M,fontSize:'11px',color:'#3a5878',padding:'12px 0' }}>Inga earnings kommande 7 dagar</div>
           : earnGroups.map(([d,items])=><div key={d}><DateRow label={fmtDate(d)} />{items.map((e,i)=><EarningRow key={i} e={e} />)}</div>)
         }
       </div>
@@ -246,7 +246,7 @@ export default function EconomicCalendar() {
     return (
       <div>
         {sectionHdr('CME FUTURES — STÄNGDA DAGAR')}
-        <div style={{ fontFamily:M,fontSize:'8px',color:'#4a6470',marginBottom:'10px' }}>MYM / YM / ES / MES / NQ / MNQ</div>
+        <div style={{ fontFamily:M,fontSize:'8px',color:'#3a5878',marginBottom:'10px' }}>MYM / YM / ES / MES / NQ / MNQ</div>
         {upcomingHols.slice(0,10).map((h,i)=><HolidayRow key={i} h={h} todayStr={todayStr} />)}
       </div>
     )
@@ -263,16 +263,16 @@ export default function EconomicCalendar() {
                 fontFamily:M,fontSize:'8px',padding:'4px 9px',borderRadius:'5px',cursor:'pointer',
                 border:`1px solid ${newsCat===v?'#007d5e':'#1e2d31'}`,
                 background:newsCat===v?'#001810':'transparent',
-                color:newsCat===v?'#00e5b0':'#88a8ae',
+                color:newsCat===v?'#00e5b0':'#7a96b4',
                 transition:'all 0.15s',
               }}>{l}</button>
             ))}
           </div>
         </div>
         {newsLoading
-          ? <div style={{ fontFamily:M,fontSize:'11px',color:'#4a6470',padding:'16px 0',textAlign:'center' }}>Laddar nyheter...</div>
+          ? <div style={{ fontFamily:M,fontSize:'11px',color:'#3a5878',padding:'16px 0',textAlign:'center' }}>Laddar nyheter...</div>
           : sortedNews.length===0
-            ? <div style={{ fontFamily:M,fontSize:'11px',color:'#4a6470',padding:'12px 0' }}>Inga nyheter</div>
+            ? <div style={{ fontFamily:M,fontSize:'11px',color:'#3a5878',padding:'12px 0' }}>Inga nyheter</div>
             : sortedNews.map((item,i)=><NewsItem key={item.id||i} item={item} />)
         }
       </div>
@@ -284,8 +284,8 @@ export default function EconomicCalendar() {
 
       {/* Header */}
       <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom: holWarning?'10px':'14px' }}>
-        <div style={{ fontFamily:M,fontSize:'10px',color:'#7090a0',letterSpacing:'2px' }}>MARKET EVENTS</div>
-        <button onClick={()=>{fetchMarketData();if(tab==='news')fetchNews(newsCat)}} style={{ background:'none',border:'1px solid #1e2d31',borderRadius:'8px',color:'#88a8ae',fontFamily:M,fontSize:'12px',padding:'6px 12px',cursor:'pointer',minHeight:'34px' }}>↻</button>
+        <div style={{ fontFamily:M,fontSize:'10px',color:'#5a7898',letterSpacing:'2px' }}>MARKET EVENTS</div>
+        <button onClick={()=>{fetchMarketData();if(tab==='news')fetchNews(newsCat)}} style={{ background:'none',border:'1px solid #1e2d31',borderRadius:'8px',color:'#7a96b4',fontFamily:M,fontSize:'12px',padding:'6px 12px',cursor:'pointer',minHeight:'34px' }}>↻</button>
       </div>
 
       {/* Holiday warning banner */}
@@ -296,14 +296,14 @@ export default function EconomicCalendar() {
             <div style={{ fontFamily:M,fontSize:'10px',fontWeight:700,color:nextHol.date===todayStr?'#ff4f6b':'#ffc030' }}>
               {nextHol.date===todayStr?'CME STÄNGD IDAG':'CME STÄNGER IMORGON'}
             </div>
-            <div style={{ fontFamily:M,fontSize:'9px',color:'#85a4ad',marginTop:'2px' }}>
+            <div style={{ fontFamily:M,fontSize:'9px',color:'#7a96b4',marginTop:'2px' }}>
               {nextHol.name}{nextHol.note?` — ${nextHol.note}`:''}
             </div>
           </div>
         </div>
       )}
 
-      {loading&&<div style={{ color:'#88a8ae',fontFamily:M,fontSize:'12px',padding:'24px 0',textAlign:'center' }}>Laddar...</div>}
+      {loading&&<div style={{ color:'#7a96b4',fontFamily:M,fontSize:'12px',padding:'24px 0',textAlign:'center' }}>Laddar...</div>}
       {error&&<div style={{ color:'#ff4f6b',fontFamily:M,fontSize:'12px',padding:'12px 0' }}>{error}</div>}
 
       {!loading&&!error&&(
@@ -315,7 +315,7 @@ export default function EconomicCalendar() {
                 <button key={id} onClick={()=>setTab(id)} style={{
                   background:tab===id?'#1c2f34':'none',
                   border:tab===id?'1px solid #26383d':'1px solid transparent',
-                  borderRadius:'7px',color:tab===id?'#e2eeee':'#88a8ae',
+                  borderRadius:'7px',color:tab===id?'#e2eeee':'#7a96b4',
                   fontFamily:M,fontSize:'8px',padding:'7px 2px',cursor:'pointer',
                   WebkitTapHighlightColor:'transparent',
                 }}>{label}</button>

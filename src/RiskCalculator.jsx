@@ -61,7 +61,7 @@ const inp = {
 const label = {
   fontFamily: 'monospace',
   fontSize: '10px',
-  color: '#88a8ae',
+  color: '#7a96b4',
   letterSpacing: '1.5px',
   marginBottom: '7px',
   display: 'block',
@@ -70,10 +70,10 @@ const label = {
 function Chip({ active, color, onClick, children }) {
   return (
     <button onClick={onClick} style={{
-      background: active ? '#1c2426' : '#0f1618',
-      border: `1px solid ${active ? (color || '#007d5e') : '#1e2d31'}`,
+      background: active ? '#18100a' : '#0a1020',
+      border: `1px solid ${active ? (color || 'rgba(245,158,11,0.5)') : '#162340'}`,
       borderRadius: '8px',
-      color: active ? (color || '#00e5b0') : '#88a8ae',
+      color: active ? (color || '#f59e0b') : '#7a96b4',
       fontFamily: 'monospace',
       fontSize: '11px',
       padding: '8px 13px',
@@ -128,7 +128,7 @@ function RiskCalculator({ journal = [] }) {
       flexDirection: 'column',
       gap: '16px',
     }}>
-      <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#7090a0', letterSpacing: '2px' }}>RISK CALCULATOR</div>
+      <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#5a7898', letterSpacing: '2px' }}>RISK CALCULATOR</div>
 
       {/* Account chips */}
       <div>
@@ -226,8 +226,8 @@ function RiskCalculator({ journal = [] }) {
               </div>
             </div>
             <div style={{ background: '#1c2426', border: '1px solid #26383d', borderRadius: '12px', padding: '16px' }}>
-              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#7090a0', letterSpacing: '1.5px', marginBottom: '6px' }}>KONTRAKT</div>
-              <div style={{ fontFamily: 'monospace', fontSize: '26px', fontWeight: 700, color: slPts > 0 ? '#00e5b0' : '#4a6470', lineHeight: 1 }}>
+              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#5a7898', letterSpacing: '1.5px', marginBottom: '6px' }}>KONTRAKT</div>
+              <div style={{ fontFamily: 'monospace', fontSize: '26px', fontWeight: 700, color: slPts > 0 ? '#00e5b0' : '#3a5878', lineHeight: 1 }}>
                 {slPts > 0 ? contracts : '—'}
               </div>
             </div>
@@ -237,7 +237,7 @@ function RiskCalculator({ journal = [] }) {
           {slPts > 0 && contracts > 0 && (
             <>
               <div style={{ background: '#1c2426', border: '1px solid #26383d', borderRadius: '10px', padding: '12px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontFamily: 'monospace', fontSize: '10px', color: '#88a8ae', letterSpacing: '1px' }}>SL / kontrakt</span>
+                <span style={{ fontFamily: 'monospace', fontSize: '10px', color: '#7a96b4', letterSpacing: '1px' }}>SL / kontrakt</span>
                 <span style={{ fontFamily: 'monospace', fontSize: '15px', fontWeight: 700, color: '#ff4f6b' }}>-${slValuePerContract.toFixed(2)}</span>
               </div>
 
@@ -271,8 +271,8 @@ function RiskCalculator({ journal = [] }) {
           width:'100%', display:'flex', justifyContent:'space-between', alignItems:'center',
           background:'none', border:'none', cursor:'pointer', padding:0,
         }}>
-          <span style={{ fontFamily:'monospace', fontSize:'10px', color:'#7090a0', letterSpacing:'2px' }}>PROP FIRM LIMITS</span>
-          <span style={{ fontFamily:'monospace', fontSize:'11px', color:'#5a7a84', transition:'transform 0.2s', display:'inline-block', transform: showPropFirm ? 'rotate(180deg)' : 'none' }}>▼</span>
+          <span style={{ fontFamily:'monospace', fontSize:'10px', color:'#5a7898', letterSpacing:'2px' }}>PROP FIRM LIMITS</span>
+          <span style={{ fontFamily:'monospace', fontSize:'11px', color:'#4a6888', transition:'transform 0.2s', display:'inline-block', transform: showPropFirm ? 'rotate(180deg)' : 'none' }}>▼</span>
         </button>
 
         {showPropFirm && (() => {
@@ -292,7 +292,7 @@ function RiskCalculator({ journal = [] }) {
 
               {/* Today auto-P&L */}
               <div style={{ background:'#1c2426', border:'1px solid #26383d', borderRadius:'8px', padding:'10px 14px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                <span style={{ fontFamily:'monospace', fontSize:'9px', color:'#88a8ae', letterSpacing:'1px' }}>IDAG P&L</span>
+                <span style={{ fontFamily:'monospace', fontSize:'9px', color:'#7a96b4', letterSpacing:'1px' }}>IDAG P&L</span>
                 <span style={{ fontFamily:'monospace', fontSize:'15px', fontWeight:700, color: todayLoss >= 0 ? '#00e5b0' : '#ff4f6b' }}>
                   {todayLoss >= 0 ? '+' : ''}${todayLoss.toFixed(0)}
                 </span>
@@ -301,7 +301,7 @@ function RiskCalculator({ journal = [] }) {
               {/* PDL input + bar */}
               <div>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'6px' }}>
-                  <span style={{ fontFamily:'monospace', fontSize:'9px', color: pdlWarn ? '#ff4f6b' : '#88a8ae', letterSpacing:'1px' }}>
+                  <span style={{ fontFamily:'monospace', fontSize:'9px', color: pdlWarn ? '#ff4f6b' : '#7a96b4', letterSpacing:'1px' }}>
                     {pdlWarn ? '⚠ ' : ''}DAILY LOSS LIMIT
                   </span>
                   {pdlLeft !== null && (
@@ -316,7 +316,7 @@ function RiskCalculator({ journal = [] }) {
                   style={{ ...inp, marginBottom:'6px' }}
                 />
                 {pdlVal > 0 && (
-                  <div style={{ height:'5px', background:'#0d1214', borderRadius:'3px', overflow:'hidden' }}>
+                  <div style={{ height:'5px', background:'#0a1020', borderRadius:'3px', overflow:'hidden' }}>
                     <div style={{ height:'100%', width:`${pdlPct}%`, background: pdlWarn ? '#ff4f6b' : '#ffc030', borderRadius:'3px', transition:'width 0.4s ease' }} />
                   </div>
                 )}
@@ -325,7 +325,7 @@ function RiskCalculator({ journal = [] }) {
               {/* TDD input + bar */}
               <div>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'6px' }}>
-                  <span style={{ fontFamily:'monospace', fontSize:'9px', color: tddWarn ? '#ff4f6b' : '#88a8ae', letterSpacing:'1px' }}>
+                  <span style={{ fontFamily:'monospace', fontSize:'9px', color: tddWarn ? '#ff4f6b' : '#7a96b4', letterSpacing:'1px' }}>
                     {tddWarn ? '⚠ ' : ''}TRAILING DRAWDOWN
                   </span>
                   {tddLeft !== null && (
@@ -340,7 +340,7 @@ function RiskCalculator({ journal = [] }) {
                   style={{ ...inp, marginBottom:'6px' }}
                 />
                 {tddVal > 0 && (
-                  <div style={{ height:'5px', background:'#0d1214', borderRadius:'3px', overflow:'hidden' }}>
+                  <div style={{ height:'5px', background:'#0a1020', borderRadius:'3px', overflow:'hidden' }}>
                     <div style={{ height:'100%', width:`${tddPct}%`, background: tddWarn ? '#ff4f6b' : '#ffc030', borderRadius:'3px', transition:'width 0.4s ease' }} />
                   </div>
                 )}

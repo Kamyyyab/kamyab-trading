@@ -72,7 +72,7 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
     {label:'+3R',count:trades.filter(t=>t.result==='win'||t.result==='tp3').length, c:'#00e5b0'},
     {label:'+2R',count:trades.filter(t=>t.result==='win2'||t.result==='tp2').length,c:'#4ab89a'},
     {label:'+1R',count:trades.filter(t=>t.result==='tp1').length,                   c:'#2a7a60'},
-    {label:'BE', count:trades.filter(t=>t.result==='be').length,                    c:'#85a4ad'},
+    {label:'BE', count:trades.filter(t=>t.result==='be').length,                    c:'#7a96b4'},
     {label:'-1R',count:trades.filter(t=>t.result==='loss').length,                  c:'#ff4f6b'},
   ]
 
@@ -147,7 +147,7 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
     const last5 = st.slice(-5)
     const l5wr  = last5.length>0 ? last5.filter(t=>WIN_RESULTS.has(t.result)).length/last5.length : null
     const totwr = setupStats[k].total>0 ? setupStats[k].wins/setupStats[k].total : null
-    let arrow='—', color='#5a7a84'
+    let arrow='—', color='#4a6888'
     if (last5.length>=3&&l5wr!==null&&totwr!==null) {
       if      (l5wr-totwr >  0.1) { arrow='↑'; color='#00e5b0' }
       else if (totwr-l5wr >  0.1) { arrow='↓'; color='#ff4f6b' }
@@ -220,16 +220,16 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
   const pastReviews = Object.entries(weeklyReviews).sort(([a],[b])=>b.localeCompare(a)).slice(0,6)
 
   const card = (label,value,color,sub) => (
-    <div style={{background:'#161e24',border:'1px solid #1e2c32',borderRadius:'12px',padding:'14px 16px'}}>
-      <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',letterSpacing:'2px',marginBottom:'6px'}}>{label}</div>
+    <div style={{background:'#0f1828',border:'1px solid #162340',borderRadius:'12px',padding:'14px 16px'}}>
+      <div style={{fontFamily:M,fontSize:'8px',color:'#7a96b4',letterSpacing:'2px',marginBottom:'6px'}}>{label}</div>
       <div style={{fontFamily:M,fontSize:'24px',fontWeight:700,color,lineHeight:1}}>{value}</div>
-      {sub&&<div style={{fontFamily:M,fontSize:'9px',color:'#85a4ad',marginTop:'4px'}}>{sub}</div>}
+      {sub&&<div style={{fontFamily:M,fontSize:'9px',color:'#7a96b4',marginTop:'4px'}}>{sub}</div>}
     </div>
   )
 
   const section = (title, children) => (
-    <div style={{background:'#161e24',border:'1px solid #1e2c32',borderRadius:'12px',padding:'16px'}}>
-      <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',letterSpacing:'2px',marginBottom:'14px'}}>{title}</div>
+    <div style={{background:'#0f1828',border:'1px solid #162340',borderRadius:'12px',padding:'16px'}}>
+      <div style={{fontFamily:M,fontSize:'8px',color:'#7a96b4',letterSpacing:'2px',marginBottom:'14px'}}>{title}</div>
       {children}
     </div>
   )
@@ -238,10 +238,10 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
     if (!active||!payload?.length) return null
     const d = payload[0].payload
     return (
-      <div style={{background:'#161e24',border:'1px solid #263840',borderRadius:'8px',padding:'10px 14px'}}>
-        <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',marginBottom:'4px',letterSpacing:'1px'}}>{d.label}</div>
+      <div style={{background:'#0f1828',border:'1px solid #1c2e4a',borderRadius:'8px',padding:'10px 14px'}}>
+        <div style={{fontFamily:M,fontSize:'8px',color:'#7a96b4',marginBottom:'4px',letterSpacing:'1px'}}>{d.label}</div>
         <div style={{fontFamily:M,fontSize:'13px',fontWeight:700,color:d.pnl>=0?'#00e5b0':'#ff4f6b'}}>{d.pnl>=0?'+':''}${d.pnl}</div>
-        <div style={{fontFamily:M,fontSize:'9px',color:'#85a4ad',marginTop:'2px'}}>{d.wr}% WR · {d.r>=0?'+':''}{d.r}R · {d.total}t</div>
+        <div style={{fontFamily:M,fontSize:'9px',color:'#7a96b4',marginTop:'2px'}}>{d.wr}% WR · {d.r>=0?'+':''}{d.r}R · {d.total}t</div>
       </div>
     )
   }
@@ -254,20 +254,20 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
           {['Totalt','Denna månad','Denna vecka'].map(f=>(
             <button key={f} onClick={()=>setFilter(f)} style={{
               fontFamily:M,fontSize:'9px',padding:'7px 13px',borderRadius:'7px',
-              border:`1px solid ${filter===f?'#007d5e':'#1e2c32'}`,
-              background:filter===f?'#001810':'transparent',
-              color:filter===f?'#00e5b0':'#85a4ad',cursor:'pointer',letterSpacing:'1px',
+              border:`1px solid ${filter===f?'rgba(245,158,11,0.5)':'#162340'}`,
+              background:filter===f?'#18100a':'transparent',
+              color:filter===f?'#f59e0b':'#7a96b4',cursor:'pointer',letterSpacing:'1px',
               transition:'all 0.15s',
             }}>{f}</button>
           ))}
         </div>
         <button onClick={()=>exportCSV(journal)} style={{
           fontFamily:M,fontSize:'9px',padding:'7px 13px',borderRadius:'7px',
-          border:'1px solid #1e2c32',background:'transparent',color:'#85a4ad',
+          border:'1px solid #162340',background:'transparent',color:'#7a96b4',
           cursor:'pointer',letterSpacing:'1px',transition:'all 0.15s',display:'flex',alignItems:'center',gap:'5px',
         }}
           onMouseEnter={e=>{e.currentTarget.style.borderColor='#00e5b0';e.currentTarget.style.color='#00e5b0'}}
-          onMouseLeave={e=>{e.currentTarget.style.borderColor='#1e2c32';e.currentTarget.style.color='#85a4ad'}}
+          onMouseLeave={e=>{e.currentTarget.style.borderColor='#162340';e.currentTarget.style.color='#7a96b4'}}
         >↓ CSV</button>
       </div>
 
@@ -299,8 +299,8 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
         const violWR     = violTrades.length > 0 ? Math.round(violWins / violTrades.length * 100) : 0
         const violPnl    = violTrades.reduce((s,t) => s + parseFloat(t.pnl||0), 0)
         return (
-          <div style={{background:'#161e24',border:'1px solid #1e2c32',borderRadius:'12px',padding:'16px'}}>
-            <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',letterSpacing:'2px',marginBottom:'12px'}}>REGELFÖLJSAMHET</div>
+          <div style={{background:'#0f1828',border:'1px solid #162340',borderRadius:'12px',padding:'16px'}}>
+            <div style={{fontFamily:M,fontSize:'8px',color:'#7a96b4',letterSpacing:'2px',marginBottom:'12px'}}>REGELFÖLJSAMHET</div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
               <div style={{background:'#001810',border:'1px solid rgba(0,229,176,0.15)',borderRadius:'10px',padding:'14px'}}>
                 <div style={{fontFamily:M,fontSize:'8px',color:'#00e5b0',letterSpacing:'2px',marginBottom:'3px'}}>CLEAN</div>
@@ -308,7 +308,7 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
                 <div style={{fontFamily:M,fontSize:'28px',fontWeight:700,color:'#00e5b0',lineHeight:1}}>{cleanWR}%</div>
                 <div style={{fontFamily:M,fontSize:'8px',color:'#4a7060',marginBottom:'8px'}}>Win Rate</div>
                 <div style={{fontFamily:M,fontSize:'16px',fontWeight:700,color:cleanPnl>=0?'#00e5b0':'#ff4f6b'}}>{cleanPnl>=0?'+':''}${Math.round(cleanPnl)}</div>
-                <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',marginTop:'2px'}}>{cleanTrades.length} trades</div>
+                <div style={{fontFamily:M,fontSize:'8px',color:'#4a6888',marginTop:'2px'}}>{cleanTrades.length} trades</div>
               </div>
               <div style={{background:'#1a0610',border:'1px solid rgba(255,79,107,0.15)',borderRadius:'10px',padding:'14px'}}>
                 <div style={{fontFamily:M,fontSize:'8px',color:'#ff4f6b',letterSpacing:'2px',marginBottom:'3px'}}>VIOLATION</div>
@@ -316,7 +316,7 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
                 <div style={{fontFamily:M,fontSize:'28px',fontWeight:700,color:violWR>=50?'#00e5b0':'#ff4f6b',lineHeight:1}}>{violWR}%</div>
                 <div style={{fontFamily:M,fontSize:'8px',color:'#5a3040',marginBottom:'8px'}}>Win Rate</div>
                 <div style={{fontFamily:M,fontSize:'16px',fontWeight:700,color:violPnl>=0?'#00e5b0':'#ff4f6b'}}>{violPnl>=0?'+':''}${Math.round(violPnl)}</div>
-                <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',marginTop:'2px'}}>{violTrades.length} trades</div>
+                <div style={{fontFamily:M,fontSize:'8px',color:'#4a6888',marginTop:'2px'}}>{violTrades.length} trades</div>
               </div>
             </div>
           </div>
@@ -331,10 +331,10 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
               return (
                 <div key={i} style={{display:'flex',alignItems:'center',gap:'8px'}}>
                   <div style={{fontFamily:M,fontSize:'10px',color:r.c,width:'26px'}}>{r.label}</div>
-                  <div style={{flex:1,height:'5px',background:'#0d1214',borderRadius:'3px',overflow:'hidden'}}>
+                  <div style={{flex:1,height:'5px',background:'#0a1020',borderRadius:'3px',overflow:'hidden'}}>
                     <div style={{height:'100%',width:`${pct}%`,background:r.c,borderRadius:'3px',transition:'width 0.4s ease'}} />
                   </div>
-                  <div style={{fontFamily:M,fontSize:'9px',color:'#85a4ad',width:'20px',textAlign:'right'}}>{r.count}</div>
+                  <div style={{fontFamily:M,fontSize:'9px',color:'#7a96b4',width:'20px',textAlign:'right'}}>{r.count}</div>
                 </div>
               )
             })}
@@ -343,25 +343,25 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
         {section('TOTAL R',
           <>
             <div style={{fontFamily:M,fontSize:'34px',fontWeight:700,color:totalR>=0?'#00e5b0':'#ff4f6b',lineHeight:1,marginBottom:'5px'}}>{totalR>=0?'+':''}{totalR}R</div>
-            <div style={{fontFamily:M,fontSize:'9px',color:'#85a4ad',marginBottom:'14px'}}>Snitt {avgR}R / trade</div>
-            <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',letterSpacing:'1px',marginBottom:'5px'}}>EDGE</div>
+            <div style={{fontFamily:M,fontSize:'9px',color:'#7a96b4',marginBottom:'14px'}}>Snitt {avgR}R / trade</div>
+            <div style={{fontFamily:M,fontSize:'8px',color:'#7a96b4',letterSpacing:'1px',marginBottom:'5px'}}>EDGE</div>
             <div style={{fontFamily:M,fontSize:'16px',fontWeight:700,color:parseFloat(avgR)>=0.5?'#00e5b0':parseFloat(avgR)>=0?'#ffc030':'#ff4f6b'}}>{parseFloat(avgR)>=0?'+':''}{avgR}R</div>
-            <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',marginTop:'3px'}}>{parseFloat(avgR)>=0.5?'✓ Positiv edge':parseFloat(avgR)>=0?'⚠ Svag edge':'✗ Negativ edge'}</div>
+            <div style={{fontFamily:M,fontSize:'8px',color:'#7a96b4',marginTop:'3px'}}>{parseFloat(avgR)>=0.5?'✓ Positiv edge':parseFloat(avgR)>=0?'⚠ Svag edge':'✗ Negativ edge'}</div>
           </>
         )}
       </div>
 
       {best && worst && (
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
-          <div style={{background:'#161e24',border:'1px solid rgba(0,229,176,0.12)',borderRadius:'12px',padding:'14px'}}>
-            <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',letterSpacing:'2px',marginBottom:'7px'}}>BÄSTA TRADE</div>
+          <div style={{background:'#0f1828',border:'1px solid rgba(0,229,176,0.12)',borderRadius:'12px',padding:'14px'}}>
+            <div style={{fontFamily:M,fontSize:'8px',color:'#7a96b4',letterSpacing:'2px',marginBottom:'7px'}}>BÄSTA TRADE</div>
             <div style={{fontFamily:M,fontSize:'26px',fontWeight:700,color:'#00e5b0'}}>+${Math.round(parseFloat(best.pnl))}</div>
-            <div style={{fontFamily:M,fontSize:'9px',color:'#85a4ad',marginTop:'4px'}}>{best.date} · {best.instrument}</div>
+            <div style={{fontFamily:M,fontSize:'9px',color:'#7a96b4',marginTop:'4px'}}>{best.date} · {best.instrument}</div>
           </div>
-          <div style={{background:'#161e24',border:'1px solid rgba(255,79,107,0.12)',borderRadius:'12px',padding:'14px'}}>
-            <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',letterSpacing:'2px',marginBottom:'7px'}}>SÄMSTA TRADE</div>
+          <div style={{background:'#0f1828',border:'1px solid rgba(255,79,107,0.12)',borderRadius:'12px',padding:'14px'}}>
+            <div style={{fontFamily:M,fontSize:'8px',color:'#7a96b4',letterSpacing:'2px',marginBottom:'7px'}}>SÄMSTA TRADE</div>
             <div style={{fontFamily:M,fontSize:'26px',fontWeight:700,color:'#ff4f6b'}}>${Math.round(parseFloat(worst.pnl))}</div>
-            <div style={{fontFamily:M,fontSize:'9px',color:'#85a4ad',marginTop:'4px'}}>{worst.date} · {worst.instrument}</div>
+            <div style={{fontFamily:M,fontSize:'9px',color:'#7a96b4',marginTop:'4px'}}>{worst.date} · {worst.instrument}</div>
           </div>
         </div>
       )}
@@ -369,10 +369,10 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
       {section('EQUITY CURVE',
         <ResponsiveContainer width="100%" height={180}>
           <LineChart data={eqData}>
-            <XAxis dataKey="date" stroke="#1e2c32" tick={{fill:'#85a4ad',fontSize:8,fontFamily:M}} interval="preserveStartEnd" />
-            <YAxis stroke="#1e2c32" tick={{fill:'#85a4ad',fontSize:8,fontFamily:M}} width={42} />
-            <Tooltip contentStyle={{background:'#161e24',border:'1px solid #263840',color:'#d0e8ec',fontFamily:M,fontSize:'11px'}} formatter={v=>[`$${v}`,'P&L']} />
-            <ReferenceLine y={0} stroke="#263840" strokeDasharray="4 4" />
+            <XAxis dataKey="date" stroke="#162340" tick={{fill:'#7a96b4',fontSize:8,fontFamily:M}} interval="preserveStartEnd" />
+            <YAxis stroke="#162340" tick={{fill:'#7a96b4',fontSize:8,fontFamily:M}} width={42} />
+            <Tooltip contentStyle={{background:'#0f1828',border:'1px solid #1c2e4a',color:'#dce8f5',fontFamily:M,fontSize:'11px'}} formatter={v=>[`$${v}`,'P&L']} />
+            <ReferenceLine y={0} stroke="#1c2e4a" strokeDasharray="4 4" />
             <Line type="monotone" dataKey="pnl" stroke={eqPos?'#00e5b0':'#ff4f6b'} dot={false} strokeWidth={2} />
           </LineChart>
         </ResponsiveContainer>
@@ -380,16 +380,16 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
 
       {/* ── MONTHLY OVERVIEW ── */}
       {monthlyData.length > 1 && (
-        <div style={{background:'#161e24',border:'1px solid #1e2c32',borderRadius:'12px',padding:'16px'}}>
+        <div style={{background:'#0f1828',border:'1px solid #162340',borderRadius:'12px',padding:'16px'}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'14px'}}>
-            <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',letterSpacing:'2px'}}>MÅNADSÖVERSIKT</div>
+            <div style={{fontFamily:M,fontSize:'8px',color:'#7a96b4',letterSpacing:'2px'}}>MÅNADSÖVERSIKT</div>
             <div style={{display:'flex',gap:'4px'}}>
               {[['pnl','P&L'],['wr','WR %'],['r','R']].map(([v,l])=>(
                 <button key={v} onClick={()=>setMonthView(v)} style={{
                   fontFamily:M,fontSize:'8px',padding:'4px 9px',borderRadius:'5px',
-                  border:`1px solid ${monthView===v?'#007d5e':'#1e2c32'}`,
+                  border:`1px solid ${monthView===v?'#007d5e':'#162340'}`,
                   background:monthView===v?'#001810':'transparent',
-                  color:monthView===v?'#00e5b0':'#85a4ad',cursor:'pointer',
+                  color:monthView===v?'#00e5b0':'#7a96b4',cursor:'pointer',
                   transition:'all 0.15s',letterSpacing:'0.5px',
                 }}>{l}</button>
               ))}
@@ -397,9 +397,9 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
           </div>
           <ResponsiveContainer width="100%" height={160}>
             <BarChart data={monthlyData} barSize={monthlyData.length>8?14:20} margin={{top:4,right:0,left:0,bottom:0}}>
-              <XAxis dataKey="label" tick={{fill:'#85a4ad',fontSize:8,fontFamily:M}} axisLine={false} tickLine={false} />
+              <XAxis dataKey="label" tick={{fill:'#7a96b4',fontSize:8,fontFamily:M}} axisLine={false} tickLine={false} />
               <YAxis hide />
-              <ReferenceLine y={0} stroke="#263840" strokeDasharray="3 3" />
+              <ReferenceLine y={0} stroke="#1c2e4a" strokeDasharray="3 3" />
               <Tooltip content={<MonthTooltip />} cursor={{fill:'rgba(255,255,255,0.03)'}} />
               <Bar dataKey={monthView} radius={[3,3,0,0]}>
                 {monthlyData.map((m,i) => {
@@ -415,12 +415,12 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
           {/* Monthly table */}
           <div style={{marginTop:'12px',display:'flex',flexDirection:'column',gap:'4px'}}>
             {[...monthlyData].reverse().slice(0,6).map((m,i)=>(
-              <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'6px 8px',borderRadius:'6px',background:i===0?'#111820':'transparent'}}>
-                <div style={{fontFamily:M,fontSize:'9px',color:'#88a8ae',textTransform:'uppercase',minWidth:'50px'}}>{m.label}</div>
+              <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'6px 8px',borderRadius:'6px',background:i===0?'#0c1422':'transparent'}}>
+                <div style={{fontFamily:M,fontSize:'9px',color:'#7a96b4',textTransform:'uppercase',minWidth:'50px'}}>{m.label}</div>
                 <div style={{fontFamily:M,fontSize:'10px',fontWeight:700,color:m.pnl>=0?'#00e5b0':'#ff4f6b',minWidth:'60px',textAlign:'right'}}>{m.pnl>=0?'+':''}${m.pnl}</div>
                 <div style={{fontFamily:M,fontSize:'9px',color:m.wr>=50?'#00e5b0':'#ff4f6b',minWidth:'40px',textAlign:'right'}}>{m.wr}%</div>
                 <div style={{fontFamily:M,fontSize:'9px',color:m.r>=0?'#00e5b0':'#ff4f6b',minWidth:'36px',textAlign:'right'}}>{m.r>=0?'+':''}{m.r}R</div>
-                <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',minWidth:'24px',textAlign:'right'}}>{m.total}t</div>
+                <div style={{fontFamily:M,fontSize:'8px',color:'#4a6888',minWidth:'24px',textAlign:'right'}}>{m.total}t</div>
               </div>
             ))}
           </div>
@@ -430,53 +430,53 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
       {/* ── REGELFÖLJSAMHET ── */}
       {(cleanTrades.length > 0 || brokenTrades.length > 0) && section('REGELFÖLJSAMHET — CHECKLISTA',
         <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
-          <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',marginBottom:'2px'}}>Jämförelse: trades som följde alla regler vs bröt regler</div>
+          <div style={{fontFamily:M,fontSize:'8px',color:'#4a6888',marginBottom:'2px'}}>Jämförelse: trades som följde alla regler vs bröt regler</div>
 
           {/* Clean trades */}
-          <div style={{background:'#0d1214',border:'1px solid rgba(0,229,176,0.15)',borderRadius:'9px',padding:'12px 14px'}}>
+          <div style={{background:'#0a1020',border:'1px solid rgba(0,229,176,0.15)',borderRadius:'9px',padding:'12px 14px'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'8px'}}>
               <div style={{display:'flex',alignItems:'center',gap:'7px'}}>
                 <span style={{fontFamily:M,fontSize:'9px',color:'#00e5b0',fontWeight:700}}>✓ FÖLJDE REGLER</span>
-                <span style={{fontFamily:M,fontSize:'8px',color:'#5a7a84'}}>{cleanTrades.length} trades</span>
+                <span style={{fontFamily:M,fontSize:'8px',color:'#4a6888'}}>{cleanTrades.length} trades</span>
               </div>
               <span style={{fontFamily:M,fontSize:'13px',fontWeight:700,color:cleanPnl>=0?'#00e5b0':'#ff4f6b'}}>{cleanPnl>=0?'+':''}${Math.round(cleanPnl)}</span>
             </div>
             <div style={{display:'flex',gap:'14px'}}>
               <div>
-                <div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'2px'}}>WIN RATE</div>
+                <div style={{fontFamily:M,fontSize:'7px',color:'#4a6888',letterSpacing:'1px',marginBottom:'2px'}}>WIN RATE</div>
                 <div style={{fontFamily:M,fontSize:'20px',fontWeight:700,color:cleanWR!=null&&cleanWR>=50?'#00e5b0':'#ffc030',lineHeight:1}}>{cleanWR!=null?`${cleanWR}%`:'—'}</div>
               </div>
               <div>
-                <div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'2px'}}>VINSTER</div>
+                <div style={{fontFamily:M,fontSize:'7px',color:'#4a6888',letterSpacing:'1px',marginBottom:'2px'}}>VINSTER</div>
                 <div style={{fontFamily:M,fontSize:'20px',fontWeight:700,color:'#00e5b0',lineHeight:1}}>{cleanWins}</div>
               </div>
               <div>
-                <div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'2px'}}>FÖRLUSTER</div>
+                <div style={{fontFamily:M,fontSize:'7px',color:'#4a6888',letterSpacing:'1px',marginBottom:'2px'}}>FÖRLUSTER</div>
                 <div style={{fontFamily:M,fontSize:'20px',fontWeight:700,color:'#ff4f6b',lineHeight:1}}>{cleanTrades.filter(t=>t.result==='loss').length}</div>
               </div>
             </div>
           </div>
 
           {/* Broken-rules trades */}
-          <div style={{background:'#0d1214',border:'1px solid rgba(255,79,107,0.15)',borderRadius:'9px',padding:'12px 14px'}}>
+          <div style={{background:'#0a1020',border:'1px solid rgba(255,79,107,0.15)',borderRadius:'9px',padding:'12px 14px'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'8px'}}>
               <div style={{display:'flex',alignItems:'center',gap:'7px'}}>
                 <span style={{fontFamily:M,fontSize:'9px',color:'#ff4f6b',fontWeight:700}}>✗ BRÖT REGLER</span>
-                <span style={{fontFamily:M,fontSize:'8px',color:'#5a7a84'}}>{brokenTrades.length} trades</span>
+                <span style={{fontFamily:M,fontSize:'8px',color:'#4a6888'}}>{brokenTrades.length} trades</span>
               </div>
               <span style={{fontFamily:M,fontSize:'13px',fontWeight:700,color:brokenPnl>=0?'#00e5b0':'#ff4f6b'}}>{brokenPnl>=0?'+':''}${Math.round(brokenPnl)}</span>
             </div>
             <div style={{display:'flex',gap:'14px'}}>
               <div>
-                <div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'2px'}}>WIN RATE</div>
+                <div style={{fontFamily:M,fontSize:'7px',color:'#4a6888',letterSpacing:'1px',marginBottom:'2px'}}>WIN RATE</div>
                 <div style={{fontFamily:M,fontSize:'20px',fontWeight:700,color:brokenWR!=null&&brokenWR>=50?'#00e5b0':'#ff4f6b',lineHeight:1}}>{brokenWR!=null?`${brokenWR}%`:'—'}</div>
               </div>
               <div>
-                <div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'2px'}}>VINSTER</div>
+                <div style={{fontFamily:M,fontSize:'7px',color:'#4a6888',letterSpacing:'1px',marginBottom:'2px'}}>VINSTER</div>
                 <div style={{fontFamily:M,fontSize:'20px',fontWeight:700,color:'#00e5b0',lineHeight:1}}>{brokenWins}</div>
               </div>
               <div>
-                <div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'2px'}}>FÖRLUSTER</div>
+                <div style={{fontFamily:M,fontSize:'7px',color:'#4a6888',letterSpacing:'1px',marginBottom:'2px'}}>FÖRLUSTER</div>
                 <div style={{fontFamily:M,fontSize:'20px',fontWeight:700,color:'#ff4f6b',lineHeight:1}}>{brokenTrades.filter(t=>t.result==='loss').length}</div>
               </div>
             </div>
@@ -494,15 +494,15 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
               <div key={i}>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'4px'}}>
                   <div style={{display:'flex',alignItems:'center',gap:'8px',flexWrap:'wrap'}}>
-                    <span style={{fontFamily:M,fontSize:'11px',color:'#d0e8ec',fontWeight:600}}>{tag}</span>
+                    <span style={{fontFamily:M,fontSize:'11px',color:'#dce8f5',fontWeight:600}}>{tag}</span>
                     <span style={{fontFamily:M,fontSize:'9px',color:wr>=50?'#00e5b0':'#ff4f6b'}}>{wr}%</span>
-                    <span style={{fontFamily:M,fontSize:'8px',color:'#85a4ad'}}>{s.total}t</span>
+                    <span style={{fontFamily:M,fontSize:'8px',color:'#7a96b4'}}>{s.total}t</span>
                     {tr?.arrow!=='—'&&<span style={{fontFamily:M,fontSize:'12px',fontWeight:700,color:tr.color}}>{tr.arrow}</span>}
-                    {tr?.l5wr!==null&&tr?.last5>=3&&<span style={{fontFamily:M,fontSize:'7px',color:'#5a7a84'}}>sista 5: {tr.l5wr}%</span>}
+                    {tr?.l5wr!==null&&tr?.last5>=3&&<span style={{fontFamily:M,fontSize:'7px',color:'#4a6888'}}>sista 5: {tr.l5wr}%</span>}
                   </div>
                   <span style={{fontFamily:M,fontSize:'12px',fontWeight:700,color:s.pnl>=0?'#00e5b0':'#ff4f6b'}}>{s.pnl>=0?'+':''}${Math.round(s.pnl)}</span>
                 </div>
-                <div style={{height:'4px',background:'#0d1214',borderRadius:'2px',overflow:'hidden'}}>
+                <div style={{height:'4px',background:'#0a1020',borderRadius:'2px',overflow:'hidden'}}>
                   <div style={{height:'100%',width:`${Math.abs(s.pnl)/maxP*100}%`,background:s.pnl>=0?'#007d5e':'#7a1020',borderRadius:'2px',transition:'width 0.4s ease'}} />
                 </div>
               </div>
@@ -519,9 +519,9 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
             return (
               <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                 <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
-                  <span style={{fontFamily:M,fontSize:'11px',color:isViolation?'#ff4f6b':'#d0e8ec'}}>{PSYCH_LABELS[id]||id}</span>
+                  <span style={{fontFamily:M,fontSize:'11px',color:isViolation?'#ff4f6b':'#dce8f5'}}>{PSYCH_LABELS[id]||id}</span>
                   {isViolation && <span style={{fontFamily:M,fontSize:'7px',color:'#ff4f6b',background:'#1a0610',border:'1px solid rgba(255,79,107,0.2)',borderRadius:'3px',padding:'1px 5px'}}>VIOLATION</span>}
-                  <span style={{fontFamily:M,fontSize:'9px',color:'#85a4ad'}}>{s.total}x</span>
+                  <span style={{fontFamily:M,fontSize:'9px',color:'#7a96b4'}}>{s.total}x</span>
                 </div>
                 <div style={{display:'flex',alignItems:'center',gap:'12px'}}>
                   <span style={{fontFamily:M,fontSize:'10px',color:wr>=50?'#00e5b0':'#ff4f6b'}}>{wr}% WR</span>
@@ -534,40 +534,40 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
       )}
 
       {/* ── ACCOUNT GROWTH ── */}
-      <div style={{background:'#161e24',border:'1px solid #1e2c32',borderRadius:'12px',padding:'16px'}}>
+      <div style={{background:'#0f1828',border:'1px solid #162340',borderRadius:'12px',padding:'16px'}}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'14px',flexWrap:'wrap',gap:'8px'}}>
-          <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',letterSpacing:'2px'}}>KONTOUTVECKLING</div>
+          <div style={{fontFamily:M,fontSize:'8px',color:'#7a96b4',letterSpacing:'2px'}}>KONTOUTVECKLING</div>
           {!editStartBal ? (
             <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
-              {startBal>0&&<span style={{fontFamily:M,fontSize:'9px',color:'#5a7a84'}}>Start: ${startBal.toLocaleString()}</span>}
-              <button onClick={()=>{setStartBalInput(String(startBal||''));setEditStartBal(true)}} style={{background:'none',border:'1px solid #1e2c32',borderRadius:'4px',color:'#85a4ad',fontFamily:M,fontSize:'8px',padding:'2px 8px',cursor:'pointer'}}>{startBal>0?'✎ Ändra':'+ Sätt startkapital'}</button>
+              {startBal>0&&<span style={{fontFamily:M,fontSize:'9px',color:'#4a6888'}}>Start: ${startBal.toLocaleString()}</span>}
+              <button onClick={()=>{setStartBalInput(String(startBal||''));setEditStartBal(true)}} style={{background:'none',border:'1px solid #162340',borderRadius:'4px',color:'#7a96b4',fontFamily:M,fontSize:'8px',padding:'2px 8px',cursor:'pointer'}}>{startBal>0?'✎ Ändra':'+ Sätt startkapital'}</button>
             </div>
           ) : (
             <div style={{display:'flex',gap:'5px',alignItems:'center'}}>
-              <span style={{fontFamily:M,fontSize:'8px',color:'#85a4ad'}}>$</span>
+              <span style={{fontFamily:M,fontSize:'8px',color:'#7a96b4'}}>$</span>
               <input autoFocus type="number" value={startBalInput} onChange={e=>setStartBalInput(e.target.value)}
                 onKeyDown={e=>{if(e.key==='Enter'){onSaveSettings?.({startingBalance:parseFloat(startBalInput)||0});setEditStartBal(false)}if(e.key==='Escape')setEditStartBal(false)}}
-                placeholder="50000" style={{width:'80px',background:'#0a0e10',border:'1px solid #5a7a84',borderRadius:'5px',color:'#d0e8ec',fontFamily:M,fontSize:'11px',padding:'3px 7px',outline:'none'}} />
+                placeholder="50000" style={{width:'80px',background:'#08101c',border:'1px solid #4a6888',borderRadius:'5px',color:'#dce8f5',fontFamily:M,fontSize:'11px',padding:'3px 7px',outline:'none'}} />
               <button onClick={()=>{onSaveSettings?.({startingBalance:parseFloat(startBalInput)||0});setEditStartBal(false)}} style={{background:'#00e5b0',border:'none',borderRadius:'4px',color:'#020f08',fontFamily:M,fontSize:'8px',padding:'3px 8px',cursor:'pointer',fontWeight:700}}>OK</button>
-              <button onClick={()=>setEditStartBal(false)} style={{background:'none',border:'1px solid #1e2c32',borderRadius:'4px',color:'#85a4ad',fontFamily:M,fontSize:'8px',padding:'3px 7px',cursor:'pointer'}}>✕</button>
+              <button onClick={()=>setEditStartBal(false)} style={{background:'none',border:'1px solid #162340',borderRadius:'4px',color:'#7a96b4',fontFamily:M,fontSize:'8px',padding:'3px 7px',cursor:'pointer'}}>✕</button>
             </div>
           )}
         </div>
         {startBal>0 ? (
           <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'10px'}}>
             {[
-              {label:'STARTKAPITAL', val:`$${Math.round(startBal).toLocaleString()}`,       c:'#88a8ae', bg:'#0d1214',   bdr:'#1e2c32'},
-              {label:'NUVARANDE',    val:`$${Math.round(currentBal).toLocaleString()}`,      c:currentBal>=startBal?'#00e5b0':'#ff4f6b', bg:'#0d1214', bdr:'#1e2c32'},
+              {label:'STARTKAPITAL', val:`$${Math.round(startBal).toLocaleString()}`,       c:'#7a96b4', bg:'#0a1020',   bdr:'#162340'},
+              {label:'NUVARANDE',    val:`$${Math.round(currentBal).toLocaleString()}`,      c:currentBal>=startBal?'#00e5b0':'#ff4f6b', bg:'#0a1020', bdr:'#162340'},
               {label:'TILLVÄXT',     val:`${growthPct>=0?'+':''}${growthPct?.toFixed(1)}%`,  c:growthPct>=0?'#00e5b0':'#ff4f6b', bg:growthPct>=0?'#001810':'#1a0610', bdr:growthPct>=0?'rgba(0,229,176,0.2)':'rgba(255,79,107,0.2)'},
             ].map(({label,val,c,bg,bdr},i)=>(
               <div key={i} style={{background:bg,border:`1px solid ${bdr}`,borderRadius:'8px',padding:'12px'}}>
-                <div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'4px'}}>{label}</div>
+                <div style={{fontFamily:M,fontSize:'7px',color:'#4a6888',letterSpacing:'1px',marginBottom:'4px'}}>{label}</div>
                 <div style={{fontFamily:M,fontSize:'18px',fontWeight:700,color:c,lineHeight:1}}>{val}</div>
               </div>
             ))}
           </div>
         ) : (
-          <div style={{fontFamily:M,fontSize:'9px',color:'#4a6470'}}>Sätt ditt startkapital för att spåra procentuell tillväxt</div>
+          <div style={{fontFamily:M,fontSize:'9px',color:'#3a5878'}}>Sätt ditt startkapital för att spåra procentuell tillväxt</div>
         )}
       </div>
 
@@ -581,13 +581,13 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
               <div key={i}>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'4px'}}>
                   <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
-                    <span style={{fontFamily:M,fontSize:'11px',color:'#d0e8ec',fontWeight:600}}>{instr}</span>
+                    <span style={{fontFamily:M,fontSize:'11px',color:'#dce8f5',fontWeight:600}}>{instr}</span>
                     <span style={{fontFamily:M,fontSize:'9px',color:iwr>=50?'#00e5b0':'#ff4f6b'}}>{iwr}%</span>
-                    <span style={{fontFamily:M,fontSize:'8px',color:'#85a4ad'}}>{s.total}t</span>
+                    <span style={{fontFamily:M,fontSize:'8px',color:'#7a96b4'}}>{s.total}t</span>
                   </div>
                   <span style={{fontFamily:M,fontSize:'12px',fontWeight:700,color:s.pnl>=0?'#00e5b0':'#ff4f6b'}}>{s.pnl>=0?'+':''}${Math.round(s.pnl)}</span>
                 </div>
-                <div style={{height:'4px',background:'#0d1214',borderRadius:'2px',overflow:'hidden'}}>
+                <div style={{height:'4px',background:'#0a1020',borderRadius:'2px',overflow:'hidden'}}>
                   <div style={{height:'100%',width:`${Math.abs(s.pnl)/maxP*100}%`,background:s.pnl>=0?'#007d5e':'#7a1020',borderRadius:'2px',transition:'width 0.4s ease'}} />
                 </div>
               </div>
@@ -600,15 +600,15 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
       {trades.length>=5 && section('BETEENDEINSIKTER',
         <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>
           <div>
-            <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'8px'}}>EMOTION VS PRESTATION</div>
+            <div style={{fontFamily:M,fontSize:'8px',color:'#4a6888',letterSpacing:'1px',marginBottom:'8px'}}>EMOTION VS PRESTATION</div>
             <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'8px'}}>
               {[{label:'Lugn (1–3)',s:emoLow,c:'#00e5b0'},{label:'Neutral (4–6)',s:emoMid,c:'#ffc030'},{label:'Stressad (7–10)',s:emoHigh,c:'#ff4f6b'}].map(({label,s,c},i)=>{
                 const ewr=s.total>0?Math.round(s.wins/s.total*100):null
                 return (
-                  <div key={i} style={{background:'#0d1214',border:'1px solid #1e2c32',borderRadius:'8px',padding:'10px 12px'}}>
-                    <div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',marginBottom:'5px'}}>{label}</div>
-                    <div style={{fontFamily:M,fontSize:'18px',fontWeight:700,color:ewr!=null?c:'#4a6470',lineHeight:1}}>{ewr!=null?`${ewr}%`:'—'}</div>
-                    <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',marginTop:'3px'}}>{s.total>0?`${s.total}t · ${s.pnl>=0?'+':''}$${Math.round(s.pnl)}`:'ingen data'}</div>
+                  <div key={i} style={{background:'#0a1020',border:'1px solid #162340',borderRadius:'8px',padding:'10px 12px'}}>
+                    <div style={{fontFamily:M,fontSize:'7px',color:'#4a6888',marginBottom:'5px'}}>{label}</div>
+                    <div style={{fontFamily:M,fontSize:'18px',fontWeight:700,color:ewr!=null?c:'#3a5878',lineHeight:1}}>{ewr!=null?`${ewr}%`:'—'}</div>
+                    <div style={{fontFamily:M,fontSize:'8px',color:'#4a6888',marginTop:'3px'}}>{s.total>0?`${s.total}t · ${s.pnl>=0?'+':''}$${Math.round(s.pnl)}`:'ingen data'}</div>
                   </div>
                 )
               })}
@@ -616,15 +616,15 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
           </div>
           {(stat1.total>0||stat2.total>0)&&(
             <div>
-              <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'8px'}}>TRADE #1 VS TRADE #2 PER DAG</div>
+              <div style={{fontFamily:M,fontSize:'8px',color:'#4a6888',letterSpacing:'1px',marginBottom:'8px'}}>TRADE #1 VS TRADE #2 PER DAG</div>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'8px'}}>
                 {[{label:'Trade #1',s:stat1},{label:'Trade #2',s:stat2}].map(({label,s},i)=>{
                   const twr=s.total>0?Math.round(s.wins/s.total*100):null
                   return (
-                    <div key={i} style={{background:'#0d1214',border:'1px solid #1e2c32',borderRadius:'8px',padding:'10px 12px'}}>
-                      <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',marginBottom:'5px'}}>{label}</div>
-                      <div style={{fontFamily:M,fontSize:'22px',fontWeight:700,color:twr!=null?(twr>=50?'#00e5b0':'#ff4f6b'):'#4a6470',lineHeight:1}}>{twr!=null?`${twr}%`:'—'}</div>
-                      <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',marginTop:'3px'}}>{s.total}t · {s.pnl>=0?'+':''}${Math.round(s.pnl)}</div>
+                    <div key={i} style={{background:'#0a1020',border:'1px solid #162340',borderRadius:'8px',padding:'10px 12px'}}>
+                      <div style={{fontFamily:M,fontSize:'8px',color:'#4a6888',marginBottom:'5px'}}>{label}</div>
+                      <div style={{fontFamily:M,fontSize:'22px',fontWeight:700,color:twr!=null?(twr>=50?'#00e5b0':'#ff4f6b'):'#3a5878',lineHeight:1}}>{twr!=null?`${twr}%`:'—'}</div>
+                      <div style={{fontFamily:M,fontSize:'8px',color:'#4a6888',marginTop:'3px'}}>{s.total}t · {s.pnl>=0?'+':''}${Math.round(s.pnl)}</div>
                     </div>
                   )
                 })}
@@ -633,16 +633,16 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
           )}
           {(alStat.total>0||awStat.total>0)&&(
             <div>
-              <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'8px'}}>DAGEN EFTER FÖRLUST VS VINSTDAG</div>
+              <div style={{fontFamily:M,fontSize:'8px',color:'#4a6888',letterSpacing:'1px',marginBottom:'8px'}}>DAGEN EFTER FÖRLUST VS VINSTDAG</div>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'8px'}}>
                 {[{label:'Efter förlustdag',sub:'Hämndtrading?',s:alStat},{label:'Efter vinstdag',sub:'Fortsatt fokus?',s:awStat}].map(({label,sub,s},i)=>{
                   const awr=s.total>0?Math.round(s.wins/s.total*100):null
                   return (
-                    <div key={i} style={{background:'#0d1214',border:'1px solid #1e2c32',borderRadius:'8px',padding:'10px 12px'}}>
-                      <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84'}}>{label}</div>
+                    <div key={i} style={{background:'#0a1020',border:'1px solid #162340',borderRadius:'8px',padding:'10px 12px'}}>
+                      <div style={{fontFamily:M,fontSize:'8px',color:'#4a6888'}}>{label}</div>
                       <div style={{fontFamily:M,fontSize:'7px',color:'#3a5460',marginBottom:'5px'}}>{sub}</div>
-                      <div style={{fontFamily:M,fontSize:'22px',fontWeight:700,color:awr!=null?(awr>=50?'#00e5b0':'#ff4f6b'):'#4a6470',lineHeight:1}}>{awr!=null?`${awr}%`:'—'}</div>
-                      <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',marginTop:'3px'}}>{s.total}t · {s.pnl>=0?'+':''}${Math.round(s.pnl)}</div>
+                      <div style={{fontFamily:M,fontSize:'22px',fontWeight:700,color:awr!=null?(awr>=50?'#00e5b0':'#ff4f6b'):'#3a5878',lineHeight:1}}>{awr!=null?`${awr}%`:'—'}</div>
+                      <div style={{fontFamily:M,fontSize:'8px',color:'#4a6888',marginTop:'3px'}}>{s.total}t · {s.pnl>=0?'+':''}${Math.round(s.pnl)}</div>
                     </div>
                   )
                 })}
@@ -655,20 +655,20 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
       {/* ── TIME OF DAY ── */}
       {hasTimeData && section('TID PÅ DAGEN — CET',
         <div style={{display:'flex',flexDirection:'column',gap:'8px'}}>
-          <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',marginBottom:'4px'}}>Baserat på tidsstämpel — kräver ny data</div>
+          <div style={{fontFamily:M,fontSize:'8px',color:'#4a6888',marginBottom:'4px'}}>Baserat på tidsstämpel — kräver ny data</div>
           {timeStats.map((b,i) => {
             const barW = b.total>0&&b.wr!==null ? b.wr : 0
-            const c    = b.wr===null?'#263840':b.wr>=60?'#00e5b0':b.wr>=50?'#4ab89a':b.wr>=40?'#ffc030':'#ff4f6b'
+            const c    = b.wr===null?'#1c2e4a':b.wr>=60?'#00e5b0':b.wr>=50?'#4ab89a':b.wr>=40?'#ffc030':'#ff4f6b'
             return (
               <div key={i} style={{display:'flex',alignItems:'center',gap:'10px'}}>
-                <div style={{fontFamily:M,fontSize:'9px',color:'#88a8ae',width:'90px',flexShrink:0}}>{b.label}</div>
-                <div style={{flex:1,height:'6px',background:'#0d1214',borderRadius:'3px',overflow:'hidden'}}>
+                <div style={{fontFamily:M,fontSize:'9px',color:'#7a96b4',width:'90px',flexShrink:0}}>{b.label}</div>
+                <div style={{flex:1,height:'6px',background:'#0a1020',borderRadius:'3px',overflow:'hidden'}}>
                   <div style={{height:'100%',width:`${barW}%`,background:c,borderRadius:'3px',transition:'width 0.4s ease'}} />
                 </div>
                 <div style={{fontFamily:M,fontSize:'10px',fontWeight:700,color:c,width:'36px',textAlign:'right',flexShrink:0}}>
                   {b.wr!==null?`${b.wr}%`:'—'}
                 </div>
-                <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',width:'50px',textAlign:'right',flexShrink:0}}>
+                <div style={{fontFamily:M,fontSize:'8px',color:'#4a6888',width:'50px',textAlign:'right',flexShrink:0}}>
                   {b.total>0?`${b.total}t · ${b.pnl>=0?'+':''}$${Math.round(b.pnl)}`:'ingen data'}
                 </div>
               </div>
@@ -678,25 +678,25 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
       )}
 
       {/* ── WEEKLY REVIEW ── */}
-      <div style={{background:'#161e24',border:'1px solid #1e2c32',borderRadius:'12px',padding:'16px'}}>
-        <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',letterSpacing:'2px',marginBottom:'14px'}}>VECKOREFLEXION</div>
+      <div style={{background:'#0f1828',border:'1px solid #162340',borderRadius:'12px',padding:'16px'}}>
+        <div style={{fontFamily:M,fontSize:'8px',color:'#7a96b4',letterSpacing:'2px',marginBottom:'14px'}}>VECKOREFLEXION</div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'8px',marginBottom:'14px'}}>
           {[
-            {label:'TRADES',   val:weekTrades.length>0?String(weekTrades.length):'0',   c:'#88a8ae'},
-            {label:'WIN RATE', val:weekTrades.length>0?`${Math.round(weekWins/weekTrades.length*100)}%`:'—', c:weekTrades.length>0?(weekWins/weekTrades.length>=0.5?'#00e5b0':'#ff4f6b'):'#4a6470'},
+            {label:'TRADES',   val:weekTrades.length>0?String(weekTrades.length):'0',   c:'#7a96b4'},
+            {label:'WIN RATE', val:weekTrades.length>0?`${Math.round(weekWins/weekTrades.length*100)}%`:'—', c:weekTrades.length>0?(weekWins/weekTrades.length>=0.5?'#00e5b0':'#ff4f6b'):'#3a5878'},
             {label:'P&L',      val:`${weekPnl>=0?'+':''}$${Math.round(weekPnl)}`,       c:weekPnl>=0?'#00e5b0':'#ff4f6b'},
           ].map(({label,val,c},i)=>(
-            <div key={i} style={{background:'#0d1214',border:'1px solid #1e2c32',borderRadius:'8px',padding:'10px 12px'}}>
-              <div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'3px'}}>{label}</div>
+            <div key={i} style={{background:'#0a1020',border:'1px solid #162340',borderRadius:'8px',padding:'10px 12px'}}>
+              <div style={{fontFamily:M,fontSize:'7px',color:'#4a6888',letterSpacing:'1px',marginBottom:'3px'}}>{label}</div>
               <div style={{fontFamily:M,fontSize:'20px',fontWeight:700,color:c,lineHeight:1}}>{val}</div>
             </div>
           ))}
         </div>
         <div style={{marginBottom:'10px'}}>
-          <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',letterSpacing:'1px',marginBottom:'6px'}}>BETYG PÅ VECKAN</div>
+          <div style={{fontFamily:M,fontSize:'8px',color:'#7a96b4',letterSpacing:'1px',marginBottom:'6px'}}>BETYG PÅ VECKAN</div>
           <div style={{display:'flex',gap:'4px'}}>
             {[1,2,3,4,5].map(n=>(
-              <button key={n} type="button" onClick={()=>setRwRating(rwRating===n?0:n)} style={{fontSize:'22px',background:'none',border:'none',cursor:'pointer',color:n<=rwRating?'#ffc030':'#263840',transition:'color 0.15s',padding:'0 2px'}}>★</button>
+              <button key={n} type="button" onClick={()=>setRwRating(rwRating===n?0:n)} style={{fontSize:'22px',background:'none',border:'none',cursor:'pointer',color:n<=rwRating?'#ffc030':'#1c2e4a',transition:'color 0.15s',padding:'0 2px'}}>★</button>
             ))}
           </div>
         </div>
@@ -706,10 +706,10 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
           {label:'FOKUS NÄSTA V.', val:rwFocus,  set:setRwFocus,  ph:'Vad förbättrar du nästa vecka?'},
         ].map(({label,val,set,ph},i)=>(
           <div key={i} style={{marginBottom:'10px'}}>
-            <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',letterSpacing:'1px',marginBottom:'5px'}}>{label}</div>
+            <div style={{fontFamily:M,fontSize:'8px',color:'#7a96b4',letterSpacing:'1px',marginBottom:'5px'}}>{label}</div>
             <textarea value={val} onChange={e=>set(e.target.value)} placeholder={ph}
-              style={{width:'100%',background:'#0a0e10',border:'1px solid #263840',borderRadius:'8px',color:'#d0e8ec',fontSize:'13px',padding:'10px 12px',outline:'none',boxSizing:'border-box',resize:'vertical',minHeight:'60px',lineHeight:1.6,fontFamily:'inherit',transition:'border-color 0.15s'}}
-              onFocus={e=>e.target.style.borderColor='#5a7a84'} onBlur={e=>e.target.style.borderColor='#263840'} />
+              style={{width:'100%',background:'#08101c',border:'1px solid #1c2e4a',borderRadius:'8px',color:'#dce8f5',fontSize:'13px',padding:'10px 12px',outline:'none',boxSizing:'border-box',resize:'vertical',minHeight:'60px',lineHeight:1.6,fontFamily:'inherit',transition:'border-color 0.15s'}}
+              onFocus={e=>e.target.style.borderColor='#4a6888'} onBlur={e=>e.target.style.borderColor='#1c2e4a'} />
           </div>
         ))}
         <button type="button" onClick={()=>{onSaveWeeklyReview?.(currentWeekStart,{rating:rwRating,note:rwNote,lesson:rwLesson,focus:rwFocus,weekStart:currentWeekStart,savedAt:new Date().toISOString()});setRwRating(0);setRwNote('');setRwLesson('');setRwFocus('')}}
@@ -718,17 +718,17 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
           SPARA VECKOREFLEXION
         </button>
         {pastReviews.length>0&&(
-          <div style={{borderTop:'1px solid #1e2c32',paddingTop:'12px',display:'flex',flexDirection:'column',gap:'8px'}}>
-            <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'4px'}}>TIDIGARE REFLEKTIONER</div>
+          <div style={{borderTop:'1px solid #162340',paddingTop:'12px',display:'flex',flexDirection:'column',gap:'8px'}}>
+            <div style={{fontFamily:M,fontSize:'8px',color:'#4a6888',letterSpacing:'1px',marginBottom:'4px'}}>TIDIGARE REFLEKTIONER</div>
             {pastReviews.map(([ws,rv])=>(
-              <div key={ws} style={{background:'#0d1214',border:'1px solid #1e2c32',borderRadius:'8px',padding:'12px 14px'}}>
+              <div key={ws} style={{background:'#0a1020',border:'1px solid #162340',borderRadius:'8px',padding:'12px 14px'}}>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'6px'}}>
-                  <div style={{fontFamily:M,fontSize:'9px',color:'#88a8ae'}}>{ws}</div>
-                  <div>{[1,2,3,4,5].map(n=><span key={n} style={{color:n<=(rv.rating||0)?'#ffc030':'#263840',fontSize:'12px'}}>★</span>)}</div>
+                  <div style={{fontFamily:M,fontSize:'9px',color:'#7a96b4'}}>{ws}</div>
+                  <div>{[1,2,3,4,5].map(n=><span key={n} style={{color:n<=(rv.rating||0)?'#ffc030':'#1c2e4a',fontSize:'12px'}}>★</span>)}</div>
                 </div>
-                {rv.note&&<div style={{fontSize:'12px',color:'#88a8ae',lineHeight:1.6,marginBottom:'6px',borderLeft:'2px solid #1e2c32',paddingLeft:'8px'}}>{rv.note}</div>}
-                {rv.lesson&&<><div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',marginBottom:'2px',marginTop:'4px'}}>LÄRDOM</div><div style={{fontSize:'12px',color:'#88a8ae',lineHeight:1.6,borderLeft:'2px solid rgba(0,229,176,0.2)',paddingLeft:'8px'}}>{rv.lesson}</div></>}
-                {rv.focus&&<><div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',marginBottom:'2px',marginTop:'4px'}}>NÄSTA VECKA</div><div style={{fontSize:'12px',color:'#88a8ae',lineHeight:1.6,borderLeft:'2px solid rgba(255,192,48,0.2)',paddingLeft:'8px'}}>{rv.focus}</div></>}
+                {rv.note&&<div style={{fontSize:'12px',color:'#7a96b4',lineHeight:1.6,marginBottom:'6px',borderLeft:'2px solid #162340',paddingLeft:'8px'}}>{rv.note}</div>}
+                {rv.lesson&&<><div style={{fontFamily:M,fontSize:'7px',color:'#4a6888',marginBottom:'2px',marginTop:'4px'}}>LÄRDOM</div><div style={{fontSize:'12px',color:'#7a96b4',lineHeight:1.6,borderLeft:'2px solid rgba(0,229,176,0.2)',paddingLeft:'8px'}}>{rv.lesson}</div></>}
+                {rv.focus&&<><div style={{fontFamily:M,fontSize:'7px',color:'#4a6888',marginBottom:'2px',marginTop:'4px'}}>NÄSTA VECKA</div><div style={{fontSize:'12px',color:'#7a96b4',lineHeight:1.6,borderLeft:'2px solid rgba(255,192,48,0.2)',paddingLeft:'8px'}}>{rv.focus}</div></>}
               </div>
             ))}
           </div>
@@ -737,18 +737,18 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
 
       {section('WIN RATE PER VECKODAG',
         <>
-          <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',marginBottom:'12px'}}>Gråa = under 3 trades</div>
+          <div style={{fontFamily:M,fontSize:'8px',color:'#4a6888',marginBottom:'12px'}}>Gråa = under 3 trades</div>
           <div style={{display:'flex',gap:'8px',alignItems:'flex-end',height:'100px'}}>
             {dayStats.map((d,i)=>{
-              const c  = d.total===0?'#161e24':!d.reliable?'#1a2428':d.wr>=50?'#007d5e':'#7a1020'
-              const tc = d.total===0?'#263840':!d.reliable?'#85a4ad':d.wr>=50?'#00e5b0':'#ff4f6b'
+              const c  = d.total===0?'#0f1828':!d.reliable?'#1a2428':d.wr>=50?'#007d5e':'#7a1020'
+              const tc = d.total===0?'#1c2e4a':!d.reliable?'#7a96b4':d.wr>=50?'#00e5b0':'#ff4f6b'
               const h  = d.total===0?'5px':`${Math.max(d.wr,5)}%`
               return (
                 <div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:'4px',height:'100%',justifyContent:'flex-end'}}>
                   <div style={{fontFamily:M,fontSize:'9px',color:tc}}>{d.total===0?'—':`${d.wr}%`}</div>
                   <div style={{width:'100%',height:h,background:c,borderRadius:'3px 3px 0 0',transition:'height 0.3s ease'}} />
-                  <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad'}}>{d.day.slice(0,3)}</div>
-                  <div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84'}}>{d.total}t</div>
+                  <div style={{fontFamily:M,fontSize:'8px',color:'#7a96b4'}}>{d.day.slice(0,3)}</div>
+                  <div style={{fontFamily:M,fontSize:'7px',color:'#4a6888'}}>{d.total}t</div>
                 </div>
               )
             })}
