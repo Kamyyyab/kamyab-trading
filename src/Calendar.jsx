@@ -35,13 +35,14 @@ const lbl = { fontFamily:M, fontSize:'9px', color:'#7a96b4', letterSpacing:'1.5p
 
 // ── EditForm ────────────────────────────────────────────────
 function EditForm({ initial = {}, onSave, onCancel }) {
-  const [result,  setResult]  = useState(initial.result     || '')
-  const [instr,   setInstr]   = useState(initial.instrument || 'MYM')
-  const [pnl,     setPnl]     = useState(initial.pnl        || '')
-  const [note,    setNote]    = useState(initial.note       || '')
-  const [emotion, setEmotion] = useState(initial.emotion    || '3')
-  const [setup,   setSetup]   = useState(initial.setup      || '')
-  const [tags,    setTags]    = useState(initial.psychTags  || [])
+  const [result,    setResult]    = useState(initial.result     || '')
+  const [instr,     setInstr]     = useState(initial.instrument || 'MYM')
+  const [pnl,       setPnl]       = useState(initial.pnl        || '')
+  const [note,      setNote]      = useState(initial.note       || '')
+  const [emotion,   setEmotion]   = useState(initial.emotion    || '3')
+  const [setup,     setSetup]     = useState(initial.setup      || '')
+  const [tags,      setTags]      = useState(initial.psychTags  || [])
+  const [tradeTime, setTradeTime] = useState(initial.tradeTime  || '')
   const [image,    setImage]    = useState(initial.image  || null)
   const [imgPrev,  setImgPrev]  = useState(initial.image  || null)
   const [audioUrl, setAudioUrl] = useState(initial.audio  || null)
@@ -148,8 +149,8 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         </div>
       </div>
 
-      {/* INSTRUMENT + P&L + SETUP */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'10px' }}>
+      {/* INSTRUMENT + P&L + SETUP + HANDLAD KL */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr', gap:'10px' }}>
         <div>
           <span style={lbl}>INSTRUMENT</span>
           <input value={instr} onChange={e => setInstr(e.target.value)} style={inp} />
@@ -161,6 +162,10 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         <div>
           <span style={lbl}>SETUP</span>
           <input value={setup} onChange={e => setSetup(e.target.value)} placeholder="BTB" style={inp} />
+        </div>
+        <div>
+          <span style={lbl}>HANDLAD KL</span>
+          <input type="time" value={tradeTime} onChange={e => setTradeTime(e.target.value)} style={{ ...inp, colorScheme:'dark' }} />
         </div>
       </div>
 
@@ -238,7 +243,7 @@ function EditForm({ initial = {}, onSave, onCancel }) {
           onMouseEnter={e=>{e.currentTarget.style.borderColor='#3a5460';e.currentTarget.style.color='#dce8f5'}}
           onMouseLeave={e=>{e.currentTarget.style.borderColor='#1c2e4a';e.currentTarget.style.color='#7a96b4'}}
         >Avbryt</button>
-        <button type="button" onClick={() => onSave({ result, instrument:instr, pnl:pnl||'0', note, emotion, setup, psychTags:tags, image:image||null, audio:audioUrl||null })} style={{
+        <button type="button" onClick={() => onSave({ result, instrument:instr, pnl:pnl||'0', note, emotion, setup, psychTags:tags, tradeTime, image:image||null, audio:audioUrl||null })} style={{
           flex:1, background:'#00e5b0', color:'#020f08', fontFamily:M, fontSize:'12px', fontWeight:700,
           padding:'14px', borderRadius:'8px', border:'none', cursor:'pointer', letterSpacing:'1px',
           transition:'background 0.15s',
@@ -273,6 +278,7 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
           <span style={{ fontFamily:M, fontSize:'10px', color:'#7a96b4', background:'#0f1828', border:'1px solid #162340', borderRadius:'5px', padding:'3px 8px', fontWeight:600 }}>{t.instrument}</span>
           <span style={{ fontFamily:M, fontSize:'10px', padding:'3px 8px', borderRadius:'5px', background:RBG[t.result]||'#0c1422', color:RC[t.result]||'#7a96b4', fontWeight:700 }}>{RL[t.result]||t.result}</span>
           {t.setup && <span style={{ fontFamily:M, fontSize:'9px', color:'#7a96b4', background:'#0f1828', border:'1px solid #162340', borderRadius:'5px', padding:'3px 7px' }}>{t.setup}</span>}
+          {t.tradeTime && <span style={{ fontFamily:M, fontSize:'9px', color:'#6880a0', background:'#0a1020', border:'1px solid #162340', borderRadius:'5px', padding:'3px 7px' }}>{t.tradeTime}</span>}
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:'10px', flexShrink:0 }}>
           <span style={{ fontFamily:M, fontSize:'18px', fontWeight:700, color:pv>=0?'#00e5b0':'#ff4f6b' }}>{pv>=0?'+':''}${Math.abs(Math.round(pv))}</span>
