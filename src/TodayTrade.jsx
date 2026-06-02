@@ -75,6 +75,7 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
   const [setup,      setSetup]      = useState(initial.setup      || '')
   const [psychTags,  setPsychTags]  = useState(initial.psychTags  || [])
   const [biasError,  setBiasError]  = useState(false)
+  const [tradeTime,  setTradeTime]  = useState(initial.tradeTime  || (() => new Date().toLocaleTimeString('sv-SE', { timeZone:'Europe/Stockholm', hour:'2-digit', minute:'2-digit', hour12:false }))())
   const [checkAplus, setCheckAplus] = useState(false)
   const [checkRisk,  setCheckRisk]  = useState(false)
   const [image,      setImage]      = useState(initial.image || null)
@@ -136,7 +137,7 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
       return
     }
     setBiasError(false)
-    onSave({ result, instrument, pnl: pnl || '0', note, emotion, setup, psychTags, checklistViolation, violatedRules, brokenRules: violatedRules, image: image || null, audio: audioUrl || null })
+    onSave({ result, instrument, pnl: pnl || '0', note, emotion, setup, psychTags, checklistViolation, violatedRules, brokenRules: violatedRules, tradeTime, image: image || null, audio: audioUrl || null })
   }
 
   return (
@@ -254,7 +255,7 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
           onFocus={e=>e.target.style.borderColor='#4a6888'} onBlur={e=>e.target.style.borderColor='#1c2e4a'} />
       </div>
 
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px' }}>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'8px' }}>
         <div>
           <span style={lbl}>P&L ($)</span>
           <input type="number" inputMode="decimal" value={pnl} onChange={e => setPnl(e.target.value)} placeholder="450" style={inp}
@@ -263,6 +264,11 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
         <div>
           <span style={lbl}>SETUP</span>
           <input value={setup} onChange={e => setSetup(e.target.value)} placeholder="BTB" style={inp}
+            onFocus={e=>e.target.style.borderColor='#4a6888'} onBlur={e=>e.target.style.borderColor='#1c2e4a'} />
+        </div>
+        <div>
+          <span style={lbl}>HANDLAD KL</span>
+          <input type="time" value={tradeTime} onChange={e => setTradeTime(e.target.value)} style={{ ...inp, colorScheme:'dark' }}
             onFocus={e=>e.target.style.borderColor='#4a6888'} onBlur={e=>e.target.style.borderColor='#1c2e4a'} />
         </div>
       </div>

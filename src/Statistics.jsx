@@ -126,15 +126,19 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
     { label:'16:30–17:00', from:16*60+30, to:17*60     },
     { label:'17:00–17:30', from:17*60,    to:17*60+30  },
   ]
-  function tsToMins(ts) {
-    if (!ts) return null
+  function tsToMins(t) {
+    if (t.tradeTime) {
+      const parts = t.tradeTime.split(':')
+      return parseInt(parts[0]) * 60 + parseInt(parts[1])
+    }
+    if (!t.timestamp) return null
     try {
-      const s = new Date(ts).toLocaleTimeString('sv-SE', { timeZone:'Europe/Stockholm', hour:'2-digit', minute:'2-digit', hour12:false }).split(':')
+      const s = new Date(t.timestamp).toLocaleTimeString('sv-SE', { timeZone:'Europe/Stockholm', hour:'2-digit', minute:'2-digit', hour12:false }).split(':')
       return parseInt(s[0])*60+parseInt(s[1])
     } catch { return null }
   }
   const timeStats = TIME_BUCKETS.map(b => {
-    const bt = trades.filter(t => { const m=tsToMins(t.timestamp); return m!==null&&m>=b.from&&m<b.to })
+    const bt = trades.filter(t => { const m=tsToMins(t); return m!==null&&m>=b.from&&m<b.to })
     const w  = bt.filter(t=>WIN_RESULTS.has(t.result)).length
     return { label:b.label, total:bt.length, wins:w, wr:bt.length>0?Math.round(w/bt.length*100):null, pnl:bt.reduce((s,t)=>s+parseFloat(t.pnl||0),0) }
   })
