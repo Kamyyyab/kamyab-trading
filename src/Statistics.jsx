@@ -29,9 +29,11 @@ function exportCSV(journal) {
   URL.revokeObjectURL(url)
 }
 
-export default function Statistics({ journal = [] }) {
+export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWeeklyReview, settings = {}, onSaveSettings }) {
   const [filter, setFilter] = useState('Totalt')
   const [monthView, setMonthView] = useState('pnl') // 'pnl' | 'wr' | 'r'
+  const [editStartBal, setEditStartBal] = useState(false)
+  const [startBalInput, setStartBalInput] = useState('')
 
   function filterTrades(t) {
     const now = new Date()
@@ -119,6 +121,66 @@ export default function Statistics({ journal = [] }) {
 
   const days = ['Måndag','Tisdag','Onsdag','Torsdag','Fredag']
   const dayStats = days.map((day,i)=>{ const dt=trades.filter(t=>new Date(t.date).getDay()===(i+1)); const dw=dt.filter(t=>WIN_RESULTS.has(t.result)).length; return {day,wr:dt.length>0?Math.round(dw/dt.length*100):0,total:dt.length,reliable:dt.length>=3} })
+
+  // ── Instrument breakdown ──────────────────────────────────────
+  const instrStats = {}
+  trades.forEach(t => {
+    const k = t.instrument || 'Okänt'
+    if (!instrStats[k]) instrStats[k] = { wins:0, total:0, pnl:0 }
+    instrStats[k].total++; instrStats[k].pnl += parseFloat(t.pnl||0)
+    if (WIN_RESULTS.has(t.result)) instrStats[k].wins++
+  })
+  const instrList = Object.entries(instrStats).sort(([,a],[,b]) => b.pnl - a.pnl)
+
+  // ── Behavioral insights ───────────────────────────────────────
+  const byEmotion = (lo, hi) => { const g=trades.filter(t=>{ const e=parseInt(t.emotion||5); return e>=lo&&e<=hi }); return { total:g.length, wins:g.filter(t=>WIN_RESULTS.has(t.result)).length, pnl:g.reduce((s,t)=>s+parseFloat(t.pnl||0),0) } }
+  const emoLow  = byEmotion(1,3)   // lugn
+  const emoMid  = byEmotion(4,6)   // neutral
+  const emoHigh = byEmotion(7,10)  // stressad
+
+  // Trade #1 vs #2 (sort by timestamp within each day)
+  const byDay = {}
+  trades.forEach(t => { if(!byDay[t.date])byDay[t.date]=[]; byDay[t.date].push(t) })
+  const t1=[],t2=[]
+  Object.values(byDay).forEach(dt => {
+    const sorted=[...dt].sort((a,b)=>(a.timestamp||'').localeCompare(b.timestamp||''))
+    if(sorted[0])t1.push(sorted[0]); if(sorted[1])t2.push(sorted[1])
+  })
+  const tradeNStat = arr => ({ total:arr.length, wins:arr.filter(t=>WIN_RESULTS.has(t.result)).length, pnl:arr.reduce((s,t)=>s+parseFloat(t.pnl||0),0) })
+  const stat1=tradeNStat(t1), stat2=tradeNStat(t2)
+
+  // After-loss-day pattern
+  const allSortedByDate = [...journal.filter(t=>!['skip','no-setup'].includes(t.result))].sort((a,b)=>a.date.localeCompare(b.date))
+  const dayPnl = {}
+  allSortedByDate.forEach(t=>{ dayPnl[t.date]=(dayPnl[t.date]||0)+parseFloat(t.pnl||0) })
+  const tradeDates = [...new Set(allSortedByDate.map(t=>t.date))].sort()
+  const afterLossTrades=[], afterWinTrades=[]
+  for(let i=1;i<tradeDates.length;i++){
+    const prev=tradeDates[i-1], curr=tradeDates[i]
+    const currTrades=allSortedByDate.filter(t=>t.date===curr)
+    if((dayPnl[prev]||0)<0) afterLossTrades.push(...currTrades)
+    else afterWinTrades.push(...currTrades)
+  }
+  const alStat = tradeNStat(afterLossTrades)
+  const awStat = tradeNStat(afterWinTrades)
+
+  // ── Account growth ────────────────────────────────────────────
+  const startBal   = parseFloat(settings.startingBalance || 0)
+  const allTradePnl = journal.filter(t=>!['skip','no-setup'].includes(t.result)).reduce((s,t)=>s+parseFloat(t.pnl||0),0)
+  const currentBal  = startBal > 0 ? startBal + allTradePnl : 0
+  const growthPct   = startBal > 0 ? ((allTradePnl / startBal) * 100) : null
+
+  // ── Weekly review ─────────────────────────────────────────────
+  const getWeekStart = (d=new Date()) => { const ds=new Date(d); ds.setDate(ds.getDate()-((ds.getDay()+6)%7)); ds.setHours(0,0,0,0); return ds.toISOString().slice(0,10) }
+  const currentWeekStart = getWeekStart()
+  const [rwRating, setRwRating] = useState(0)
+  const [rwNote,   setRwNote]   = useState('')
+  const [rwLesson, setRwLesson] = useState('')
+  const [rwFocus,  setRwFocus]  = useState('')
+  const weekTrades = trades.filter(t => t.date >= currentWeekStart)
+  const weekWins   = weekTrades.filter(t=>WIN_RESULTS.has(t.result)).length
+  const weekPnl    = weekTrades.reduce((s,t)=>s+parseFloat(t.pnl||0),0)
+  const pastReviews = Object.entries(weeklyReviews).sort(([a],[b])=>b.localeCompare(a)).slice(0,6)
 
   const card = (label,value,color,sub) => (
     <div style={{background:'#161e24',border:'1px solid #1e2c32',borderRadius:'12px',padding:'14px 16px'}}>
@@ -430,6 +492,183 @@ export default function Statistics({ journal = [] }) {
           })}
         </div>
       )}
+
+      {/* ── ACCOUNT GROWTH ── */}
+      <div style={{background:'#161e24',border:'1px solid #1e2c32',borderRadius:'12px',padding:'16px'}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'14px',flexWrap:'wrap',gap:'8px'}}>
+          <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',letterSpacing:'2px'}}>KONTOUTVECKLING</div>
+          {!editStartBal ? (
+            <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
+              {startBal>0&&<span style={{fontFamily:M,fontSize:'9px',color:'#5a7a84'}}>Start: ${startBal.toLocaleString()}</span>}
+              <button onClick={()=>{setStartBalInput(String(startBal||''));setEditStartBal(true)}} style={{background:'none',border:'1px solid #1e2c32',borderRadius:'4px',color:'#85a4ad',fontFamily:M,fontSize:'8px',padding:'2px 8px',cursor:'pointer'}}>{startBal>0?'✎ Ändra':'+ Sätt startkapital'}</button>
+            </div>
+          ) : (
+            <div style={{display:'flex',gap:'5px',alignItems:'center'}}>
+              <span style={{fontFamily:M,fontSize:'8px',color:'#85a4ad'}}>$</span>
+              <input autoFocus type="number" value={startBalInput} onChange={e=>setStartBalInput(e.target.value)}
+                onKeyDown={e=>{if(e.key==='Enter'){onSaveSettings?.({startingBalance:parseFloat(startBalInput)||0});setEditStartBal(false)}if(e.key==='Escape')setEditStartBal(false)}}
+                placeholder="50000" style={{width:'80px',background:'#0a0e10',border:'1px solid #5a7a84',borderRadius:'5px',color:'#d0e8ec',fontFamily:M,fontSize:'11px',padding:'3px 7px',outline:'none'}} />
+              <button onClick={()=>{onSaveSettings?.({startingBalance:parseFloat(startBalInput)||0});setEditStartBal(false)}} style={{background:'#00e5b0',border:'none',borderRadius:'4px',color:'#020f08',fontFamily:M,fontSize:'8px',padding:'3px 8px',cursor:'pointer',fontWeight:700}}>OK</button>
+              <button onClick={()=>setEditStartBal(false)} style={{background:'none',border:'1px solid #1e2c32',borderRadius:'4px',color:'#85a4ad',fontFamily:M,fontSize:'8px',padding:'3px 7px',cursor:'pointer'}}>✕</button>
+            </div>
+          )}
+        </div>
+        {startBal>0 ? (
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'10px'}}>
+            {[
+              {label:'STARTKAPITAL', val:`$${Math.round(startBal).toLocaleString()}`,       c:'#88a8ae', bg:'#0d1214',   bdr:'#1e2c32'},
+              {label:'NUVARANDE',    val:`$${Math.round(currentBal).toLocaleString()}`,      c:currentBal>=startBal?'#00e5b0':'#ff4f6b', bg:'#0d1214', bdr:'#1e2c32'},
+              {label:'TILLVÄXT',     val:`${growthPct>=0?'+':''}${growthPct?.toFixed(1)}%`,  c:growthPct>=0?'#00e5b0':'#ff4f6b', bg:growthPct>=0?'#001810':'#1a0610', bdr:growthPct>=0?'rgba(0,229,176,0.2)':'rgba(255,79,107,0.2)'},
+            ].map(({label,val,c,bg,bdr},i)=>(
+              <div key={i} style={{background:bg,border:`1px solid ${bdr}`,borderRadius:'8px',padding:'12px'}}>
+                <div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'4px'}}>{label}</div>
+                <div style={{fontFamily:M,fontSize:'18px',fontWeight:700,color:c,lineHeight:1}}>{val}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{fontFamily:M,fontSize:'9px',color:'#4a6470'}}>Sätt ditt startkapital för att spåra procentuell tillväxt</div>
+        )}
+      </div>
+
+      {/* ── INSTRUMENT BREAKDOWN ── */}
+      {instrList.length>0 && section('P&L PER INSTRUMENT',
+        <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
+          {instrList.map(([instr,s],i)=>{
+            const iwr=s.total>0?Math.round(s.wins/s.total*100):0
+            const maxP=Math.max(...instrList.map(([,x])=>Math.abs(x.pnl)),1)
+            return (
+              <div key={i}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'4px'}}>
+                  <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
+                    <span style={{fontFamily:M,fontSize:'11px',color:'#d0e8ec',fontWeight:600}}>{instr}</span>
+                    <span style={{fontFamily:M,fontSize:'9px',color:iwr>=50?'#00e5b0':'#ff4f6b'}}>{iwr}%</span>
+                    <span style={{fontFamily:M,fontSize:'8px',color:'#85a4ad'}}>{s.total}t</span>
+                  </div>
+                  <span style={{fontFamily:M,fontSize:'12px',fontWeight:700,color:s.pnl>=0?'#00e5b0':'#ff4f6b'}}>{s.pnl>=0?'+':''}${Math.round(s.pnl)}</span>
+                </div>
+                <div style={{height:'4px',background:'#0d1214',borderRadius:'2px',overflow:'hidden'}}>
+                  <div style={{height:'100%',width:`${Math.abs(s.pnl)/maxP*100}%`,background:s.pnl>=0?'#007d5e':'#7a1020',borderRadius:'2px',transition:'width 0.4s ease'}} />
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* ── BEHAVIORAL INSIGHTS ── */}
+      {trades.length>=5 && section('BETEENDEINSIKTER',
+        <div style={{display:'flex',flexDirection:'column',gap:'12px'}}>
+          <div>
+            <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'8px'}}>EMOTION VS PRESTATION</div>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'8px'}}>
+              {[{label:'Lugn (1–3)',s:emoLow,c:'#00e5b0'},{label:'Neutral (4–6)',s:emoMid,c:'#ffc030'},{label:'Stressad (7–10)',s:emoHigh,c:'#ff4f6b'}].map(({label,s,c},i)=>{
+                const ewr=s.total>0?Math.round(s.wins/s.total*100):null
+                return (
+                  <div key={i} style={{background:'#0d1214',border:'1px solid #1e2c32',borderRadius:'8px',padding:'10px 12px'}}>
+                    <div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',marginBottom:'5px'}}>{label}</div>
+                    <div style={{fontFamily:M,fontSize:'18px',fontWeight:700,color:ewr!=null?c:'#4a6470',lineHeight:1}}>{ewr!=null?`${ewr}%`:'—'}</div>
+                    <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',marginTop:'3px'}}>{s.total>0?`${s.total}t · ${s.pnl>=0?'+':''}$${Math.round(s.pnl)}`:'ingen data'}</div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+          {(stat1.total>0||stat2.total>0)&&(
+            <div>
+              <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'8px'}}>TRADE #1 VS TRADE #2 PER DAG</div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'8px'}}>
+                {[{label:'Trade #1',s:stat1},{label:'Trade #2',s:stat2}].map(({label,s},i)=>{
+                  const twr=s.total>0?Math.round(s.wins/s.total*100):null
+                  return (
+                    <div key={i} style={{background:'#0d1214',border:'1px solid #1e2c32',borderRadius:'8px',padding:'10px 12px'}}>
+                      <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',marginBottom:'5px'}}>{label}</div>
+                      <div style={{fontFamily:M,fontSize:'22px',fontWeight:700,color:twr!=null?(twr>=50?'#00e5b0':'#ff4f6b'):'#4a6470',lineHeight:1}}>{twr!=null?`${twr}%`:'—'}</div>
+                      <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',marginTop:'3px'}}>{s.total}t · {s.pnl>=0?'+':''}${Math.round(s.pnl)}</div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+          {(alStat.total>0||awStat.total>0)&&(
+            <div>
+              <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'8px'}}>DAGEN EFTER FÖRLUST VS VINSTDAG</div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'8px'}}>
+                {[{label:'Efter förlustdag',sub:'Hämndtrading?',s:alStat},{label:'Efter vinstdag',sub:'Fortsatt fokus?',s:awStat}].map(({label,sub,s},i)=>{
+                  const awr=s.total>0?Math.round(s.wins/s.total*100):null
+                  return (
+                    <div key={i} style={{background:'#0d1214',border:'1px solid #1e2c32',borderRadius:'8px',padding:'10px 12px'}}>
+                      <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84'}}>{label}</div>
+                      <div style={{fontFamily:M,fontSize:'7px',color:'#3a5460',marginBottom:'5px'}}>{sub}</div>
+                      <div style={{fontFamily:M,fontSize:'22px',fontWeight:700,color:awr!=null?(awr>=50?'#00e5b0':'#ff4f6b'):'#4a6470',lineHeight:1}}>{awr!=null?`${awr}%`:'—'}</div>
+                      <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',marginTop:'3px'}}>{s.total}t · {s.pnl>=0?'+':''}${Math.round(s.pnl)}</div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── WEEKLY REVIEW ── */}
+      <div style={{background:'#161e24',border:'1px solid #1e2c32',borderRadius:'12px',padding:'16px'}}>
+        <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',letterSpacing:'2px',marginBottom:'14px'}}>VECKOREFLEXION</div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'8px',marginBottom:'14px'}}>
+          {[
+            {label:'TRADES',   val:weekTrades.length>0?String(weekTrades.length):'0',   c:'#88a8ae'},
+            {label:'WIN RATE', val:weekTrades.length>0?`${Math.round(weekWins/weekTrades.length*100)}%`:'—', c:weekTrades.length>0?(weekWins/weekTrades.length>=0.5?'#00e5b0':'#ff4f6b'):'#4a6470'},
+            {label:'P&L',      val:`${weekPnl>=0?'+':''}$${Math.round(weekPnl)}`,       c:weekPnl>=0?'#00e5b0':'#ff4f6b'},
+          ].map(({label,val,c},i)=>(
+            <div key={i} style={{background:'#0d1214',border:'1px solid #1e2c32',borderRadius:'8px',padding:'10px 12px'}}>
+              <div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'3px'}}>{label}</div>
+              <div style={{fontFamily:M,fontSize:'20px',fontWeight:700,color:c,lineHeight:1}}>{val}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{marginBottom:'10px'}}>
+          <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',letterSpacing:'1px',marginBottom:'6px'}}>BETYG PÅ VECKAN</div>
+          <div style={{display:'flex',gap:'4px'}}>
+            {[1,2,3,4,5].map(n=>(
+              <button key={n} type="button" onClick={()=>setRwRating(rwRating===n?0:n)} style={{fontSize:'22px',background:'none',border:'none',cursor:'pointer',color:n<=rwRating?'#ffc030':'#263840',transition:'color 0.15s',padding:'0 2px'}}>★</button>
+            ))}
+          </div>
+        </div>
+        {[
+          {label:'REFLEKTIONER',   val:rwNote,   set:setRwNote,   ph:'Vad gick bra? Vad var svårt?'},
+          {label:'LÄRDOM VECKAN',  val:rwLesson, set:setRwLesson, ph:'Vad tar du med dig framåt?'},
+          {label:'FOKUS NÄSTA V.', val:rwFocus,  set:setRwFocus,  ph:'Vad förbättrar du nästa vecka?'},
+        ].map(({label,val,set,ph},i)=>(
+          <div key={i} style={{marginBottom:'10px'}}>
+            <div style={{fontFamily:M,fontSize:'8px',color:'#85a4ad',letterSpacing:'1px',marginBottom:'5px'}}>{label}</div>
+            <textarea value={val} onChange={e=>set(e.target.value)} placeholder={ph}
+              style={{width:'100%',background:'#0a0e10',border:'1px solid #263840',borderRadius:'8px',color:'#d0e8ec',fontSize:'13px',padding:'10px 12px',outline:'none',boxSizing:'border-box',resize:'vertical',minHeight:'60px',lineHeight:1.6,fontFamily:'inherit',transition:'border-color 0.15s'}}
+              onFocus={e=>e.target.style.borderColor='#5a7a84'} onBlur={e=>e.target.style.borderColor='#263840'} />
+          </div>
+        ))}
+        <button type="button" onClick={()=>{onSaveWeeklyReview?.(currentWeekStart,{rating:rwRating,note:rwNote,lesson:rwLesson,focus:rwFocus,weekStart:currentWeekStart,savedAt:new Date().toISOString()});setRwRating(0);setRwNote('');setRwLesson('');setRwFocus('')}}
+          style={{width:'100%',background:'#00e5b0',color:'#020f08',fontFamily:M,fontSize:'11px',fontWeight:700,padding:'12px',borderRadius:'8px',border:'none',cursor:'pointer',letterSpacing:'1px',marginBottom:pastReviews.length>0?'14px':'0'}}
+          onMouseEnter={e=>e.currentTarget.style.background='#00c49a'} onMouseLeave={e=>e.currentTarget.style.background='#00e5b0'}>
+          SPARA VECKOREFLEXION
+        </button>
+        {pastReviews.length>0&&(
+          <div style={{borderTop:'1px solid #1e2c32',paddingTop:'12px',display:'flex',flexDirection:'column',gap:'8px'}}>
+            <div style={{fontFamily:M,fontSize:'8px',color:'#5a7a84',letterSpacing:'1px',marginBottom:'4px'}}>TIDIGARE REFLEKTIONER</div>
+            {pastReviews.map(([ws,rv])=>(
+              <div key={ws} style={{background:'#0d1214',border:'1px solid #1e2c32',borderRadius:'8px',padding:'12px 14px'}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'6px'}}>
+                  <div style={{fontFamily:M,fontSize:'9px',color:'#88a8ae'}}>{ws}</div>
+                  <div>{[1,2,3,4,5].map(n=><span key={n} style={{color:n<=(rv.rating||0)?'#ffc030':'#263840',fontSize:'12px'}}>★</span>)}</div>
+                </div>
+                {rv.note&&<div style={{fontSize:'12px',color:'#88a8ae',lineHeight:1.6,marginBottom:'6px',borderLeft:'2px solid #1e2c32',paddingLeft:'8px'}}>{rv.note}</div>}
+                {rv.lesson&&<><div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',marginBottom:'2px',marginTop:'4px'}}>LÄRDOM</div><div style={{fontSize:'12px',color:'#88a8ae',lineHeight:1.6,borderLeft:'2px solid rgba(0,229,176,0.2)',paddingLeft:'8px'}}>{rv.lesson}</div></>}
+                {rv.focus&&<><div style={{fontFamily:M,fontSize:'7px',color:'#5a7a84',marginBottom:'2px',marginTop:'4px'}}>NÄSTA VECKA</div><div style={{fontSize:'12px',color:'#88a8ae',lineHeight:1.6,borderLeft:'2px solid rgba(255,192,48,0.2)',paddingLeft:'8px'}}>{rv.focus}</div></>}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {section('WIN RATE PER VECKODAG',
         <>
