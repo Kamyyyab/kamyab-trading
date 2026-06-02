@@ -362,7 +362,7 @@ export default function App() {
         {page==='calendar'   && <div style={{ maxWidth:'1400px', margin:'0 auto' }}><Calendar journal={journal} onAddTrade={handleAddTrade} onDeleteTrade={handleDeleteTrade} onEditTrade={handleEditTrade} /></div>}
         {page==='statistics' && <div style={{ maxWidth:'900px',  margin:'0 auto' }}><Statistics journal={journal} weeklyReviews={weeklyReviews} onSaveWeeklyReview={handleSaveWeeklyReview} settings={settings} onSaveSettings={handleSaveSettings} /></div>}
         {page==='calculator' && <div style={{ maxWidth:'520px',  margin:'0 auto', paddingBottom:'12px' }}><RiskCalculator journal={journal} /></div>}
-        {page==='charts'     && <div style={{ maxWidth:'1200px', margin:'0 auto' }}><TradingViewChart /></div>}
+        {page==='charts'     && <div style={{ maxWidth:'1600px', margin:'0 auto' }}><TradingViewChart /></div>}
         {page==='playbook'   && <div style={{ maxWidth:'1000px', margin:'0 auto' }}><Playbook playbook={playbook} onSaveSetup={handleSaveSetup} onDeleteSetup={handleDeleteSetup} journal={journal} /></div>}
       </div>
 

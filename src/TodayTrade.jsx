@@ -581,18 +581,6 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
         </div>
       </div>
 
-      {/* Session notes */}
-      <div style={{ background:'#0c1422', border:'1px solid #162340', borderRadius:'12px', padding:'12px 14px' }}>
-        <span style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4', letterSpacing:'1.5px', display:'block', marginBottom:'6px' }}>DAGLIG ANALYS</span>
-        <textarea
-          value={sessionNotes[today] || ''}
-          onChange={e => onSaveSessionNote?.(today, e.target.value)}
-          placeholder="Marknadsläge, bias-motivering, vad är planen idag..."
-          style={{ width:'100%', background:'#08101c', border:'1px solid #1c2e4a', borderRadius:'7px', color:'#dce8f5', fontSize:'13px', padding:'9px 11px', outline:'none', boxSizing:'border-box', resize:'vertical', minHeight:'64px', lineHeight:1.6, fontFamily:'inherit', transition:'border-color 0.15s' }}
-          onFocus={e=>e.target.style.borderColor='#4a6888'} onBlur={e=>e.target.style.borderColor='#1c2e4a'}
-        />
-      </div>
-
       {/* Today's trades */}
       <div style={{ background:'#0c1422', border:'1px solid #162340', borderRadius:'12px', padding:'14px' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:todayTrades.length>0||showForm?'12px':'0' }}>
