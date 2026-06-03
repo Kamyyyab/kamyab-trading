@@ -1,44 +1,59 @@
 import { useEffect, useRef, useState } from 'react'
 
-const M      = "'JetBrains Mono', monospace"
-const FINNHUB = 'd86pfmhr01qurhv774f0d86pfmhr01qurhv774fg'
+const M     = "'JetBrains Mono', monospace"
+const PROXY = 'https://corsproxy.io/?'
+const YF    = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols='
 
 const TFS = [
   ['1m','1'],['3m','3'],['5m','5'],['15m','15'],
   ['30m','30'],['1H','60'],['4H','240'],['D','D'],
 ]
 
-// Common name → Finnhub ticker mapping
+// Common name → Yahoo Finance ticker (real prices, real levels)
 const ALIASES = {
-  // Indices → ETF proxies
-  'US30':   'DIA',   'DJ30':   'DIA',   'DJIA':  'DIA',   'DOW':    'DIA',
-  'US100':  'QQQ',   'NAS100': 'QQQ',   'NDX':   'QQQ',   'NASDAQ': 'QQQ',
-  'US500':  'SPY',   'SP500':  'SPY',   'SPX':   'SPY',   'S&P500': 'SPY',
-  'US2000': 'IWM',   'RUT':    'IWM',
-  'DAX':    'EWG',   'GER40':  'EWG',
-  'FTSE':   'EWU',   'UK100':  'EWU',
-  // Metals
-  'GOLD':   'GLD',   'XAU':    'GLD',   'XAUUSD': 'GLD',
-  'SILVER': 'SLV',   'XAG':    'SLV',   'XAGUSD': 'SLV',
+  // US indices (real level: ~44 000)
+  'US30':   '^DJI',   'DJ30':   '^DJI',   'DJIA':   '^DJI',   'DOW':    '^DJI',
+  'US100':  '^NDX',   'NAS100': '^NDX',   'NDX':    '^NDX',   'NASDAQ': '^NDX',
+  'US500':  '^GSPC',  'SP500':  '^GSPC',  'SPX':    '^GSPC',  'S&P500': '^GSPC',
+  'US2000': '^RUT',   'RUT':    '^RUT',
+  'DAX':    '^GDAXI', 'GER40':  '^GDAXI',
+  'FTSE':   '^FTSE',  'UK100':  '^FTSE',
+  // Micro futures (real level ~44 000)
+  'MYM':    'MYM=F',  'MYM1!':  'MYM=F',
+  'MNQ':    'MNQ=F',  'MNQ1!':  'MNQ=F',
+  'MES':    'MES=F',  'MES1!':  'MES=F',
+  'M2K':    'M2K=F',
+  // Full futures
+  'YM':     'YM=F',   'YM1!':   'YM=F',
+  'NQ':     'NQ=F',   'NQ1!':   'NQ=F',
+  'ES':     'ES=F',   'ES1!':   'ES=F',
+  'RTY':    'RTY=F',  'RTY1!':  'RTY=F',
+  // Metals (real level: ~2 900)
+  'GOLD':   'GC=F',   'XAU':    'GC=F',   'XAUUSD': 'GC=F',   'GC':     'GC=F',
+  'SILVER': 'SI=F',   'XAG':    'SI=F',   'XAGUSD': 'SI=F',   'SI':     'SI=F',
+  'PLATINUM':'PL=F',
   // Energy
-  'OIL':    'USO',   'CRUDE':  'USO',   'USOIL':  'USO',   'WTI':   'USO',
-  'BRENT':  'BNO',
-  // Crypto → Binance pairs (Finnhub supports these)
-  'BTC':      'BINANCE:BTCUSDT', 'BTCUSD':  'BINANCE:BTCUSDT', 'BITCOIN': 'BINANCE:BTCUSDT',
-  'ETH':      'BINANCE:ETHUSDT', 'ETHUSD':  'BINANCE:ETHUSDT',
-  'SOL':      'BINANCE:SOLUSDT', 'SOLUSD':  'BINANCE:SOLUSDT',
-  'XRP':      'BINANCE:XRPUSDT', 'XRPUSD':  'BINANCE:XRPUSDT',
-  'BNB':      'BINANCE:BNBUSDT',
-  'ADA':      'BINANCE:ADAUSDT',
+  'OIL':    'CL=F',   'CRUDE':  'CL=F',   'USOIL':  'CL=F',   'WTI':    'CL=F',
+  'BRENT':  'BZ=F',   'NG':     'NG=F',
+  // Crypto
+  'BTC':    'BTC-USD', 'BITCOIN':'BTC-USD', 'BTCUSD': 'BTC-USD',
+  'ETH':    'ETH-USD', 'ETHUSD': 'ETH-USD',
+  'SOL':    'SOL-USD', 'SOLUSD': 'SOL-USD',
+  'XRP':    'XRP-USD', 'XRPUSD': 'XRP-USD',
+  'BNB':    'BNB-USD', 'ADA':    'ADA-USD',
+  'DOGE':   'DOGE-USD','AVAX':   'AVAX-USD',
 }
 
-// Resolve a user-input symbol to Finnhub-compatible ticker
 const resolveSym = s => ALIASES[s.trim().toUpperCase()] || s.trim().toUpperCase()
 
-// Futures can't be auto-polled (not on Finnhub free tier)
-const isFutures = s => {
-  if (ALIASES[s.toUpperCase()]) return false // aliases are always non-futures
-  return /1!$/i.test(s) || /^(CBOT:|CME:|COMEX:|NYMEX:)/i.test(s)
+async function fetchPrice(raw) {
+  const ticker = resolveSym(raw)
+  try {
+    const url = PROXY + encodeURIComponent(YF + ticker)
+    const r   = await fetch(url)
+    const d   = await r.json()
+    return d?.quoteResponse?.result?.[0]?.regularMarketPrice ?? null
+  } catch { return null }
 }
 
 let ctr = 0
@@ -111,20 +126,17 @@ export default function TradingViewChart() {
   // ── Price alert polling — stable, reads ref ─────────────────
   useEffect(() => {
     const check = async () => {
-      const active = alertsRef.current.filter(a => !a.triggered && !isFutures(a.symbol))
+      const active = alertsRef.current.filter(a => !a.triggered)
       if (!active.length) return
       setChecking(true)
       for (const a of active) {
         try {
-          const ticker = resolveSym(a.symbol)
-          const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=${ticker}&token=${FINNHUB}`)
-          const d = await r.json()
-          const c = d.c
+          const c = await fetchPrice(a.symbol)
           if (!c || c === 0) continue
           setPrices(p => ({ ...p, [a.symbol]: c }))
           const prev = prevPricesRef.current[a.symbol]
           prevPricesRef.current[a.symbol] = c
-          // Touch = price crossed level in either direction, OR is within 0.2% of target
+          // Touch = price crossed level in either direction, OR within 0.2%
           const crossed = prev !== undefined &&
             ((prev < a.price && c >= a.price) || (prev > a.price && c <= a.price))
           const near = Math.abs(c - a.price) / a.price <= 0.002
@@ -248,7 +260,7 @@ export default function TradingViewChart() {
         </div>
 
         <div style={{ fontFamily: M, fontSize: '8px', color: '#2a3c50', marginBottom: '12px' }}>
-          Aktier, index &amp; krypto: auto-kontroll var 30s. Skriv t.ex. <span style={{ color: '#6880a0' }}>US30, GOLD, BTC, AAPL</span>.
+          Priser hämtas via Yahoo Finance — riktiga nivåer. T.ex. <span style={{ color: '#6880a0' }}>US30 @ 44 500, MYM @ 44 200, GOLD @ 2 950, BTC @ 105 000</span>.
         </div>
 
         {/* Notification permission */}
@@ -292,7 +304,6 @@ export default function TradingViewChart() {
         )}
 
         {alerts.map(a => {
-          const fut      = isFutures(a.symbol)
           const resolved = resolveSym(a.symbol)
           const aliased  = resolved !== a.symbol.toUpperCase()
           const cur      = prices[a.symbol]
@@ -319,11 +330,9 @@ export default function TradingViewChart() {
                 <div style={{ fontFamily: M, fontSize: '8px', color: '#4a6888', marginTop: '2px' }}>
                   {a.triggered
                     ? `✓ Touchade @ ${a.triggeredPrice?.toFixed(2)}`
-                    : fut
-                      ? 'Futures — lägg larm direkt i TV-chartet'
-                      : cur
-                        ? `Nu: ${cur.toFixed(2)} · ${dist}% kvar`
-                        : 'Väntar på nästa kontroll...'}
+                    : cur
+                      ? `Nu: ${cur.toLocaleString(undefined, {maximumFractionDigits: 2})} · ${dist}% kvar`
+                      : 'Väntar på nästa kontroll...'}
                 </div>
                 {a.label && a.label !== `${a.symbol} @ ${a.price}` && (
                   <div style={{ fontFamily: M, fontSize: '8px', color: '#6880a0', marginTop: '1px' }}>{a.label}</div>
