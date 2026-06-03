@@ -24,11 +24,24 @@
   --transition: 0.15s ease;
 }
 
+html {
+  height: 100%;
+  /* Fix iOS 100vh bug in PWA/standalone mode */
+  height: -webkit-fill-available;
+}
+
 body {
   background: var(--bg);
   color: var(--t1);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
+  min-height: 100%;
+  min-height: 100dvh;
+}
+
+/* PWA standalone — hide browser chrome artifacts */
+@media (display-mode: standalone) {
+  body { overscroll-behavior: none; }
 }
 
 .mono { font-family: 'JetBrains Mono', monospace; }

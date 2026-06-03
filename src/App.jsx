@@ -274,7 +274,7 @@ export default function App() {
   }
 
   if (loading) return (
-    <div style={{ background:'#070a14', minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center' }}>
+    <div style={{ background:'#070a14', minHeight:'100dvh', display:'flex', alignItems:'center', justifyContent:'center' }}>
       <div style={{ fontFamily:M, fontSize:'12px', color:'#3a5878', letterSpacing:'3px' }}>{t.loading}</div>
     </div>
   )
@@ -308,7 +308,7 @@ export default function App() {
 
   return (
     <LangCtx.Provider value={lang}>
-    <div style={{ background:'#070a14', minHeight:'100vh', color:'#dce8f5' }}>
+    <div style={{ background:'#070a14', minHeight:'100dvh', color:'#dce8f5' }}>
 
       {MOBILE ? (
         <nav style={navH}>

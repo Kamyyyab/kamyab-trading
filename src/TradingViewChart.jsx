@@ -44,8 +44,8 @@ const isFutures = s => {
 let ctr = 0
 
 export default function TradingViewChart() {
-  const [sym,      setSym]      = useState('TVC:US30')
-  const [symInput, setSymInput] = useState('TVC:US30')
+  const [sym,      setSym]      = useState('DJ:DJI')
+  const [symInput, setSymInput] = useState('DJ:DJI')
   const [tf,       setTf]       = useState('5')
   const containerRef = useRef(null)
 
@@ -54,9 +54,9 @@ export default function TradingViewChart() {
   })
   const [aSym,      setASym]    = useState('')
   const [aPrice,    setAPrice]  = useState('')
-  const [aDir,      setADir]    = useState('above')
   const [aLabel,    setALabel]  = useState('')
   const [prices,    setPrices]  = useState({})
+  const prevPricesRef = useRef({})
   const [lastCheck,  setLastCheck]  = useState(null)
   const [checking,   setChecking]   = useState(false)
   const [notifPerm,  setNotifPerm]  = useState(() => typeof Notification !== 'undefined' ? Notification.permission : 'unsupported')
@@ -122,16 +122,22 @@ export default function TradingViewChart() {
           const c = d.c
           if (!c || c === 0) continue
           setPrices(p => ({ ...p, [a.symbol]: c }))
-          const hit = a.dir === 'above' ? c >= a.price : c <= a.price
+          const prev = prevPricesRef.current[a.symbol]
+          prevPricesRef.current[a.symbol] = c
+          // Touch = price crossed level in either direction, OR is within 0.2% of target
+          const crossed = prev !== undefined &&
+            ((prev < a.price && c >= a.price) || (prev > a.price && c <= a.price))
+          const near = Math.abs(c - a.price) / a.price <= 0.002
+          const hit = crossed || near
           if (hit) {
-            setAlerts(prev => prev.map(x =>
+            setAlerts(prev2 => prev2.map(x =>
               x.id === a.id
                 ? { ...x, triggered: true, triggeredPrice: c, triggeredAt: new Date().toISOString() }
                 : x
             ))
             if (Notification.permission === 'granted') {
-              new Notification(`🔔 ${a.symbol} larm!`, {
-                body: `${a.symbol} ${a.dir === 'above' ? '≥' : '≤'} ${a.price} · Nu: ${c.toFixed(2)}`,
+              new Notification(`🔔 ${a.symbol} touchade ${a.price}!`, {
+                body: `${a.symbol} @ ${c.toFixed(2)} — Prisnivå ${a.price} nådd`,
                 icon: '/kamyab-trading/icon.svg',
               })
             }
@@ -158,8 +164,7 @@ export default function TradingViewChart() {
       id:        Date.now(),
       symbol:    aSym.trim().toUpperCase(),
       price:     parseFloat(aPrice),
-      dir:       aDir,
-      label:     aLabel.trim() || `${aSym.toUpperCase()} ${aDir === 'above' ? '↑' : '↓'} ${aPrice}`,
+      label:     aLabel.trim() || `${aSym.toUpperCase()} @ ${aPrice}`,
       triggered: false,
       createdAt: new Date().toISOString(),
     }
@@ -224,8 +229,8 @@ export default function TradingViewChart() {
         </div>
 
         {/* Add form */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '8px', marginBottom: '8px' }}>
-          <div>
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'flex-end' }}>
+          <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
               <span style={{ fontFamily: M, fontSize: '7px', color: '#6880a0', letterSpacing: '1px' }}>SYMBOL</span>
               {aSym && ALIASES[aSym] && (
@@ -233,29 +238,13 @@ export default function TradingViewChart() {
               )}
             </div>
             <input value={aSym} onChange={e => setASym(e.target.value.toUpperCase())}
-              placeholder="US30, AAPL, BTC, GOLD..." style={inp9} />
+              placeholder="US30, AAPL, BTC..." style={inp9} />
           </div>
-          <div>
-            <div style={{ fontFamily: M, fontSize: '7px', color: '#6880a0', letterSpacing: '1px', marginBottom: '4px' }}>PRIS</div>
-            <input type="number" value={aPrice} onChange={e => setAPrice(e.target.value)} placeholder="45 000" style={inp9} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: M, fontSize: '7px', color: '#6880a0', letterSpacing: '1px', marginBottom: '4px' }}>PRISNIVÅ</div>
+            <input type="number" value={aPrice} onChange={e => setAPrice(e.target.value)} placeholder="44 500" style={inp9} />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <div style={{ fontFamily: M, fontSize: '7px', color: '#6880a0', letterSpacing: '1px' }}>RIKTNING</div>
-            <div style={{ display: 'flex', gap: '4px' }}>
-              {[['above', '↑ Över'], ['below', '↓ Under']].map(([v, l]) => (
-                <button key={v} onClick={() => setADir(v)} style={{
-                  flex: 1, fontFamily: M, fontSize: '9px', padding: '7px 6px', borderRadius: '6px',
-                  border: `1px solid ${aDir === v ? (v === 'above' ? 'rgba(0,229,176,0.4)' : 'rgba(255,79,107,0.4)') : '#162340'}`,
-                  background: aDir === v ? (v === 'above' ? '#001810' : '#1a0610') : 'transparent',
-                  color: aDir === v ? (v === 'above' ? '#00e5b0' : '#ff4f6b') : '#6880a0', cursor: 'pointer',
-                }}>{l}</button>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
-          <input value={aLabel} onChange={e => setALabel(e.target.value)} placeholder="Label (valfri)..." style={{ ...inp9, flex: 1 }} />
-          <button onClick={addAlert} style={{ background: '#f59e0b', border: 'none', borderRadius: '6px', color: '#0a0700', fontFamily: M, fontSize: '10px', fontWeight: 700, padding: '7px 18px', cursor: 'pointer', flexShrink: 0 }}>+ Lägg till</button>
+          <button onClick={addAlert} style={{ background: '#f59e0b', border: 'none', borderRadius: '6px', color: '#0a0700', fontFamily: M, fontSize: '10px', fontWeight: 700, padding: '9px 16px', cursor: 'pointer', flexShrink: 0, height: '38px' }}>+ Lägg till</button>
         </div>
 
         <div style={{ fontFamily: M, fontSize: '8px', color: '#2a3c50', marginBottom: '12px' }}>
@@ -315,13 +304,11 @@ export default function TradingViewChart() {
               background: a.triggered ? '#001810' : '#0a1020',
               border: `1px solid ${a.triggered ? 'rgba(0,229,176,0.2)' : '#162340'}`,
             }}>
-              <div style={{ fontFamily: M, fontSize: '16px', color: a.dir === 'above' ? '#00e5b0' : '#ff4f6b', flexShrink: 0 }}>
-                {a.dir === 'above' ? '↑' : '↓'}
-              </div>
+              <div style={{ fontFamily: M, fontSize: '14px', color: '#f59e0b', flexShrink: 0 }}>◎</div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                   <span style={{ fontFamily: M, fontSize: '11px', color: a.triggered ? '#00e5b0' : '#dce8f5', fontWeight: 600 }}>
-                    {a.symbol} {a.dir === 'above' ? '≥' : '≤'} {a.price.toLocaleString()}
+                    {a.symbol} @ {a.price.toLocaleString()}
                   </span>
                   {aliased && (
                     <span style={{ fontFamily: M, fontSize: '8px', color: '#4a6888', background: '#070a14', border: '1px solid #162340', borderRadius: '3px', padding: '1px 5px' }}>
@@ -331,14 +318,14 @@ export default function TradingViewChart() {
                 </div>
                 <div style={{ fontFamily: M, fontSize: '8px', color: '#4a6888', marginTop: '2px' }}>
                   {a.triggered
-                    ? `✓ Triggad @ ${a.triggeredPrice?.toFixed(2)}`
+                    ? `✓ Touchade @ ${a.triggeredPrice?.toFixed(2)}`
                     : fut
                       ? 'Futures — lägg larm direkt i TV-chartet'
                       : cur
                         ? `Nu: ${cur.toFixed(2)} · ${dist}% kvar`
                         : 'Väntar på nästa kontroll...'}
                 </div>
-                {a.label && a.label !== `${a.symbol} ${a.dir === 'above' ? '↑' : '↓'} ${a.price}` && (
+                {a.label && a.label !== `${a.symbol} @ ${a.price}` && (
                   <div style={{ fontFamily: M, fontSize: '8px', color: '#6880a0', marginTop: '1px' }}>{a.label}</div>
                 )}
               </div>
