@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git commit -m 'fix: prisalarm - stabil poll med useRef, ta bort snabbval *)"
+    ]
+  }
+}
