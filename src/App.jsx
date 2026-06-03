@@ -281,7 +281,15 @@ export default function App() {
 
   if (!user) return <Auth onLogin={setUser} />
 
-  const navH = { height:'54px', background:'rgba(7,10,20,0.98)', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', borderTop:'2px solid #f59e0b', borderBottom:'1px solid #131e38', display:'flex', alignItems:'center', padding:'0 16px', justifyContent:'space-between', position:'sticky', top:0, zIndex:40 }
+  const navH = {
+    background:'rgba(7,10,20,0.98)', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)',
+    borderTop:'2px solid #f59e0b', borderBottom:'1px solid #131e38',
+    display:'flex', alignItems:'center',
+    paddingTop:'env(safe-area-inset-top)',
+    paddingLeft:'16px', paddingRight:'16px', paddingBottom:'0',
+    minHeight:'calc(54px + env(safe-area-inset-top))',
+    justifyContent:'space-between', position:'sticky', top:0, zIndex:40,
+  }
 
   const LangBtn = () => (
     <button type="button" onClick={toggleLang} style={{ fontFamily:M, fontSize:'9px', color:'#f59e0b', background:'#18100a', border:'1px solid rgba(245,158,11,0.3)', borderRadius:'6px', padding:'4px 9px', cursor:'pointer', letterSpacing:'1px', fontWeight:700, transition:'all 0.15s' }}>
