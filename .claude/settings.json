@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(git commit -m 'fix: prisalarm - stabil poll med useRef, ta bort snabbval *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(git commit -m 'fix: robust fetchPrice med 6 försök \\(2 proxy × 3 YF endpoint\\) *)",
+      "Bash(git commit -m 'fix: X-axel max 6 labels + prisnummer utan mellanslag \\(en-US\\) *)",
+      "Bash(grep -n \"function parseChart\\\\|return { price, open, chartData\" /Users/kamyab/trading-os-react/src/TradingViewChart.jsx)",
+      "Bash(git commit -m 'fix: lägg till aktuellt pris som sista punkt i chart *)"
     ]
   }
 }
