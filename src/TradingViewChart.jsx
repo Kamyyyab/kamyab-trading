@@ -8,7 +8,38 @@ const TFS = [
   ['30m','30'],['1H','60'],['4H','240'],['D','D'],
 ]
 
-const isFutures = s => /1!$/i.test(s) || /^(CBOT:|CME:|COMEX:|NYMEX:)/i.test(s)
+// Common name → Finnhub ticker mapping
+const ALIASES = {
+  // Indices → ETF proxies
+  'US30':   'DIA',   'DJ30':   'DIA',   'DJIA':  'DIA',   'DOW':    'DIA',
+  'US100':  'QQQ',   'NAS100': 'QQQ',   'NDX':   'QQQ',   'NASDAQ': 'QQQ',
+  'US500':  'SPY',   'SP500':  'SPY',   'SPX':   'SPY',   'S&P500': 'SPY',
+  'US2000': 'IWM',   'RUT':    'IWM',
+  'DAX':    'EWG',   'GER40':  'EWG',
+  'FTSE':   'EWU',   'UK100':  'EWU',
+  // Metals
+  'GOLD':   'GLD',   'XAU':    'GLD',   'XAUUSD': 'GLD',
+  'SILVER': 'SLV',   'XAG':    'SLV',   'XAGUSD': 'SLV',
+  // Energy
+  'OIL':    'USO',   'CRUDE':  'USO',   'USOIL':  'USO',   'WTI':   'USO',
+  'BRENT':  'BNO',
+  // Crypto → Binance pairs (Finnhub supports these)
+  'BTC':      'BINANCE:BTCUSDT', 'BTCUSD':  'BINANCE:BTCUSDT', 'BITCOIN': 'BINANCE:BTCUSDT',
+  'ETH':      'BINANCE:ETHUSDT', 'ETHUSD':  'BINANCE:ETHUSDT',
+  'SOL':      'BINANCE:SOLUSDT', 'SOLUSD':  'BINANCE:SOLUSDT',
+  'XRP':      'BINANCE:XRPUSDT', 'XRPUSD':  'BINANCE:XRPUSDT',
+  'BNB':      'BINANCE:BNBUSDT',
+  'ADA':      'BINANCE:ADAUSDT',
+}
+
+// Resolve a user-input symbol to Finnhub-compatible ticker
+const resolveSym = s => ALIASES[s.trim().toUpperCase()] || s.trim().toUpperCase()
+
+// Futures can't be auto-polled (not on Finnhub free tier)
+const isFutures = s => {
+  if (ALIASES[s.toUpperCase()]) return false // aliases are always non-futures
+  return /1!$/i.test(s) || /^(CBOT:|CME:|COMEX:|NYMEX:)/i.test(s)
+}
 
 let ctr = 0
 
@@ -84,7 +115,8 @@ export default function TradingViewChart() {
       setChecking(true)
       for (const a of active) {
         try {
-          const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=${a.symbol}&token=${FINNHUB}`)
+          const ticker = resolveSym(a.symbol)
+          const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=${ticker}&token=${FINNHUB}`)
           const d = await r.json()
           const c = d.c
           if (!c || c === 0) continue
@@ -172,7 +204,7 @@ export default function TradingViewChart() {
         </div>
         <div ref={containerRef} style={{ height: '640px' }} />
         <div style={{ padding: '7px 14px', borderTop: '1px solid #162340', background: '#080e1c', fontFamily: M, fontSize: '8px', color: '#3a5878' }}>
-          💡 Högerklicka i chartet → <span style={{ color: '#f59e0b' }}>Add Alert</span> för inbyggda larm direkt i TradingView
+          💡 Klicka inne i chartet → högerklicka på en prisnivå → <span style={{ color: '#f59e0b' }}>Add Alert</span> — kräver TradingView-konto (gratis)
         </div>
       </div>
 
@@ -193,8 +225,14 @@ export default function TradingViewChart() {
         {/* Add form */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '8px', marginBottom: '8px' }}>
           <div>
-            <div style={{ fontFamily: M, fontSize: '7px', color: '#6880a0', letterSpacing: '1px', marginBottom: '4px' }}>SYMBOL</div>
-            <input value={aSym} onChange={e => setASym(e.target.value.toUpperCase())} placeholder="AAPL, TSLA, ETH..." style={inp9} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+              <span style={{ fontFamily: M, fontSize: '7px', color: '#6880a0', letterSpacing: '1px' }}>SYMBOL</span>
+              {aSym && ALIASES[aSym] && (
+                <span style={{ fontFamily: M, fontSize: '7px', color: '#00e5b0' }}>→ {ALIASES[aSym]}</span>
+              )}
+            </div>
+            <input value={aSym} onChange={e => setASym(e.target.value.toUpperCase())}
+              placeholder="US30, AAPL, BTC, GOLD..." style={inp9} />
           </div>
           <div>
             <div style={{ fontFamily: M, fontSize: '7px', color: '#6880a0', letterSpacing: '1px', marginBottom: '4px' }}>PRIS</div>
@@ -228,9 +266,11 @@ export default function TradingViewChart() {
         )}
 
         {alerts.map(a => {
-          const fut = isFutures(a.symbol)
-          const cur = prices[a.symbol]
-          const dist = cur && !a.triggered ? Math.abs(((cur - a.price) / a.price) * 100).toFixed(1) : null
+          const fut      = isFutures(a.symbol)
+          const resolved = resolveSym(a.symbol)
+          const aliased  = resolved !== a.symbol.toUpperCase()
+          const cur      = prices[a.symbol]
+          const dist     = cur && !a.triggered ? Math.abs(((cur - a.price) / a.price) * 100).toFixed(1) : null
           return (
             <div key={a.id} style={{
               display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px',
@@ -242,8 +282,15 @@ export default function TradingViewChart() {
                 {a.dir === 'above' ? '↑' : '↓'}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: M, fontSize: '11px', color: a.triggered ? '#00e5b0' : '#dce8f5', fontWeight: 600 }}>
-                  {a.symbol} {a.dir === 'above' ? '≥' : '≤'} {a.price.toLocaleString()}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                  <span style={{ fontFamily: M, fontSize: '11px', color: a.triggered ? '#00e5b0' : '#dce8f5', fontWeight: 600 }}>
+                    {a.symbol} {a.dir === 'above' ? '≥' : '≤'} {a.price.toLocaleString()}
+                  </span>
+                  {aliased && (
+                    <span style={{ fontFamily: M, fontSize: '8px', color: '#4a6888', background: '#070a14', border: '1px solid #162340', borderRadius: '3px', padding: '1px 5px' }}>
+                      → {resolved}
+                    </span>
+                  )}
                 </div>
                 <div style={{ fontFamily: M, fontSize: '8px', color: '#4a6888', marginTop: '2px' }}>
                   {a.triggered
