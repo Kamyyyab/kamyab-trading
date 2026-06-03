@@ -1,46 +1,72 @@
 import { useEffect, useRef, useState } from 'react'
 
-const M     = "'JetBrains Mono', monospace"
-const PROXY = 'https://corsproxy.io/?'
-const YF    = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols='
+const M = "'JetBrains Mono', monospace"
 
 const ALIASES = {
-  'US30':'^ DJI','DJ30':'^DJI','DJIA':'^DJI','DOW':'^DJI',
-  'US100':'^NDX','NAS100':'^NDX','NDX':'^NDX','NASDAQ':'^NDX',
-  'US500':'^GSPC','SP500':'^GSPC','SPX':'^GSPC',
+  'US30':'^DJI',  'DJ30':'^DJI',   'DJIA':'^DJI',   'DOW':'^DJI',
+  'US100':'^NDX', 'NAS100':'^NDX', 'NDX':'^NDX',    'NASDAQ':'^NDX',
+  'US500':'^GSPC','SP500':'^GSPC', 'SPX':'^GSPC',
   'US2000':'^RUT','RUT':'^RUT',
-  'DAX':'^GDAXI','GER40':'^GDAXI',
-  'FTSE':'^FTSE','UK100':'^FTSE',
-  'MYM':'MYM=F','MYM1!':'MYM=F',
-  'MNQ':'MNQ=F','MNQ1!':'MNQ=F',
-  'MES':'MES=F','MES1!':'MES=F',
-  'YM':'YM=F','YM1!':'YM=F',
-  'NQ':'NQ=F','NQ1!':'NQ=F',
-  'ES':'ES=F','ES1!':'ES=F',
-  'RTY':'RTY=F','RTY1!':'RTY=F',
-  'GOLD':'GC=F','XAU':'GC=F','XAUUSD':'GC=F','GC':'GC=F',
-  'SILVER':'SI=F','XAG':'SI=F','XAGUSD':'SI=F',
-  'OIL':'CL=F','CRUDE':'CL=F','USOIL':'CL=F','WTI':'CL=F',
-  'BRENT':'BZ=F','NG':'NG=F',
+  'DAX':'^GDAXI', 'GER40':'^GDAXI',
+  'FTSE':'^FTSE', 'UK100':'^FTSE',
+  'MYM':'MYM=F',  'MYM1!':'MYM=F',
+  'MNQ':'MNQ=F',  'MNQ1!':'MNQ=F',
+  'MES':'MES=F',  'MES1!':'MES=F',
+  'YM':'YM=F',    'YM1!':'YM=F',
+  'NQ':'NQ=F',    'NQ1!':'NQ=F',
+  'ES':'ES=F',    'ES1!':'ES=F',
+  'RTY':'RTY=F',  'RTY1!':'RTY=F',
+  'GOLD':'GC=F',  'XAU':'GC=F',    'XAUUSD':'GC=F', 'GC':'GC=F',
+  'SILVER':'SI=F','XAG':'SI=F',    'XAGUSD':'SI=F',
+  'OIL':'CL=F',   'CRUDE':'CL=F',  'USOIL':'CL=F',  'WTI':'CL=F',
+  'BRENT':'BZ=F', 'NG':'NG=F',
   'BTC':'BTC-USD','BITCOIN':'BTC-USD','BTCUSD':'BTC-USD',
   'ETH':'ETH-USD','ETHUSD':'ETH-USD',
-  'SOL':'SOL-USD','XRP':'XRP-USD','BNB':'BNB-USD',
+  'SOL':'SOL-USD','XRP':'XRP-USD',  'BNB':'BNB-USD',
   'DOGE':'DOGE-USD','AVAX':'AVAX-USD',
 }
 
-// Fix the ^DJI typo above
-ALIASES['US30'] = '^DJI'
-
 const resolveSym = s => ALIASES[s.trim().toUpperCase()] || s.trim().toUpperCase()
+
+// Multiple proxies and endpoints — tries until one works
+const PROXIES = [
+  s => `https://api.allorigins.win/raw?url=${encodeURIComponent(s)}`,
+  s => `https://corsproxy.io/?${encodeURIComponent(s)}`,
+]
+
+async function tryFetch(url) {
+  for (const proxy of PROXIES) {
+    try {
+      const r = await fetch(proxy(url), { signal: AbortSignal.timeout(7000) })
+      if (!r.ok) continue
+      const txt = await r.text()
+      if (!txt || txt.startsWith('<')) continue  // got HTML error page
+      return JSON.parse(txt)
+    } catch { /* try next */ }
+  }
+  return null
+}
 
 async function fetchPrice(raw) {
   const ticker = resolveSym(raw)
-  try {
-    const url = PROXY + encodeURIComponent(YF + ticker)
-    const r = await fetch(url)
-    const d = await r.json()
-    return d?.quoteResponse?.result?.[0]?.regularMarketPrice ?? null
-  } catch { return null }
+  const enc    = encodeURIComponent(ticker)
+
+  // Try 1: Yahoo Finance v8 chart (most reliable)
+  const d8 = await tryFetch(`https://query1.finance.yahoo.com/v8/finance/chart/${enc}?interval=1m&range=1d`)
+  const p8 = d8?.chart?.result?.[0]?.meta?.regularMarketPrice
+  if (p8 && p8 > 0) return p8
+
+  // Try 2: Yahoo Finance v7 quote
+  const d7 = await tryFetch(`https://query1.finance.yahoo.com/v7/finance/quote?lang=en-US&region=US&symbols=${enc}`)
+  const p7 = d7?.quoteResponse?.result?.[0]?.regularMarketPrice
+  if (p7 && p7 > 0) return p7
+
+  // Try 3: query2 instead of query1
+  const dq2 = await tryFetch(`https://query2.finance.yahoo.com/v8/finance/chart/${enc}?interval=1m&range=1d`)
+  const pq2 = dq2?.chart?.result?.[0]?.meta?.regularMarketPrice
+  if (pq2 && pq2 > 0) return pq2
+
+  return null
 }
 
 function fmtPrice(p) {
@@ -109,10 +135,11 @@ export default function TradingViewChart() {
 
   async function doLookup(sym) {
     if (!sym.trim()) return
+    setLivePrice(null)
+    setLiveSymbol(sym.trim().toUpperCase())
     setFetching(true)
     const p = await fetchPrice(sym)
     setLivePrice(p)
-    setLiveSymbol(sym.trim().toUpperCase())
     if (p) setAPrice(Math.round(p).toString())
     setFetching(false)
   }
@@ -186,7 +213,7 @@ export default function TradingViewChart() {
 
         {liveSymbol && !livePrice && !fetching && (
           <div style={{ marginTop:'10px', fontFamily:M, fontSize:'10px', color:'#7a3040' }}>
-            Kunde inte hämta pris — kontrollera symbol
+            Inget pris hittades för <b style={{ color:'#ff4f6b' }}>{resolveSym(liveSymbol)}</b> — prova igen eller kontrollera symbolen
           </div>
         )}
       </div>
