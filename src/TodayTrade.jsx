@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useT, useLang } from './lang.js'
 
 const M = "'JetBrains Mono', monospace"
 
@@ -22,7 +23,7 @@ const RULE_LABELS = {
   afterwin: 'Stanna efter vinst',
 }
 
-function ChecklistRow({ label, checked, failed, auto, onClick }) {
+function ChecklistRow({ label, checked, failed, auto, onClick, tAutoTag, tTapTag }) {
   const c   = failed ? '#ff4f6b' : checked ? '#00e5b0' : '#7a96b4'
   const bg  = failed ? '#1a0610' : checked ? '#001810' : '#0a1020'
   const bdr = failed ? 'rgba(255,79,107,0.22)' : checked ? 'rgba(0,229,176,0.18)' : '#162340'
@@ -35,8 +36,8 @@ function ChecklistRow({ label, checked, failed, auto, onClick }) {
     }}>
       <span style={{ fontFamily:M, fontSize:'13px', color:c, width:'13px', flexShrink:0, lineHeight:1 }}>{icon}</span>
       <span style={{ fontFamily:M, fontSize:'9px', color:c, flex:1 }}>{label}</span>
-      {auto && <span style={{ fontFamily:M, fontSize:'7px', color:'#3a5878', letterSpacing:'0.5px' }}>AUTO</span>}
-      {!auto && !checked && <span style={{ fontFamily:M, fontSize:'7px', color:'#3a5878' }}>TAP</span>}
+      {auto && <span style={{ fontFamily:M, fontSize:'7px', color:'#3a5878', letterSpacing:'0.5px' }}>{tAutoTag||'AUTO'}</span>}
+      {!auto && !checked && <span style={{ fontFamily:M, fontSize:'7px', color:'#3a5878' }}>{tTapTag||'TAP'}</span>}
     </div>
   )
 }
@@ -67,6 +68,8 @@ const RESULTS = [
 const REAL_RESULTS = new Set(['tp1','tp2','tp3','win','win2','loss','be'])
 
 function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, firstTradeWon, isOpen = false, realTradeCount = 0, tiltRisk = false, tiltMins = null }) {
+  const t = useT()
+  const lang = useLang()
   const [result,     setResult]     = useState(initial.result     || '')
   const [instrument, setInstrument] = useState(initial.instrument || 'MYM')
   const [pnl,        setPnl]        = useState(initial.pnl        || '')
@@ -145,6 +148,7 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
   const allRules = { ...autoRules, aplus: checkAplus, risk: checkRisk }
   const violatedRules = isReal ? Object.entries(allRules).filter(([, v]) => !v).map(([k]) => k) : []
   const checklistViolation = violatedRules.length > 0
+  const ruleLabels = { bias:t.checklist.bias, aplus:t.checklist.aplus, window:t.checklist.window, risk:t.checklist.risk, max2:t.checklist.maxtrades, afterwin:t.checklist.afterwin }
 
   function save() {
     if (!result) return
@@ -161,7 +165,7 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
 
       {/* Chart image upload */}
       <div>
-        <span style={lbl}>CHART SCREENSHOT</span>
+        <span style={lbl}>{t.chartImg}</span>
         <input ref={fileRef} type="file" accept="image/*" onChange={handleImg} style={{ display:'none' }} />
         {!imgPrev ? (
           <button type="button" onClick={() => fileRef.current?.click()} style={{
@@ -245,12 +249,12 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
       {biasError && (
         <div style={{ background:'#1a0610', border:'1px solid rgba(255,79,107,0.4)', borderRadius:'8px', padding:'10px 13px', display:'flex', gap:'9px', alignItems:'center' }}>
           <span style={{ fontSize:'14px', flexShrink:0 }}>🚫</span>
-          <div style={{ fontFamily:M, fontSize:'10px', color:'#ff4f6b', lineHeight:1.5 }}>Sätt daglig bias innan du loggar en trade. PRO BTB-regel.</div>
+          <div style={{ fontFamily:M, fontSize:'10px', color:'#ff4f6b', lineHeight:1.5 }}>{t.biasError}</div>
         </div>
       )}
 
       <div>
-        <span style={lbl}>OUTCOME</span>
+        <span style={lbl}>{t.outcome}</span>
         <div style={{ display:'flex', flexWrap:'wrap', gap:'5px' }}>
           {RESULTS.map(r => (
             <button type="button" key={r.v} onClick={() => { setResult(r.v); setBiasError(false) }} style={{
@@ -267,7 +271,7 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
 
       {isReal && (
         <div>
-          <span style={lbl}>SETUP-KVALITET</span>
+          <span style={lbl}>{t.setupQuality}</span>
           <div style={{ display:'flex', gap:'5px' }}>
             {[['A+','#f59e0b','#18100a'],['A','#00e5b0','#001810'],['B','#60a5fa','#0a1428'],['C','#7a96b4','#0c1422']].map(([v,c,bg])=>(
               <button type="button" key={v} onClick={()=>setGrade(grade===v?'':v)} style={{
@@ -283,7 +287,7 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
       )}
 
       <div>
-        <span style={lbl}>INSTRUMENT</span>
+        <span style={lbl}>{t.instrument}</span>
         <input value={instrument} onChange={e => setInstrument(e.target.value)} style={inp}
           onFocus={e=>e.target.style.borderColor='#4a6888'} onBlur={e=>e.target.style.borderColor='#1c2e4a'} />
       </div>
@@ -295,19 +299,19 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
             onFocus={e=>e.target.style.borderColor='#4a6888'} onBlur={e=>e.target.style.borderColor='#1c2e4a'} />
         </div>
         <div>
-          <span style={lbl}>SETUP</span>
+          <span style={lbl}>{t.setupLabel}</span>
           <input value={setup} onChange={e => setSetup(e.target.value)} placeholder="BTB" style={inp}
             onFocus={e=>e.target.style.borderColor='#4a6888'} onBlur={e=>e.target.style.borderColor='#1c2e4a'} />
         </div>
         <div>
-          <span style={lbl}>HANDLAD KL</span>
+          <span style={lbl}>{t.tradedAt}</span>
           <input type="time" value={tradeTime} onChange={e => setTradeTime(e.target.value)} style={{ ...inp, colorScheme:'dark' }}
             onFocus={e=>e.target.style.borderColor='#4a6888'} onBlur={e=>e.target.style.borderColor='#1c2e4a'} />
         </div>
       </div>
 
       <div>
-        <span style={lbl}>EMOTION — <span style={{ color:parseInt(emotion)<=3?'#00e5b0':parseInt(emotion)>=7?'#ff4f6b':'#ffc030', fontWeight:600 }}>{parseInt(emotion)<=3?'Lugn ✓':parseInt(emotion)>=7?'Stressad ✗':'Neutral'}</span></span>
+        <span style={lbl}>{t.emotionLabel} — <span style={{ color:parseInt(emotion)<=3?'#00e5b0':parseInt(emotion)>=7?'#ff4f6b':'#ffc030', fontWeight:600 }}>{parseInt(emotion)<=3?t.calm:parseInt(emotion)>=7?t.stressed:t.neutral}</span></span>
         <div style={{ display:'flex', gap:'3px' }}>
           {[1,2,3,4,5,6,7,8,9,10].map(n => (
             <button type="button" key={n} onClick={() => setEmotion(String(n))} style={{
@@ -322,7 +326,7 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
       </div>
 
       <div>
-        <span style={lbl}>PSYKOLOGI</span>
+        <span style={lbl}>{t.psyLabel}</span>
         <div style={{ display:'flex', flexWrap:'wrap', gap:'5px' }}>
           {PSYCH.map(tag => {
             const a = psychTags.includes(tag.id)
@@ -331,15 +335,15 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
                 fontFamily:M, fontSize:'9px', padding:'5px 10px', borderRadius:'5px',
                 background:a?tag.bg:'#0f1828', border:`1px solid ${a?tag.c+'33':'#162340'}`,
                 color:a?tag.c:'#7a96b4', cursor:'pointer', transition:'all 0.15s',
-              }}>{tag.label}</button>
+              }}>{(t.psych[tag.id]||tag.label)}</button>
             )
           })}
         </div>
       </div>
 
       <div>
-        <span style={lbl}>NOTES</span>
-        <textarea value={note} onChange={e => setNote(e.target.value)} placeholder="Analys, tankar..."
+        <span style={lbl}>{t.notesLabel}</span>
+        <textarea value={note} onChange={e => setNote(e.target.value)} placeholder={t.notesPlaceholder}
           style={{...inp, resize:'vertical', minHeight:'140px', lineHeight:1.7, fontSize:'14px'}}
           onFocus={e=>e.target.style.borderColor='#4a6888'} onBlur={e=>e.target.style.borderColor='#1c2e4a'} />
       </div>
@@ -347,23 +351,23 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
       {/* Pre-trade checklist — only for real trades */}
       {isReal && (
         <div>
-          <span style={lbl}>PRE-TRADE CHECKLISTA</span>
+          <span style={lbl}>{t.checklistTitle}</span>
           <div style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
-            <ChecklistRow label={RULE_LABELS.bias}     checked={autoRules.bias}     failed={!autoRules.bias}     auto />
-            <ChecklistRow label={RULE_LABELS.aplus}    checked={checkAplus}         failed={false}               auto={false} onClick={() => setCheckAplus(v => !v)} />
-            <ChecklistRow label={RULE_LABELS.window}   checked={autoRules.window}   failed={!autoRules.window}   auto />
-            <ChecklistRow label={RULE_LABELS.risk}     checked={checkRisk}          failed={false}               auto={false} onClick={() => setCheckRisk(v => !v)} />
-            <ChecklistRow label={RULE_LABELS.max2}     checked={autoRules.max2}     failed={!autoRules.max2}     auto />
-            <ChecklistRow label={RULE_LABELS.afterwin} checked={autoRules.afterwin} failed={!autoRules.afterwin} auto />
+            <ChecklistRow label={ruleLabels.bias}     checked={autoRules.bias}     failed={!autoRules.bias}     auto tAutoTag={t.autoTag} tTapTag={t.tapTag} />
+            <ChecklistRow label={ruleLabels.aplus}    checked={checkAplus}         failed={false}               auto={false} onClick={() => setCheckAplus(v => !v)} tAutoTag={t.autoTag} tTapTag={t.tapTag} />
+            <ChecklistRow label={ruleLabels.window}   checked={autoRules.window}   failed={!autoRules.window}   auto tAutoTag={t.autoTag} tTapTag={t.tapTag} />
+            <ChecklistRow label={ruleLabels.risk}     checked={checkRisk}          failed={false}               auto={false} onClick={() => setCheckRisk(v => !v)} tAutoTag={t.autoTag} tTapTag={t.tapTag} />
+            <ChecklistRow label={ruleLabels.max2}     checked={autoRules.max2}     failed={!autoRules.max2}     auto tAutoTag={t.autoTag} tTapTag={t.tapTag} />
+            <ChecklistRow label={ruleLabels.afterwin} checked={autoRules.afterwin} failed={!autoRules.afterwin} auto tAutoTag={t.autoTag} tTapTag={t.tapTag} />
           </div>
           {checklistViolation && (
             <div style={{ fontFamily:M, fontSize:'8px', color:'#ff4f6b', marginTop:'6px', padding:'5px 8px', background:'#1a0610', borderRadius:'5px', border:'1px solid rgba(255,79,107,0.2)' }}>
-              ⚠ {violatedRules.length} regel{violatedRules.length > 1 ? 'r' : ''} bruten — trade sparas som RULE VIOLATION
+              {t.rulesBroken(violatedRules.length)}
             </div>
           )}
           {!checklistViolation && (
             <div style={{ fontFamily:M, fontSize:'8px', color:'#00e5b0', marginTop:'6px', padding:'5px 8px', background:'#001810', borderRadius:'5px', border:'1px solid rgba(0,229,176,0.15)' }}>
-              ✓ Alla regler uppfyllda
+              {t.allRulesMet}
             </div>
           )}
         </div>
@@ -386,17 +390,19 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
           onMouseEnter={e=>{ if(!(isSecondTrade && firstTradeWon)) e.currentTarget.style.background='#d97706' }}
           onMouseLeave={e=>{ if(!(isSecondTrade && firstTradeWon)) e.currentTarget.style.background='#f59e0b' }}
         >
-          {(isSecondTrade && firstTradeWon) ? 'STANNA FÖR DAGEN' : 'SPARA'}
+          {(isSecondTrade && firstTradeWon) ? t.stopDay : t.saveBtn}
         </button>
         <button type="button" onClick={onCancel} style={{ background:'transparent', color:'#7a96b4', fontFamily:M, fontSize:'10px', padding:'12px 14px', borderRadius:'8px', border:'1px solid #162340', cursor:'pointer', transition:'all 0.15s' }}
           onMouseEnter={e=>{e.currentTarget.style.borderColor='#4a6888';e.currentTarget.style.color='#8aacb4'}}
-          onMouseLeave={e=>{e.currentTarget.style.borderColor='#162340';e.currentTarget.style.color='#7a96b4'}}>Avbryt</button>
+          onMouseLeave={e=>{e.currentTarget.style.borderColor='#162340';e.currentTarget.style.color='#7a96b4'}}>{t.cancelBtn}</button>
       </div>
     </div>
   )
 }
 
 export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streakLogs={}, biasLogs={}, onSaveBias, isLockedOut=false, lockoutReason='', sessionNotes={}, onSaveSessionNote }) {
+  const t = useT()
+  const lang = useLang()
   const [showForm,   setShowForm]   = useState(false)
   const [expanded,   setExpanded]   = useState(null)
   const [editing,    setEditing]    = useState(null)
@@ -486,7 +492,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
         }}>
           <span style={{ fontSize:'20px', flexShrink:0 }}>🔒</span>
           <div>
-            <div style={{ fontFamily:M, fontSize:'11px', color:'#ff4f6b', fontWeight:700, letterSpacing:'1px', marginBottom:'4px' }}>LOCKOUT AKTIV — INGEN TRADING</div>
+            <div style={{ fontFamily:M, fontSize:'11px', color:'#ff4f6b', fontWeight:700, letterSpacing:'1px', marginBottom:'4px' }}>{t.lockoutTitle}</div>
             <div style={{ fontFamily:M, fontSize:'9px', color:'#7a3040', lineHeight:1.6 }}>{lockoutReason || '2 violations denna vecka. Full vecka utan trading. Granska dina regler.'}</div>
           </div>
         </div>
@@ -515,10 +521,10 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
       })()}
 
       <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(130px, 1fr))', gap:'8px' }}>
-        {card('WIN RATE',    `${winRate}%`,                                      '#00e5b0', `${trades.length} trades`)}
-        {card('TOTALT P&L',  `${totalPnl>=0?'+':''}$${Math.round(totalPnl)}`,   totalPnl>=0?'#00e5b0':'#ff4f6b')}
-        {card('DENNA VECKA', `${weekPnl>=0?'+':''}$${Math.round(weekPnl)}`,     weekPnl>=0?'#00e5b0':'#ff4f6b')}
-        {card('STREAK',      `${streak}d`,                                       streak>=5?'#00e5b0':streak>=2?'#ffc030':'#7a96b4')}
+        {card(t.winRate,    `${winRate}%`,                                      '#00e5b0', `${trades.length} ${t.trades}`)}
+        {card(t.totalPnl,  `${totalPnl>=0?'+':''}$${Math.round(totalPnl)}`,   totalPnl>=0?'#00e5b0':'#ff4f6b')}
+        {card(t.thisWeek, `${weekPnl>=0?'+':''}$${Math.round(weekPnl)}`,     weekPnl>=0?'#00e5b0':'#ff4f6b')}
+        {card(t.streak,      `${streak}d`,                                       streak>=5?'#00e5b0':streak>=2?'#ffc030':'#7a96b4')}
       </div>
 
       {/* ── MÅNADSSAMMANFATTNING ── */}
@@ -530,7 +536,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
         const ml  = mt.filter(t => t.result === 'loss').length
         const mp  = mt.reduce((s,t) => s + parseFloat(t.pnl||0), 0)
         const mwr = Math.round(mw / mt.length * 100)
-        const mn  = now.toLocaleDateString('sv-SE', { month:'long' }).toUpperCase()
+        const mn  = now.toLocaleDateString(lang==='en'?'en-US':'sv-SE', { month:'long' }).toUpperCase()
         return (
           <div style={{ background:'#0c1422', border:'1px solid #162340', borderRadius:'12px', padding:'11px 16px', display:'flex', alignItems:'center', gap:'16px' }}>
             <div style={{ fontFamily:M, fontSize:'8px', color:'#6880a0', letterSpacing:'1.5px', flexShrink:0 }}>{mn}</div>
@@ -560,7 +566,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
       <div style={{ background:'#0c1422', border:`1px solid ${curBias?curBias.bdr:'#162340'}`, borderRadius:'12px', padding:'12px 14px', transition:'border-color 0.2s' }}>
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'9px' }}>
           <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
-            <span style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4', letterSpacing:'2px' }}>DAGLIG BIAS</span>
+            <span style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4', letterSpacing:'2px' }}>{t.dailyBias}</span>
             {!todayBias && (
               <span style={{ fontFamily:M, fontSize:'8px', color:'#ffc030', background:'#1a1000', border:'1px solid rgba(255,192,48,0.25)', borderRadius:'4px', padding:'1px 6px', letterSpacing:'0.5px' }}>
                 OBLIGATORISK
@@ -586,14 +592,14 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:todayTrades.length>0||showForm?'12px':'0' }}>
           <div style={{ display:'flex', alignItems:'center', gap:'10px', flexWrap:'wrap' }}>
             <div>
-              <div style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4', letterSpacing:'2px', marginBottom:'2px' }}>DAGENS TRADES</div>
-              <div style={{ fontSize:'11px', color:'#7a96b4' }}>{new Date().toLocaleDateString('sv-SE',{weekday:'long',day:'numeric',month:'long'})}</div>
+              <div style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4', letterSpacing:'2px', marginBottom:'2px' }}>{t.todaysTrades}</div>
+              <div style={{ fontSize:'11px', color:'#7a96b4' }}>{new Date().toLocaleDateString(lang==='en'?'en-US':'sv-SE',{weekday:'long',day:'numeric',month:'long'})}</div>
             </div>
             {timerStr && (
               <div style={{ display:'flex', alignItems:'center', gap:'5px', background:'#0a1020', border:`1px solid ${isOpen?'rgba(0,229,176,0.2)':'#162340'}`, borderRadius:'6px', padding:'4px 9px' }}>
                 <div style={{ width:'5px', height:'5px', borderRadius:'50%', background:isOpen?'#00e5b0':'#ffc030' }} />
                 <span style={{ fontFamily:M, fontSize:'8px', color:isOpen?'#00e5b0':'#ffc030' }}>
-                  {isOpen ? 'STÄNGER' : 'ÖPPNAR'} {timerStr}
+                  {isOpen ? t.closes : t.opens} {timerStr}
                 </span>
               </div>
             )}
@@ -601,7 +607,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
             {!isOpen && !isPre && (
               <div style={{ display:'flex', alignItems:'center', gap:'5px', background:'#0a1020', border:'1px solid #162340', borderRadius:'6px', padding:'4px 9px' }}>
                 <div style={{ width:'5px', height:'5px', borderRadius:'50%', background:'#3a5878' }} />
-                <span style={{ fontFamily:M, fontSize:'8px', color:'#6880a0' }}>SESSION STÄNGD</span>
+                <span style={{ fontFamily:M, fontSize:'8px', color:'#6880a0' }}>{t.sessionClosed}</span>
               </div>
             )}
           </div>
@@ -626,7 +632,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
         </div>
 
         {todayTrades.length===0 && !showForm && (
-          <div style={{ fontFamily:M, fontSize:'11px', color:'#3a5878' }}>Inga trades loggade idag</div>
+          <div style={{ fontFamily:M, fontSize:'11px', color:'#3a5878' }}>{t.noTrades}</div>
         )}
 
         {todayTrades.map((t, i) => {
@@ -710,13 +716,13 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
                     <div style={{ padding:'6px 12px 8px', display:'flex', gap:'4px', flexWrap:'wrap' }}>
                       {t.psychTags.map(id => {
                         const tag=PSYCH.find(p=>p.id===id)
-                        return tag?<span key={id} style={{ fontFamily:M, fontSize:'8px', color:tag.c, background:tag.bg, border:`1px solid ${tag.c}22`, borderRadius:'4px', padding:'2px 7px' }}>{tag.label}</span>:null
+                        return tag?<span key={id} style={{ fontFamily:M, fontSize:'8px', color:tag.c, background:tag.bg, border:`1px solid ${tag.c}22`, borderRadius:'4px', padding:'2px 7px' }}>{t.psych[id]||tag.label}</span>:null
                       })}
                     </div>
                   )}
                   {t.note && (
                     <div style={{ padding:'8px 12px', borderTop:'1px solid #0f1828' }}>
-                      <div style={{ fontFamily:M, fontSize:'7px', color:'#7a96b4', letterSpacing:'1px', marginBottom:'5px' }}>NOTES</div>
+                      <div style={{ fontFamily:M, fontSize:'7px', color:'#7a96b4', letterSpacing:'1px', marginBottom:'5px' }}>{t.notesLabel}</div>
                       <div style={{ fontSize:'12px', color:'#7a96b4', lineHeight:1.7, whiteSpace:'pre-wrap', wordBreak:'break-word', borderLeft:'2px solid #162340', paddingLeft:'10px' }}>{t.note}</div>
                     </div>
                   )}
@@ -745,7 +751,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
 
         {todayTrades.filter(t => REAL_RESULTS.has(t.result)).length > 0 && (
           <div style={{ display:'flex', justifyContent:'flex-end', marginTop:'6px', gap:'4px' }}>
-            <span style={{ fontFamily:M, fontSize:'10px', color:'#7a96b4' }}>Idag:</span>
+            <span style={{ fontFamily:M, fontSize:'10px', color:'#7a96b4' }}>{t.todayLabel}</span>
             <span style={{ fontFamily:M, fontSize:'10px', fontWeight:700, color:todayPnl>=0?'#00e5b0':'#ff4f6b' }}>{todayPnl>=0?'+':''}${Math.round(todayPnl)}</span>
           </div>
         )}

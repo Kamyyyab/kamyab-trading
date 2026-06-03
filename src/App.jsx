@@ -10,6 +10,7 @@ import EconomicCalendar from './EconomicCalendar.jsx'
 import EquityCurve from './EquityCurve.jsx'
 import Playbook from './Playbook.jsx'
 import TradingViewChart from './TradingViewChart.jsx'
+import { LangCtx, T } from './lang.js'
 
 const M = "'JetBrains Mono', monospace"
 
@@ -120,14 +121,14 @@ function SessionStatusMobile() {
   )
 }
 
-const NAV = [
-  { id:'home',       label:'Hem',      path:'M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10' },
-  { id:'calendar',   label:'Kalender', path:'M3 4h18a1 1 0 011 1v15a1 1 0 01-1 1H3a1 1 0 01-1-1V5a1 1 0 011-1z M16 2v4 M8 2v4 M2 10h20' },
-  { id:'statistics', label:'Stats',    path:'M18 20V10 M12 20V4 M6 20v-6' },
-  { id:'calculator', label:'Risk',     path:'M5 3h14a1 1 0 011 1v16a1 1 0 01-1 1H5a1 1 0 01-1-1V4a1 1 0 011-1z M9 7h6 M9 11h1 M12 11h1 M15 11h1 M9 15h1 M12 15h1 M15 15h1 M9 19h4' },
-  { id:'charts',     label:'Charts',   path:'M2 3h7v11H2z M15 3h7v7h-7z M15 13h7v8h-7z M9 14h6 M9 18h2' },
-  { id:'playbook',   label:'Playbook', path:'M4 19.5A2.5 2.5 0 016.5 17H20 M4 19.5C4 20.88 5.12 22 6.5 22H20V2H6.5A2.5 2.5 0 004 4.5v15z M8 7h8 M8 11h8 M8 15h5' },
-]
+const NAV_PATHS = {
+  home:       'M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10',
+  calendar:   'M3 4h18a1 1 0 011 1v15a1 1 0 01-1 1H3a1 1 0 01-1-1V5a1 1 0 011-1z M16 2v4 M8 2v4 M2 10h20',
+  statistics: 'M18 20V10 M12 20V4 M6 20v-6',
+  calculator: 'M5 3h14a1 1 0 011 1v16a1 1 0 01-1 1H5a1 1 0 01-1-1V4a1 1 0 011-1z M9 7h6 M9 11h1 M12 11h1 M15 11h1 M9 15h1 M12 15h1 M15 15h1 M9 19h4',
+  charts:     'M2 3h7v11H2z M15 3h7v7h-7z M15 13h7v8h-7z M9 14h6 M9 18h2',
+  playbook:   'M4 19.5A2.5 2.5 0 016.5 17H20 M4 19.5C4 20.88 5.12 22 6.5 22H20V2H6.5A2.5 2.5 0 004 4.5v15z M8 7h8 M8 11h8 M8 15h5',
+}
 
 function Icon({ path, color }) {
   return (
@@ -148,6 +149,8 @@ export default function App() {
   const [settings, setSettings]             = useState({})
   const [sessionNotes, setSessionNotes]     = useState({})
   const [page, setPage]                     = useState('home')
+  const lang = (settings.language || 'sv')
+  const t    = T[lang]
   const MOBILE = useIsMobile()
 
   useEffect(() => {
@@ -257,15 +260,34 @@ export default function App() {
 
   const { isLockedOut, lockoutReason } = computeLockout(streakLogs)
 
+  const NAV = [
+    { id:'home',       label: t.home,     path: NAV_PATHS.home },
+    { id:'calendar',   label: t.calendar, path: NAV_PATHS.calendar },
+    { id:'statistics', label: t.stats,    path: NAV_PATHS.statistics },
+    { id:'calculator', label: t.risk,     path: NAV_PATHS.calculator },
+    { id:'charts',     label: t.charts,   path: NAV_PATHS.charts },
+    { id:'playbook',   label: t.playbook, path: NAV_PATHS.playbook },
+  ]
+
+  function toggleLang() {
+    handleSaveSettings({ language: lang === 'sv' ? 'en' : 'sv' })
+  }
+
   if (loading) return (
     <div style={{ background:'#070a14', minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center' }}>
-      <div style={{ fontFamily:M, fontSize:'12px', color:'#3a5878', letterSpacing:'3px' }}>LADDAR...</div>
+      <div style={{ fontFamily:M, fontSize:'12px', color:'#3a5878', letterSpacing:'3px' }}>{t.loading}</div>
     </div>
   )
 
   if (!user) return <Auth onLogin={setUser} />
 
   const navH = { height:'54px', background:'rgba(7,10,20,0.98)', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', borderTop:'2px solid #f59e0b', borderBottom:'1px solid #131e38', display:'flex', alignItems:'center', padding:'0 16px', justifyContent:'space-between', position:'sticky', top:0, zIndex:40 }
+
+  const LangBtn = () => (
+    <button type="button" onClick={toggleLang} style={{ fontFamily:M, fontSize:'9px', color:'#f59e0b', background:'#18100a', border:'1px solid rgba(245,158,11,0.3)', borderRadius:'6px', padding:'4px 9px', cursor:'pointer', letterSpacing:'1px', fontWeight:700, transition:'all 0.15s' }}>
+      {lang === 'sv' ? 'EN' : 'SV'}
+    </button>
+  )
 
   const Logo = () => (
     <div style={{ display:'flex', alignItems:'center', gap:'9px' }}>
@@ -285,6 +307,7 @@ export default function App() {
   )
 
   return (
+    <LangCtx.Provider value={lang}>
     <div style={{ background:'#070a14', minHeight:'100vh', color:'#dce8f5' }}>
 
       {MOBILE ? (
@@ -292,6 +315,7 @@ export default function App() {
           <Logo />
           <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
             <SessionStatusMobile />
+            <LangBtn />
             <button type="button" onClick={() => supabase.auth.signOut()} style={{ background:'none', border:'1px solid #131e38', borderRadius:'7px', color:'#6880a0', fontSize:'13px', width:'30px', height:'30px', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>↩</button>
           </div>
         </nav>
@@ -314,12 +338,13 @@ export default function App() {
               </button>
             ))}
           </div>
-          <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
             <SessionStatusDesktop />
             <div style={{ width:'1px', height:'16px', background:'#131e38' }} />
+            <LangBtn />
             <button type="button" onClick={() => supabase.auth.signOut()} style={{ fontFamily:M, fontSize:'9px', color:'#5a7898', background:'none', border:'none', cursor:'pointer', letterSpacing:'0.5px', transition:'color 0.15s' }}
               onMouseEnter={e=>e.currentTarget.style.color='#a0c0ca'}
-              onMouseLeave={e=>e.currentTarget.style.color='#5a7898'}>logga ut</button>
+              onMouseLeave={e=>e.currentTarget.style.color='#5a7898'}>{t.logout}</button>
           </div>
         </nav>
       )}
@@ -382,5 +407,6 @@ export default function App() {
         </nav>
       )}
     </div>
+    </LangCtx.Provider>
   )
 }

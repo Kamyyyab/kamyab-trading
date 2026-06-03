@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT, useLang } from './lang.js'
 import { LineChart, BarChart, Bar, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, Cell } from 'recharts'
 
 const M = "'JetBrains Mono', monospace"
@@ -30,7 +31,9 @@ function exportCSV(journal) {
 }
 
 export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWeeklyReview, settings = {}, onSaveSettings }) {
-  const [filter, setFilter] = useState('Totalt')
+  const t = useT()
+  const lang = useLang()
+  const [filter, setFilter] = useState('total')
   const [monthView, setMonthView] = useState('pnl') // 'pnl' | 'wr' | 'r'
   const [editStartBal, setEditStartBal] = useState(false)
   const [startBalInput, setStartBalInput] = useState('')
@@ -41,14 +44,14 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
   const [tableSearch,    setTableSearch]    = useState('')
   const [tableOutcome,   setTableOutcome]   = useState('all')
 
-  function filterTrades(t) {
+  function filterTrades(tr) {
     const now = new Date()
-    if (filter==='Denna vecka') {
+    if (filter==='week') {
       const ws = new Date(now); ws.setDate(now.getDate()-((now.getDay()+6)%7)); ws.setHours(0,0,0,0)
-      return t.filter(x=>new Date(x.date)>=ws)
+      return tr.filter(x=>new Date(x.date)>=ws)
     }
-    if (filter==='Denna månad') return t.filter(x=>new Date(x.date)>=new Date(now.getFullYear(),now.getMonth(),1))
-    return t
+    if (filter==='month') return tr.filter(x=>new Date(x.date)>=new Date(now.getFullYear(),now.getMonth(),1))
+    return tr
   }
 
   const all      = filterTrades(journal)
@@ -99,7 +102,7 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
       else if (t.result==='loss') map[key].r -= 1
     })
     return Object.entries(map).sort(([a],[b])=>a.localeCompare(b)).map(([key,v]) => ({
-      label: new Date(key+'-15').toLocaleDateString('sv-SE',{month:'short',year:'2-digit'}),
+      label: new Date(key+'-15').toLocaleDateString(lang==='en'?'en-US':'sv-SE',{month:'short',year:'2-digit'}),
       key,
       pnl:   Math.round(v.pnl),
       wr:    v.total>0?Math.round(v.wins/v.total*100):0,
@@ -263,24 +266,24 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
       {setupFilter && (
         <div style={{background:'#18100a',border:'1px solid rgba(245,158,11,0.3)',borderRadius:'10px',padding:'10px 14px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
-            <span style={{fontFamily:M,fontSize:'8px',color:'#f59e0b',letterSpacing:'1.5px'}}>SETUP-FILTER</span>
+            <span style={{fontFamily:M,fontSize:'8px',color:'#f59e0b',letterSpacing:'1.5px'}}>{t.setupFilter}</span>
             <span style={{fontFamily:M,fontSize:'11px',fontWeight:700,color:'#f59e0b'}}>{setupFilter}</span>
             <span style={{fontFamily:M,fontSize:'9px',color:'#a07020'}}>{viewTrades.length} trades</span>
           </div>
-          <button onClick={()=>setSetupFilter(null)} style={{fontFamily:M,fontSize:'9px',color:'#f59e0b',background:'none',border:'1px solid rgba(245,158,11,0.3)',borderRadius:'5px',padding:'3px 9px',cursor:'pointer'}}>✕ Rensa</button>
+          <button onClick={()=>setSetupFilter(null)} style={{fontFamily:M,fontSize:'9px',color:'#f59e0b',background:'none',border:'1px solid rgba(245,158,11,0.3)',borderRadius:'5px',padding:'3px 9px',cursor:'pointer'}}>{t.clearFilter}</button>
         </div>
       )}
 
       <div style={{display:'flex',gap:'6px',flexWrap:'wrap',alignItems:'center',justifyContent:'space-between'}}>
         <div style={{display:'flex',gap:'6px'}}>
-          {['Totalt','Denna månad','Denna vecka'].map(f=>(
-            <button key={f} onClick={()=>setFilter(f)} style={{
+          {[['total',t.total],['month',t.thisMonth],['week',t.thisWeekBtn]].map(([k,l])=>(
+            <button key={k} onClick={()=>setFilter(k)} style={{
               fontFamily:M,fontSize:'9px',padding:'7px 13px',borderRadius:'7px',
-              border:`1px solid ${filter===f?'rgba(245,158,11,0.5)':'#162340'}`,
-              background:filter===f?'#18100a':'transparent',
-              color:filter===f?'#f59e0b':'#7a96b4',cursor:'pointer',letterSpacing:'1px',
+              border:`1px solid ${filter===k?'rgba(245,158,11,0.5)':'#162340'}`,
+              background:filter===k?'#18100a':'transparent',
+              color:filter===k?'#f59e0b':'#7a96b4',cursor:'pointer',letterSpacing:'1px',
               transition:'all 0.15s',
-            }}>{f}</button>
+            }}>{l}</button>
           ))}
         </div>
         <button onClick={()=>exportCSV(journal)} style={{
@@ -290,12 +293,12 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
         }}
           onMouseEnter={e=>{e.currentTarget.style.borderColor='#00e5b0';e.currentTarget.style.color='#00e5b0'}}
           onMouseLeave={e=>{e.currentTarget.style.borderColor='#162340';e.currentTarget.style.color='#7a96b4'}}
-        >↓ CSV</button>
+        >{t.csvBtn}</button>
       </div>
 
       {/* ── TAB NAV ── */}
       <div style={{display:'flex',gap:'3px',background:'#0a1020',border:'1px solid #162340',borderRadius:'10px',padding:'3px'}}>
-        {[['stats','Översikt'],['analys','Analys'],['journal','Journal'],['reflektion','Reflektion']].map(([id,label])=>(
+        {[['stats',t.statsTab_stats],['analys',t.statsTab_analys],['journal',t.statsTab_journal],['reflektion',t.statsTab_ref]].map(([id,label])=>(
           <button key={id} onClick={()=>setStatsTab(id)} style={{
             flex:1, background:statsTab===id?'#0f1828':'transparent',
             border:`1px solid ${statsTab===id?'#1c2e4a':'transparent'}`,
@@ -517,7 +520,7 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
             return (
               <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                 <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
-                  <span style={{fontFamily:M,fontSize:'11px',color:isViolation?'#ff4f6b':'#dce8f5'}}>{PSYCH_LABELS[id]||id}</span>
+                  <span style={{fontFamily:M,fontSize:'11px',color:isViolation?'#ff4f6b':'#dce8f5'}}>{(t.psych[id]||PSYCH_LABELS[id]||id)}</span>
                   {isViolation && <span style={{fontFamily:M,fontSize:'7px',color:'#ff4f6b',background:'#1a0610',border:'1px solid rgba(255,79,107,0.2)',borderRadius:'3px',padding:'1px 5px'}}>VIOLATION</span>}
                   <span style={{fontFamily:M,fontSize:'9px',color:'#7a96b4'}}>{s.total}x</span>
                 </div>
@@ -676,7 +679,7 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
       )}
 
       {/* ── SETUP-KVALITET PER GRADE ── */}
-      {section('SETUP-KVALITET',
+      {section(t.setupQualSec,
         (() => {
           const grades = ['A+','A','B','C']
           const gc = {'A+':'#f59e0b','A':'#00e5b0','B':'#60a5fa','C':'#7a96b4'}
@@ -686,7 +689,7 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
             const gp = gt.reduce((s,t)=>s+parseFloat(t.pnl||0),0)
             return { g, count:gt.length, wr:gt.length>0?Math.round(gw/gt.length*100):null, pnl:gp }
           }).filter(s=>s.count>0)
-          if (stats.length === 0) return <div style={{fontFamily:M,fontSize:'10px',color:'#3a5878'}}>Inga trades med grade ännu — välj A+/A/B/C i formuläret</div>
+          if (stats.length === 0) return <div style={{fontFamily:M,fontSize:'10px',color:'#3a5878'}}>{t.noGradesYet}</div>
           return (
             <div style={{display:'grid',gridTemplateColumns:`repeat(${stats.length},1fr)`,gap:'10px'}}>
               {stats.map(({g,count,wr,pnl})=>(
@@ -741,12 +744,12 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
         }
         return (
           <div style={{background:'#0f1828',border:'1px solid #162340',borderRadius:'12px',padding:'16px'}}>
-            <div style={{fontFamily:M,fontSize:'9px',color:'#8aabb8',letterSpacing:'2px',marginBottom:'14px'}}>ALLA TRADES</div>
+            <div style={{fontFamily:M,fontSize:'9px',color:'#8aabb8',letterSpacing:'2px',marginBottom:'14px'}}>{t.allTrades}</div>
             <div style={{display:'flex',gap:'8px',marginBottom:'12px',flexWrap:'wrap',alignItems:'center'}}>
-              <input value={tableSearch} onChange={e=>setTableSearch(e.target.value)} placeholder="Sök instrument, setup, notes..."
+              <input value={tableSearch} onChange={e=>setTableSearch(e.target.value)} placeholder={t.searchPh}
                 style={{flex:1,minWidth:'160px',background:'#08101c',border:'1px solid #1c2e4a',borderRadius:'7px',color:'#dce8f5',fontFamily:M,fontSize:'11px',padding:'7px 11px',outline:'none'}} />
               <div style={{display:'flex',gap:'4px'}}>
-                {[['all','Alla'],['wins','Wins'],['losses','Loss'],['be','BE']].map(([v,l])=>(
+                {[['all',t.all],['wins',t.wins],['losses',t.losses],['be',t.be]].map(([v,l])=>(
                   <button key={v} onClick={()=>setTableOutcome(v)} style={{
                     fontFamily:M,fontSize:'8px',padding:'5px 10px',borderRadius:'5px',
                     border:`1px solid ${tableOutcome===v?'rgba(245,158,11,0.4)':'#162340'}`,
@@ -757,12 +760,12 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
               </div>
             </div>
             <div style={{display:'grid',gridTemplateColumns:'74px 46px 52px 60px 52px 1fr 28px 50px',gap:'6px',padding:'5px 8px',borderBottom:'1px solid #162340',marginBottom:'4px'}}>
-              <Th col="date" label="DATUM" /><Th col="instr" label="INST" /><Th col="result" label="OUTCOME" /><Th col="setup" label="SETUP" />
-              <Th col="pnl" label="P&L" right /><div style={{fontFamily:M,fontSize:'8px',color:'#6880a0',letterSpacing:'0.5px'}}>NOTES</div>
-              <Th col="emotion" label="E" /><div style={{fontFamily:M,fontSize:'8px',color:'#6880a0',letterSpacing:'0.5px'}}>REG</div>
+              <Th col="date" label={t.dateCol} /><Th col="instr" label={t.instrCol} /><Th col="result" label={t.outcomeCol} /><Th col="setup" label={t.setupCol} />
+              <Th col="pnl" label={t.pnlCol} right /><div style={{fontFamily:M,fontSize:'8px',color:'#6880a0',letterSpacing:'0.5px'}}>NOTES</div>
+              <Th col="emotion" label={t.emotionShort} /><div style={{fontFamily:M,fontSize:'8px',color:'#6880a0',letterSpacing:'0.5px'}}>REG</div>
             </div>
             <div style={{display:'flex',flexDirection:'column',gap:'1px',maxHeight:'480px',overflowY:'auto'}}>
-              {filtered.length === 0 && <div style={{fontFamily:M,fontSize:'11px',color:'#3a5878',padding:'24px',textAlign:'center'}}>Inga trades matchar</div>}
+              {filtered.length === 0 && <div style={{fontFamily:M,fontSize:'11px',color:'#3a5878',padding:'24px',textAlign:'center'}}>{t.noMatch}</div>}
               {filtered.map((t,i) => {
                 const pv = parseFloat(t.pnl||0)
                 const em = parseInt(t.emotion||0)
@@ -781,7 +784,7 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
                 )
               })}
             </div>
-            <div style={{fontFamily:M,fontSize:'9px',color:'#6880a0',marginTop:'10px',textAlign:'right'}}>{filtered.length} / {viewTrades.length} trades</div>
+            <div style={{fontFamily:M,fontSize:'9px',color:'#6880a0',marginTop:'10px',textAlign:'right'}}>{t.tradesShown(filtered.length, viewTrades.length)}</div>
           </div>
         )
       })()}
