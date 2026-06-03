@@ -35,44 +35,52 @@ const PROXIES = [
   s => `https://corsproxy.io/?${encodeURIComponent(s)}`,
 ]
 
+// Parallel proxy fetch — uses whichever proxy responds first
 async function tryFetch(url) {
-  for (const proxy of PROXIES) {
-    try {
-      const r = await fetch(proxy(url), { signal: AbortSignal.timeout(7000) })
-      if (!r.ok) continue
-      const txt = await r.text()
-      if (!txt || txt.startsWith('<')) continue  // got HTML error page
-      return JSON.parse(txt)
-    } catch { /* try next */ }
-  }
-  return null
+  const attempts = PROXIES.map(proxy =>
+    fetch(proxy(url), { signal: AbortSignal.timeout(5000) })
+      .then(r => { if (!r.ok) throw 0; return r.text() })
+      .then(txt => { if (!txt || txt.startsWith('<')) throw 0; return JSON.parse(txt) })
+  )
+  try { return await Promise.any(attempts) } catch { return null }
 }
 
-function parseChart(d) {
+function parseChart(d, interval) {
   const res = d?.chart?.result?.[0]
   if (!res) return { price: null, chartData: [], open: null }
   const price  = res.meta?.regularMarketPrice
   const open   = res.meta?.chartPreviousClose || res.meta?.regularMarketOpen
   const ts     = res.timestamp || []
   const closes = res.indicators?.quote?.[0]?.close || []
+  // For 1H+, show date+time; for shorter intervals show time only
+  const showDate = interval === '60m' || interval === '1d'
   const chartData = ts
     .map((t, i) => ({
-      t: new Date(t * 1000).toLocaleTimeString('sv-SE', { timeZone:'Europe/Stockholm', hour:'2-digit', minute:'2-digit', hour12:false }),
+      t: new Date(t * 1000).toLocaleTimeString('sv-SE', {
+        timeZone: 'Europe/Stockholm',
+        hour: '2-digit', minute: '2-digit', hour12: false,
+        ...(showDate ? { month:'short', day:'numeric' } : {}),
+      }),
       p: closes[i] ?? null,
     }))
     .filter(d => d.p !== null)
   return { price, open, chartData }
 }
 
-async function fetchPriceAndChart(raw) {
+// Both query1 and query2 in parallel → fastest wins
+async function fetchPriceAndChart(raw, interval = '5m', range = '1d') {
   const ticker = resolveSym(raw)
   const enc    = encodeURIComponent(ticker)
 
-  // Try v8 chart first (gives price + chart data in one call)
-  for (const base of ['https://query1.finance.yahoo.com', 'https://query2.finance.yahoo.com']) {
-    const d = await tryFetch(`${base}/v8/finance/chart/${enc}?interval=5m&range=1d`)
-    const parsed = parseChart(d)
-    if (parsed.price && parsed.price > 0) return parsed
+  const results = await Promise.allSettled([
+    tryFetch(`https://query1.finance.yahoo.com/v8/finance/chart/${enc}?interval=${interval}&range=${range}`),
+    tryFetch(`https://query2.finance.yahoo.com/v8/finance/chart/${enc}?interval=${interval}&range=${range}`),
+  ])
+  for (const r of results) {
+    if (r.status === 'fulfilled') {
+      const parsed = parseChart(r.value, interval)
+      if (parsed.price && parsed.price > 0) return parsed
+    }
   }
 
   // Fallback: v7 quote for price only
@@ -98,7 +106,14 @@ export default function TradingViewChart() {
   const [liveSymbol, setLiveSymbol] = useState('')
   const [chartData,  setChartData]  = useState([])
   const [chartOpen,  setChartOpen]  = useState(null)
+  const [tf,         setTf]         = useState('5m')
   const [fetching,   setFetching]   = useState(false)
+
+  const TFS = [
+    { label:'5m',  interval:'5m',  range:'1d'  },
+    { label:'15m', interval:'15m', range:'5d'  },
+    { label:'1H',  interval:'60m', range:'1mo' },
+  ]
 
   const [alerts,    setAlerts]    = useState(() => {
     try { return JSON.parse(localStorage.getItem('price-alerts') || '[]') } catch { return [] }
@@ -131,9 +146,11 @@ export default function TradingViewChart() {
         const prev = prevPricesRef.current[a.symbol]
         prevPricesRef.current[a.symbol] = c
         // Trigger only when price actually crosses the level — no tolerance buffer
-        const crossed = prev !== undefined &&
+        const crossed  = prev !== undefined &&
           ((prev < a.price && c >= a.price) || (prev > a.price && c <= a.price))
-        if (crossed) {
+        // First poll: trigger if already within 0.1% (price was already at the level)
+        const firstHit = prev === undefined && Math.abs(c - a.price) / a.price <= 0.001
+        if (crossed || firstHit) {
           setAlerts(prev2 => prev2.map(x =>
             x.id === a.id ? { ...x, triggered: true, triggeredPrice: c, triggeredAt: new Date().toISOString() } : x
           ))
@@ -153,18 +170,31 @@ export default function TradingViewChart() {
     return () => clearInterval(iv)
   }, [])
 
-  async function doLookup(sym) {
-    if (!sym.trim()) return
+  async function doLookup(sym, interval, range) {
+    if (!sym?.trim()) return
+    const tfObj = TFS.find(t => t.label === tf) || TFS[0]
+    const iv = interval || tfObj.interval
+    const rng = range  || tfObj.range
     setLivePrice(null); setChartData([]); setChartOpen(null)
     setLiveSymbol(sym.trim().toUpperCase())
     setFetching(true)
-    const { price, chartData: cd, open } = await fetchPriceAndChart(sym)
+    const { price, chartData: cd, open } = await fetchPriceAndChart(sym, iv, rng)
     setLivePrice(price)
     setChartData(cd)
     setChartOpen(open)
     if (price) setAPrice(Math.round(price).toString())
     setFetching(false)
   }
+
+  // Re-fetch chart when timeframe changes (if symbol is loaded)
+  const liveSymRef = useRef('')
+  useEffect(() => { liveSymRef.current = liveSymbol }, [liveSymbol])
+  useEffect(() => {
+    if (liveSymRef.current) {
+      const tfObj = TFS.find(t => t.label === tf) || TFS[0]
+      doLookup(liveSymRef.current, tfObj.interval, tfObj.range)
+    }
+  }, [tf])
 
   function addAlert() {
     if (!aSym || !aPrice) return
@@ -243,6 +273,20 @@ export default function TradingViewChart() {
               </div>
 
               {/* Chart */}
+              {/* Timeframe selector */}
+              <div style={{ display:'flex', gap:'4px', padding:'0 14px 8px' }}>
+                {TFS.map(({ label }) => (
+                  <button key={label} onClick={() => setTf(label)} style={{
+                    fontFamily:M, fontSize:'9px', padding:'4px 10px', borderRadius:'5px',
+                    border:`1px solid ${tf===label?'rgba(0,229,176,0.4)':'#162340'}`,
+                    background:tf===label?'#001810':'transparent',
+                    color:tf===label?'#00e5b0':'#6880a0', cursor:'pointer',
+                    WebkitTapHighlightColor:'transparent',
+                  }}>{label}</button>
+                ))}
+                {fetching && <span style={{ fontFamily:M, fontSize:'9px', color:'#f59e0b', alignSelf:'center', marginLeft:'4px' }}>↻</span>}
+              </div>
+
               {chartData.length > 1 && (
                 <div style={{ paddingBottom:'4px' }}>
                   <ResponsiveContainer width="100%" height={140}>
