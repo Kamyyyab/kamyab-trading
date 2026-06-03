@@ -44,8 +44,8 @@ const isFutures = s => {
 let ctr = 0
 
 export default function TradingViewChart() {
-  const [sym,      setSym]      = useState('MYM1!')
-  const [symInput, setSymInput] = useState('MYM1!')
+  const [sym,      setSym]      = useState('TVC:US30')
+  const [symInput, setSymInput] = useState('TVC:US30')
   const [tf,       setTf]       = useState('5')
   const containerRef = useRef(null)
 
@@ -57,8 +57,9 @@ export default function TradingViewChart() {
   const [aDir,      setADir]    = useState('above')
   const [aLabel,    setALabel]  = useState('')
   const [prices,    setPrices]  = useState({})
-  const [lastCheck, setLastCheck] = useState(null)
-  const [checking,  setChecking]  = useState(false)
+  const [lastCheck,  setLastCheck]  = useState(null)
+  const [checking,   setChecking]   = useState(false)
+  const [notifPerm,  setNotifPerm]  = useState(() => typeof Notification !== 'undefined' ? Notification.permission : 'unsupported')
 
   // Keep a ref to latest alerts so the stable interval always reads current data
   const alertsRef = useRef(alerts)
@@ -257,9 +258,45 @@ export default function TradingViewChart() {
           <button onClick={addAlert} style={{ background: '#f59e0b', border: 'none', borderRadius: '6px', color: '#0a0700', fontFamily: M, fontSize: '10px', fontWeight: 700, padding: '7px 18px', cursor: 'pointer', flexShrink: 0 }}>+ Lägg till</button>
         </div>
 
-        <div style={{ fontFamily: M, fontSize: '8px', color: '#2a3c50', marginBottom: '10px' }}>
-          Aktier, index &amp; krypto: auto-kontroll var 30s (Finnhub). Futures: använd TV-larmet (högerklick i chart).
+        <div style={{ fontFamily: M, fontSize: '8px', color: '#2a3c50', marginBottom: '12px' }}>
+          Aktier, index &amp; krypto: auto-kontroll var 30s. Skriv t.ex. <span style={{ color: '#6880a0' }}>US30, GOLD, BTC, AAPL</span>.
         </div>
+
+        {/* Notification permission */}
+        {notifPerm === 'default' && (
+          <div style={{ background: '#18100a', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '8px', padding: '10px 12px', marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+            <div>
+              <div style={{ fontFamily: M, fontSize: '9px', color: '#f59e0b', fontWeight: 700, marginBottom: '2px' }}>AKTIVERA NOTISER</div>
+              <div style={{ fontFamily: M, fontSize: '8px', color: '#7a6030', lineHeight: 1.4 }}>Tillåt notiser för att få ping på telefonen när priset nås</div>
+            </div>
+            <button onClick={async () => {
+              const p = await Notification.requestPermission()
+              setNotifPerm(p)
+            }} style={{ background: '#f59e0b', border: 'none', borderRadius: '6px', color: '#0a0700', fontFamily: M, fontSize: '9px', fontWeight: 700, padding: '6px 12px', cursor: 'pointer', flexShrink: 0 }}>
+              Tillåt
+            </button>
+          </div>
+        )}
+        {notifPerm === 'granted' && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+            <div style={{ fontFamily: M, fontSize: '8px', color: '#00e5b0' }}>✓ Notiser aktiverade</div>
+            <button onClick={() => {
+              new Notification('🔔 Test-notis', { body: 'Notiser fungerar! Du får ping när priset nås.', icon: '/kamyab-trading/icon.svg' })
+            }} style={{ background: 'none', border: '1px solid #162340', borderRadius: '5px', color: '#6880a0', fontFamily: M, fontSize: '8px', padding: '3px 8px', cursor: 'pointer' }}>
+              Testa
+            </button>
+          </div>
+        )}
+        {notifPerm === 'denied' && (
+          <div style={{ fontFamily: M, fontSize: '8px', color: '#7a3040', background: '#1a0610', border: '1px solid rgba(255,79,107,0.2)', borderRadius: '6px', padding: '8px 10px', marginBottom: '10px' }}>
+            🚫 Notiser blockerade i webbläsaren. Gå till inställningar → tillåt notiser för denna sida.
+          </div>
+        )}
+        {notifPerm === 'granted' && (
+          <div style={{ fontFamily: M, fontSize: '7px', color: '#2a3c50', marginBottom: '10px', lineHeight: 1.5 }}>
+            📱 Mobil: installera appen (Dela → Lägg till på hemskärmen) och håll den öppen i bakgrunden för notiser.
+          </div>
+        )}
 
         {alerts.length === 0 && (
           <div style={{ fontFamily: M, fontSize: '10px', color: '#2a3c50', textAlign: 'center', padding: '20px 0' }}>Inga aktiva larm</div>
