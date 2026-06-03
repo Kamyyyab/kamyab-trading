@@ -97,7 +97,8 @@ async function fetchPrice(raw) {
 
 function fmtPrice(p) {
   if (!p) return '—'
-  return p.toLocaleString('sv-SE', { maximumFractionDigits: p > 1000 ? 0 : 2 })
+  if (p >= 1000) return Math.round(p).toLocaleString('en-US') // "44,234"
+  return p.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 export default function TradingViewChart() {
@@ -331,7 +332,7 @@ export default function TradingViewChart() {
                           <stop offset="95%" stopColor={color} stopOpacity={0} />
                         </linearGradient>
                       </defs>
-                      <XAxis dataKey="t" tick={{ fill:'#4a6888', fontSize:8, fontFamily:M }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+                      <XAxis dataKey="t" tick={{ fill:'#4a6888', fontSize:8, fontFamily:M }} axisLine={false} tickLine={false} interval={Math.max(1, Math.floor(chartData.length / 6))} />
                       <YAxis hide domain={['auto','auto']} />
                       {chartOpen && <ReferenceLine y={chartOpen} stroke="#162340" strokeDasharray="3 3" />}
                       {alertRef && <ReferenceLine y={alertRef} stroke="#f59e0b" strokeDasharray="4 4" strokeWidth={1.5} label={{ value:'larm', position:'right', fontSize:8, fill:'#f59e0b', fontFamily:M }} />}
