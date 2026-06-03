@@ -101,8 +101,20 @@ async function fetchPriceAndChart(raw, interval = '5m', range = '1d') {
   return { price: p7 || null, chartData: [], open: null }
 }
 
-// Used by the polling loop (price only, no chart overhead)
+// Lightweight price-only fetch for polling — uses v7 quote (no chart data overhead)
 async function fetchPrice(raw) {
+  const ticker = resolveSym(raw)
+  const enc    = encodeURIComponent(ticker)
+  // Try v7 quote from both hosts in parallel
+  const results = await Promise.allSettled([
+    tryFetch(`https://query1.finance.yahoo.com/v7/finance/quote?lang=en-US&region=US&symbols=${enc}`),
+    tryFetch(`https://query2.finance.yahoo.com/v7/finance/quote?lang=en-US&region=US&symbols=${enc}`),
+  ])
+  for (const r of results) {
+    const p = r.value?.quoteResponse?.result?.[0]?.regularMarketPrice
+    if (p && p > 0) return p
+  }
+  // Fallback: full chart meta
   const { price } = await fetchPriceAndChart(raw)
   return price
 }
@@ -155,16 +167,24 @@ export default function TradingViewChart() {
       setChecking(true)
       for (const a of active) {
         const c = await fetchPrice(a.symbol)
-        if (!c || c === 0) continue
+        if (!c || c === 0) {
+          // Track fetch failures so user can see what's wrong
+          setPrices(p => ({ ...p, [a.symbol + '_err']: Date.now() }))
+          continue
+        }
         setPrices(p => ({ ...p, [a.symbol]: c }))
         const prev = prevPricesRef.current[a.symbol]
         prevPricesRef.current[a.symbol] = c
         // Trigger only when price actually crosses the level — no tolerance buffer
+        const diff = Math.abs(c - a.price) / a.price
+        // Price crossed the level between polls
         const crossed  = prev !== undefined &&
           ((prev < a.price && c >= a.price) || (prev > a.price && c <= a.price))
-        // First poll: trigger if already within 0.1% (price was already at the level)
-        const firstHit = prev === undefined && Math.abs(c - a.price) / a.price <= 0.001
-        if (crossed || firstHit) {
+        // Price is touching the level right now (±0.05% = ~25pts for MYM@51k)
+        const touching = diff <= 0.0005
+        // First poll: wider tolerance to catch "already at level" case
+        const firstHit = prev === undefined && diff <= 0.002
+        if (crossed || touching || firstHit) {
           setAlerts(prev2 => prev2.map(x =>
             x.id === a.id ? { ...x, triggered: true, triggeredPrice: c, triggeredAt: new Date().toISOString() } : x
           ))
@@ -451,7 +471,8 @@ export default function TradingViewChart() {
           const resolved = resolveSym(a.symbol)
           const aliased  = resolved !== a.symbol.toUpperCase()
           const cur      = prices[a.symbol]
-          const dist     = cur && !a.triggered ? Math.abs(((cur - a.price) / a.price) * 100).toFixed(1) : null
+          const fetchFailed = !cur && prices[a.symbol + '_err']
+          const dist     = cur && !a.triggered ? Math.abs(((cur - a.price) / a.price) * 100).toFixed(2) : null
           return (
             <div key={a.id} style={{
               display:'flex', alignItems:'center', gap:'10px', padding:'10px 12px',
@@ -478,7 +499,9 @@ export default function TradingViewChart() {
                     ? `Touchade @ ${fmtPrice(a.triggeredPrice)}`
                     : cur
                       ? `Nu: ${fmtPrice(cur)} · ${dist}% kvar`
-                      : 'Väntar...'}
+                      : fetchFailed
+                        ? '⚠ Kunde ej hämta pris — kontrollera symbol'
+                        : checking ? 'Hämtar...' : 'Väntar på nästa kontroll...'}
                 </div>
               </div>
               <button onClick={() => setAlerts(p => p.filter(x => x.id !== a.id))}
