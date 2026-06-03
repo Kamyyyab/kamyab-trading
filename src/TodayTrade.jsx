@@ -67,6 +67,66 @@ const RESULTS = [
 // Outcomes that count as real trades (require bias)
 const REAL_RESULTS = new Set(['tp1','tp2','tp3','win','win2','loss','be'])
 
+function QuickForm({ onSave, onFull, onCancel, hasBias, isSecondTrade, firstTradeWon, realTradeCount }) {
+  const t = useT()
+  const [result, setResult] = useState('')
+  const [pnl,    setPnl]    = useState('')
+  const [err,    setErr]    = useState(false)
+
+  const WIN_RESULTS = new Set(['tp1','tp2','tp3','win','win2','loss','be'])
+  const RESULTS = [
+    { v:'tp1', label:'TP1', c:'#4ab89a', bg:'#001410' },
+    { v:'tp2', label:'TP2', c:'#00e5b0', bg:'#001810' },
+    { v:'tp3', label:'TP3', c:'#00e5b0', bg:'#001a14' },
+    { v:'loss',label:'Loss',c:'#ff4f6b', bg:'#1a0610' },
+    { v:'be',  label:'BE',  c:'#7a96b4', bg:'#0c1422' },
+    { v:'skip',label:'Skip',c:'#7a96b4', bg:'#0c1422' },
+  ]
+
+  function save() {
+    if (!result) return
+    if (WIN_RESULTS.has(result) && !hasBias) { setErr(true); return }
+    onSave({ result, pnl: pnl || '0', instrument:'MYM', emotion:'3', setup:'', psychTags:[], grade:'', violatedRules:[], checklistViolation:false, brokenRules:[] })
+  }
+
+  return (
+    <div style={{ marginTop:'12px', background:'#08101c', border:'1px solid #1c2e4a', borderRadius:'10px', padding:'14px', display:'flex', flexDirection:'column', gap:'10px' }}>
+      {err && (
+        <div style={{ fontFamily:M, fontSize:'9px', color:'#ff4f6b', background:'#1a0610', border:'1px solid rgba(255,79,107,0.3)', borderRadius:'6px', padding:'7px 10px' }}>
+          🚫 {t.biasError}
+        </div>
+      )}
+      <div style={{ display:'flex', flexWrap:'wrap', gap:'5px' }}>
+        {RESULTS.map(r => (
+          <button type="button" key={r.v} onClick={() => { setResult(r.v); setErr(false) }} style={{
+            flex:1, minWidth:'60px', padding:'11px 6px', borderRadius:'7px',
+            background: result===r.v ? r.bg : '#0a1020',
+            border: `1px solid ${result===r.v ? r.c+'66' : '#162340'}`,
+            color: result===r.v ? r.c : '#6880a0',
+            fontFamily:M, fontSize:'11px', fontWeight:700, cursor:'pointer', transition:'all 0.12s',
+          }}>{r.label}</button>
+        ))}
+      </div>
+      <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
+        <input type="number" inputMode="decimal" value={pnl} onChange={e=>setPnl(e.target.value)}
+          placeholder="P&L ($)" style={{ flex:1, background:'#0a1020', border:'1px solid #1c2e4a', borderRadius:'7px', color:'#dce8f5', fontFamily:M, fontSize:'16px', padding:'11px 12px', outline:'none' }}
+          onFocus={e=>e.target.style.borderColor='#4a6888'} onBlur={e=>e.target.style.borderColor='#1c2e4a'} />
+        <button type="button" onClick={save} style={{ background:'#f59e0b', color:'#0a0700', fontFamily:M, fontSize:'11px', fontWeight:700, padding:'11px 18px', borderRadius:'7px', border:'none', cursor:'pointer' }}>
+          {t.saveBtn}
+        </button>
+      </div>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <button type="button" onClick={onFull} style={{ background:'none', border:'none', color:'#4a6888', fontFamily:M, fontSize:'9px', cursor:'pointer', padding:0 }}>
+          ✎ Fyll i detaljer
+        </button>
+        <button type="button" onClick={onCancel} style={{ background:'none', border:'none', color:'#3a5878', fontFamily:M, fontSize:'9px', cursor:'pointer', padding:0 }}>
+          {t.cancelBtn}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, firstTradeWon, isOpen = false, realTradeCount = 0, tiltRisk = false, tiltMins = null }) {
   const t = useT()
   const lang = useLang()
@@ -80,9 +140,10 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
   const [grade,      setGrade]      = useState(initial.grade      || '')
   const [biasError,  setBiasError]  = useState(false)
   const [tradeTime,  setTradeTime]  = useState(initial.tradeTime  || (() => new Date().toLocaleTimeString('sv-SE', { timeZone:'Europe/Stockholm', hour:'2-digit', minute:'2-digit', hour12:false }))())
-  const [checkAplus, setCheckAplus] = useState(false)
-  const [checkRisk,  setCheckRisk]  = useState(false)
-  const [image,      setImage]      = useState(initial.image || null)
+  const [checkAplus,    setCheckAplus]    = useState(false)
+  const [checkRisk,     setCheckRisk]     = useState(false)
+  const [showAdvanced,  setShowAdvanced]  = useState(!!(initial.image || initial.audio))
+  const [image,         setImage]         = useState(initial.image || null)
   const [imgPrev,    setImgPrev]    = useState(initial.image || null)
   const [audioUrl,   setAudioUrl]   = useState(initial.audio || null)
   const [recording,  setRecording]  = useState(false)
@@ -163,6 +224,18 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
   return (
     <div style={{ background:'#08101c', border:'1px solid #1c2e4a', borderRadius:'10px', padding:'16px', display:'flex', flexDirection:'column', gap:'12px' }}>
 
+      {/* Avancerat toggle */}
+      <button type="button" onClick={() => setShowAdvanced(v => !v)} style={{
+        background:'none', border:'none', color:'#4a6888', fontFamily:M, fontSize:'9px',
+        cursor:'pointer', display:'flex', alignItems:'center', gap:'5px', padding:0,
+        letterSpacing:'0.5px', alignSelf:'flex-start',
+      }}>
+        <span style={{ fontSize:'10px', transition:'transform 0.15s', display:'inline-block', transform: showAdvanced ? 'rotate(90deg)' : 'none' }}>▶</span>
+        {showAdvanced ? 'Dölj avancerat' : '+ Chart & röst'}
+        {(image || audioUrl) && <span style={{ color:'#f59e0b', fontSize:'8px' }}>●</span>}
+      </button>
+
+      {showAdvanced && (<>
       {/* Chart image upload */}
       <div>
         <span style={lbl}>{t.chartImg}</span>
@@ -170,13 +243,13 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
         {!imgPrev ? (
           <button type="button" onClick={() => fileRef.current?.click()} style={{
             width:'100%', background:'#0a1020', border:'2px dashed #1c2e4a', borderRadius:'8px',
-            color:'#7a96b4', fontFamily:M, fontSize:'10px', padding:'16px 14px', cursor:'pointer',
+            color:'#7a96b4', fontFamily:M, fontSize:'10px', padding:'14px', cursor:'pointer',
             transition:'all 0.15s', display:'flex', alignItems:'center', justifyContent:'center', gap:'7px',
           }}
-            onMouseEnter={e=>{e.currentTarget.style.borderColor='#00e5b0';e.currentTarget.style.color='#00e5b0';e.currentTarget.style.background='#001810'}}
-            onMouseLeave={e=>{e.currentTarget.style.borderColor='#1c2e4a';e.currentTarget.style.color='#7a96b4';e.currentTarget.style.background='#0a1020'}}
+            onMouseEnter={e=>{e.currentTarget.style.borderColor='#4a6888';e.currentTarget.style.color='#dce8f5'}}
+            onMouseLeave={e=>{e.currentTarget.style.borderColor='#1c2e4a';e.currentTarget.style.color='#7a96b4'}}
           >
-            <span style={{ fontSize:'16px' }}>+</span> Ladda upp chart-bild
+            <span style={{ fontSize:'16px' }}>+</span> {t.uploadChart}
           </button>
         ) : (
           <div style={{ position:'relative', borderRadius:'8px', overflow:'hidden', border:'1px solid #1c2e4a' }}>
@@ -195,22 +268,23 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
             width:'100%', background: recording ? '#1a0610' : '#0a1020',
             border: `2px ${recording ? 'solid' : 'dashed'} ${recording ? 'rgba(255,79,107,0.5)' : '#1c2e4a'}`,
             borderRadius:'8px', color: recording ? '#ff4f6b' : '#7a96b4',
-            fontFamily:M, fontSize:'10px', padding:'13px 14px', cursor:'pointer',
+            fontFamily:M, fontSize:'10px', padding:'12px', cursor:'pointer',
             transition:'all 0.15s', display:'flex', alignItems:'center', justifyContent:'center', gap:'8px',
           }}
             onMouseEnter={e=>{ if(!recording){ e.currentTarget.style.borderColor='#4a6888'; e.currentTarget.style.color='#dce8f5' }}}
             onMouseLeave={e=>{ if(!recording){ e.currentTarget.style.borderColor='#1c2e4a'; e.currentTarget.style.color='#7a96b4' }}}>
             {recording
-              ? <><span style={{ width:'8px', height:'8px', borderRadius:'50%', background:'#ff4f6b', display:'inline-block', flexShrink:0 }} /> Stoppa inspelning</>
-              : <><span style={{ fontSize:'15px' }}>🎙</span> Spela in röstmemo</>}
+              ? <><span style={{ width:'8px', height:'8px', borderRadius:'50%', background:'#ff4f6b', display:'inline-block', flexShrink:0 }} /> Stoppa</>
+              : <><span style={{ fontSize:'14px' }}>🎙</span> Spela in</>}
           </button>
         ) : (
           <div style={{ background:'#0a1020', border:'1px solid #1c2e4a', borderRadius:'8px', padding:'10px 12px' }}>
             <audio src={audioUrl} controls style={{ width:'100%', height:'32px', display:'block' }} />
-            <button type="button" onClick={() => setAudioUrl(null)} style={{ background:'none', border:'none', color:'#6880a0', fontFamily:M, fontSize:'8px', cursor:'pointer', marginTop:'5px', padding:0 }}>✕ Ta bort memo</button>
+            <button type="button" onClick={() => setAudioUrl(null)} style={{ background:'none', border:'none', color:'#6880a0', fontFamily:M, fontSize:'8px', cursor:'pointer', marginTop:'5px', padding:0 }}>✕ Ta bort</button>
           </div>
         )}
       </div>
+      </>)}
 
       {/* Tilt warning */}
       {tiltRisk && (
@@ -404,6 +478,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
   const t = useT()
   const lang = useLang()
   const [showForm,   setShowForm]   = useState(false)
+  const [quickMode,  setQuickMode]  = useState(false)
   const [expanded,   setExpanded]   = useState(null)
   const [editing,    setEditing]    = useState(null)
   const [now,        setNow]        = useState(new Date())
@@ -520,49 +595,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
         )
       })()}
 
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(130px, 1fr))', gap:'8px' }}>
-        {card(t.winRate,    `${winRate}%`,                                      '#00e5b0', `${trades.length} ${t.trades}`)}
-        {card(t.totalPnl,  `${totalPnl>=0?'+':''}$${Math.round(totalPnl)}`,   totalPnl>=0?'#00e5b0':'#ff4f6b')}
-        {card(t.thisWeek, `${weekPnl>=0?'+':''}$${Math.round(weekPnl)}`,     weekPnl>=0?'#00e5b0':'#ff4f6b')}
-        {card(t.streak,      `${streak}d`,                                       streak>=5?'#00e5b0':streak>=2?'#ffc030':'#7a96b4')}
-      </div>
-
-      {/* ── MÅNADSSAMMANFATTNING ── */}
-      {(() => {
-        const ms = new Date(now.getFullYear(), now.getMonth(), 1)
-        const mt = trades.filter(t => new Date(t.date+'T12:00:00') >= ms)
-        if (mt.length === 0) return null
-        const mw  = mt.filter(t => ['win','win2','tp1','tp2','tp3'].includes(t.result)).length
-        const ml  = mt.filter(t => t.result === 'loss').length
-        const mp  = mt.reduce((s,t) => s + parseFloat(t.pnl||0), 0)
-        const mwr = Math.round(mw / mt.length * 100)
-        const mn  = now.toLocaleDateString(lang==='en'?'en-US':'sv-SE', { month:'long' }).toUpperCase()
-        return (
-          <div style={{ background:'#0c1422', border:'1px solid #162340', borderRadius:'12px', padding:'11px 16px', display:'flex', alignItems:'center', gap:'16px' }}>
-            <div style={{ fontFamily:M, fontSize:'8px', color:'#6880a0', letterSpacing:'1.5px', flexShrink:0 }}>{mn}</div>
-            <div style={{ width:'1px', height:'24px', background:'#162340', flexShrink:0 }} />
-            <div style={{ display:'flex', gap:'18px', alignItems:'center', flex:1 }}>
-              <div>
-                <div style={{ fontFamily:M, fontSize:'17px', fontWeight:700, color: mp>=0?'#00e5b0':'#ff4f6b', lineHeight:1 }}>{mp>=0?'+':''}${Math.round(mp)}</div>
-                <div style={{ fontFamily:M, fontSize:'8px', color:'#6880a0', marginTop:'1px' }}>{mt.length} trades</div>
-              </div>
-              <div style={{ width:'1px', height:'24px', background:'#162340' }} />
-              <div>
-                <div style={{ fontFamily:M, fontSize:'17px', fontWeight:700, color: mwr>=50?'#00e5b0':'#ff4f6b', lineHeight:1 }}>{mwr}%</div>
-                <div style={{ fontFamily:M, fontSize:'8px', color:'#6880a0', marginTop:'1px' }}>WR</div>
-              </div>
-              <div style={{ width:'1px', height:'24px', background:'#162340' }} />
-              <div style={{ display:'flex', gap:'8px' }}>
-                <span style={{ fontFamily:M, fontSize:'13px', fontWeight:700, color:'#00e5b0' }}>{mw}W</span>
-                <span style={{ fontFamily:M, fontSize:'13px', fontWeight:700, color:'#ff4f6b' }}>{ml}L</span>
-              </div>
-            </div>
-          </div>
-        )
-      })()}
-
-
-      {/* Bias */}
+      {/* Bias — first thing to set */}
       <div style={{ background:'#0c1422', border:`1px solid ${curBias?curBias.bdr:'#162340'}`, borderRadius:'12px', padding:'12px 14px', transition:'border-color 0.2s' }}>
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'9px' }}>
           <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
@@ -585,6 +618,14 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
             }}>{b.label}</button>
           ))}
         </div>
+      </div>
+
+      {/* Stats — compact row after bias */}
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'6px' }}>
+        {card(t.winRate,   `${winRate}%`,                                     '#00e5b0', `${trades.length} ${t.trades}`)}
+        {card(t.totalPnl, `${totalPnl>=0?'+':''}$${Math.round(totalPnl)}`,  totalPnl>=0?'#00e5b0':'#ff4f6b')}
+        {card(t.thisWeek, `${weekPnl>=0?'+':''}$${Math.round(weekPnl)}`,    weekPnl>=0?'#00e5b0':'#ff4f6b')}
+        {card(t.streak,   `${streak}d`,                                       streak>=5?'#00e5b0':streak>=2?'#ffc030':'#7a96b4')}
       </div>
 
       {/* Today's trades */}
@@ -611,24 +652,24 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
               </div>
             )}
           </div>
-          <button
-            type="button"
-            onClick={() => setShowForm(!showForm)}
-            disabled={isLockedOut}
-            style={{
-              background: isLockedOut ? '#1a0610' : '#f59e0b',
-              color: isLockedOut ? '#5a3040' : '#0a0700',
-              fontFamily:M, fontSize:'10px', fontWeight:700,
-              padding:'8px 14px', borderRadius:'8px', border:'none',
-              cursor: isLockedOut ? 'not-allowed' : 'pointer',
-              letterSpacing:'1px', flexShrink:0, transition:'background 0.15s',
-              opacity: isLockedOut ? 0.5 : 1,
-            }}
-            onMouseEnter={e=>{ if(!isLockedOut) e.currentTarget.style.background='#d97706' }}
-            onMouseLeave={e=>{ if(!isLockedOut) e.currentTarget.style.background='#f59e0b' }}
-          >
-            {isLockedOut ? '🔒 LOCKOUT' : '+ LOG'}
-          </button>
+          {isLockedOut ? (
+            <button type="button" disabled style={{ background:'#1a0610', color:'#5a3040', fontFamily:M, fontSize:'10px', fontWeight:700, padding:'8px 14px', borderRadius:'8px', border:'none', cursor:'not-allowed', opacity:0.5 }}>🔒 LOCKOUT</button>
+          ) : (
+            <div style={{ display:'flex', gap:'5px', flexShrink:0 }}>
+              <button type="button" onClick={() => { setQuickMode(true); setShowForm(!showForm) }}
+                style={{ background:'#f59e0b', color:'#0a0700', fontFamily:M, fontSize:'10px', fontWeight:700, padding:'8px 12px', borderRadius:'8px', border:'none', cursor:'pointer', transition:'background 0.15s' }}
+                onMouseEnter={e=>e.currentTarget.style.background='#d97706'}
+                onMouseLeave={e=>e.currentTarget.style.background='#f59e0b'}>
+                ⚡ Snabb
+              </button>
+              <button type="button" onClick={() => { setQuickMode(false); setShowForm(!showForm) }}
+                style={{ background:'#0a1020', color:'#7a96b4', fontFamily:M, fontSize:'10px', fontWeight:700, padding:'8px 12px', borderRadius:'8px', border:'1px solid #162340', cursor:'pointer', transition:'all 0.15s' }}
+                onMouseEnter={e=>{e.currentTarget.style.background='#0f1828';e.currentTarget.style.color='#dce8f5'}}
+                onMouseLeave={e=>{e.currentTarget.style.background='#0a1020';e.currentTarget.style.color='#7a96b4'}}>
+                + Full
+              </button>
+            </div>
+          )}
         </div>
 
         {todayTrades.length===0 && !showForm && (
@@ -756,7 +797,18 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
           </div>
         )}
 
-        {showForm && (
+        {showForm && quickMode && (
+          <QuickForm
+            onSave={trade => { onAddTrade({ date:today, ...trade, timestamp:new Date().toISOString() }); setShowForm(false) }}
+            onFull={() => setQuickMode(false)}
+            onCancel={() => setShowForm(false)}
+            hasBias={!!todayBias}
+            isSecondTrade={isSecondTrade}
+            firstTradeWon={firstTradeWon}
+            realTradeCount={realTradeCount}
+          />
+        )}
+        {showForm && !quickMode && (
           <div style={{ marginTop:'12px' }}>
             <TradeForm
               onSave={trade => { onAddTrade({ date:today, ...trade, timestamp:new Date().toISOString() }); setShowForm(false) }}

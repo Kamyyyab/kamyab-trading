@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useT, useLang } from './lang.js'
-import { LineChart, BarChart, Bar, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, Cell } from 'recharts'
+import { LineChart, AreaChart, Area, BarChart, Bar, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, Cell } from 'recharts'
 
 const M = "'JetBrains Mono', monospace"
 const WIN_RESULTS = new Set(['win','win2','tp1','tp2','tp3'])
@@ -73,7 +73,12 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
   const eqPos  = eqData.length>0&&eqData[eqData.length-1].pnl>=0
 
   let peak=0, maxDD=0
-  eqData.forEach(p=>{ if(p.pnl>peak)peak=p.pnl; const dd=peak-p.pnl; if(dd>maxDD)maxDD=dd })
+  const ddData = eqData.map(p => {
+    if(p.pnl>peak) peak=p.pnl
+    const dd = peak-p.pnl
+    if(dd>maxDD) maxDD=dd
+    return { date:p.date, dd:-Math.round(dd) }
+  })
 
   const totalR = viewTrades.reduce((s,t)=>{ if(t.result==='win'||t.result==='tp3')return s+3; if(t.result==='win2'||t.result==='tp2')return s+2; if(t.result==='tp1')return s+1; if(t.result==='loss')return s-1; return s },0)
   const avgR   = viewTrades.length>0?(totalR/viewTrades.length).toFixed(2):'0.00'
@@ -153,6 +158,8 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
     return { label:b.label, total:bt.length, wins:w, wr:bt.length>0?Math.round(w/bt.length*100):null, pnl:bt.reduce((s,t)=>s+parseFloat(t.pnl||0),0) }
   })
   const hasTimeData = timeStats.some(b=>b.total>0)
+  const tradesWithTime = trades.filter(t => t.tradeTime).length
+  const timeCoverage = trades.length > 0 ? Math.round(tradesWithTime / trades.length * 100) : 0
 
   // ── Setup trend (last 5 vs all-time) ─────────────────────────
   const setupTrends = {}
@@ -365,15 +372,36 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
       )}
 
       {section('EQUITY CURVE',
-        <ResponsiveContainer width="100%" height={180}>
-          <LineChart data={eqData}>
-            <XAxis dataKey="date" stroke="#162340" tick={{fill:'#7a96b4',fontSize:8,fontFamily:M}} interval="preserveStartEnd" />
-            <YAxis stroke="#162340" tick={{fill:'#7a96b4',fontSize:8,fontFamily:M}} width={42} />
-            <Tooltip contentStyle={{background:'#0f1828',border:'1px solid #1c2e4a',color:'#dce8f5',fontFamily:M,fontSize:'11px'}} formatter={v=>[`$${v}`,'P&L']} />
-            <ReferenceLine y={0} stroke="#1c2e4a" strokeDasharray="4 4" />
-            <Line type="monotone" dataKey="pnl" stroke={eqPos?'#00e5b0':'#ff4f6b'} dot={false} strokeWidth={2} />
-          </LineChart>
-        </ResponsiveContainer>
+        <>
+          <ResponsiveContainer width="100%" height={160}>
+            <LineChart data={eqData}>
+              <XAxis dataKey="date" stroke="#162340" tick={{fill:'#7a96b4',fontSize:8,fontFamily:M}} interval="preserveStartEnd" />
+              <YAxis stroke="#162340" tick={{fill:'#7a96b4',fontSize:8,fontFamily:M}} width={42} />
+              <Tooltip contentStyle={{background:'#0f1828',border:'1px solid #1c2e4a',color:'#dce8f5',fontFamily:M,fontSize:'11px'}} formatter={v=>[`$${v}`,'P&L']} />
+              <ReferenceLine y={0} stroke="#1c2e4a" strokeDasharray="4 4" />
+              <Line type="monotone" dataKey="pnl" stroke={eqPos?'#00e5b0':'#ff4f6b'} dot={false} strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+          {maxDD > 0 && (
+            <>
+              <div style={{fontFamily:M,fontSize:'8px',color:'#7a3040',letterSpacing:'1.5px',marginTop:'12px',marginBottom:'6px'}}>DRAWDOWN</div>
+              <ResponsiveContainer width="100%" height={70}>
+                <AreaChart data={ddData} margin={{top:0,right:0,left:0,bottom:0}}>
+                  <defs>
+                    <linearGradient id="ddGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#ff4f6b" stopOpacity={0.25}/>
+                      <stop offset="95%" stopColor="#ff4f6b" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="date" hide />
+                  <YAxis hide />
+                  <Tooltip contentStyle={{background:'#0f1828',border:'1px solid #1c2e4a',color:'#ff4f6b',fontFamily:M,fontSize:'10px'}} formatter={v=>[`$${Math.abs(v)}`,'Drawdown']} />
+                  <Area type="monotone" dataKey="dd" stroke="#ff4f6b" strokeWidth={1} fill="url(#ddGrad)" dot={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </>
+          )}
+        </>
       )}
 
       {/* ── MONTHLY OVERVIEW ── */}
@@ -656,7 +684,17 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
       {/* ── TIME OF DAY ── */}
       {hasTimeData && section('TID PÅ DAGEN — CET',
         <div style={{display:'flex',flexDirection:'column',gap:'8px'}}>
-          <div style={{fontFamily:M,fontSize:'9px',color:'#6880a0',marginBottom:'4px'}}>Baserat på tidsstämpel — kräver ny data</div>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'10px'}}>
+            <div style={{fontFamily:M,fontSize:'9px',color:'#6880a0'}}>Baserat på HANDLAD KL-fältet</div>
+            <div style={{fontFamily:M,fontSize:'9px',color:timeCoverage>=50?'#00e5b0':'#ffc030'}}>
+              {tradesWithTime}/{trades.length} trades ({timeCoverage}% täckning)
+            </div>
+          </div>
+          {timeCoverage < 30 && (
+            <div style={{fontFamily:M,fontSize:'9px',color:'#5a4020',background:'#1a1000',border:'1px solid rgba(255,192,48,0.2)',borderRadius:'6px',padding:'7px 10px',marginBottom:'10px'}}>
+              ⚠ Sätt HANDLAD KL när du loggar trades för att bygga upp tid-på-dagen-statistik
+            </div>
+          )}
           {timeStats.map((b,i) => {
             const barW = b.total>0&&b.wr!==null ? b.wr : 0
             const c    = b.wr===null?'#1c2e4a':b.wr>=60?'#00e5b0':b.wr>=50?'#4ab89a':b.wr>=40?'#ffc030':'#ff4f6b'

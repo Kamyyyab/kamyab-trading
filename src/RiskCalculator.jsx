@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useT } from './lang.js'
 
 const CONTRACTS = {
   YM:   { name: 'YM — Dow Futures',       pointValue: 5,        group: 'Equity' },
@@ -88,6 +89,7 @@ function Chip({ active, color, onClick, children }) {
 }
 
 function RiskCalculator({ journal = [] }) {
+  const t = useT()
   const [contract, setContract]       = useState('MYM')
   const [acc, setAcc]                 = useState('50000')
   const [pct, setPct]                 = useState('0.5')
@@ -128,11 +130,11 @@ function RiskCalculator({ journal = [] }) {
       flexDirection: 'column',
       gap: '16px',
     }}>
-      <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#5a7898', letterSpacing: '2px' }}>RISK CALCULATOR</div>
+      <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#5a7898', letterSpacing: '2px' }}>{t.riskTitle}</div>
 
       {/* Account chips */}
       <div>
-        <span style={label}>KONTO</span>
+        <span style={label}>{t.riskAccount}</span>
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
           {DEFAULT_ACCOUNTS.map((a, i) => (
             <Chip key={i} active={activeAccount === i} onClick={() => selectAccount(i)}>
@@ -144,7 +146,7 @@ function RiskCalculator({ journal = [] }) {
 
       {/* Group chips */}
       <div>
-        <span style={label}>KATEGORI</span>
+        <span style={label}>{t.riskCategory}</span>
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
           {GROUPS.map(g => (
             <Chip
@@ -164,7 +166,7 @@ function RiskCalculator({ journal = [] }) {
 
       {/* Contract select */}
       <div>
-        <span style={label}>KONTRAKT</span>
+        <span style={label}>{t.riskContract}</span>
         <select
           value={contract}
           onChange={e => setContract(e.target.value)}
@@ -183,8 +185,8 @@ function RiskCalculator({ journal = [] }) {
       {/* Account + Risk % inputs */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
         {[
-          { lbl: 'ACCOUNT ($)', val: acc, set: setAcc, ph: '50000' },
-          { lbl: 'RISK %',      val: pct, set: setPct, ph: '0.5'   },
+          { lbl: t.riskAccLabel, val: acc, set: setAcc, ph: '50000' },
+          { lbl: t.riskPct,      val: pct, set: setPct, ph: '0.5'   },
         ].map((f, i) => (
           <div key={i}>
             <span style={label}>{f.lbl}</span>
@@ -226,7 +228,7 @@ function RiskCalculator({ journal = [] }) {
               </div>
             </div>
             <div style={{ background: '#0a1020', border: '1px solid #1c2e4a', borderRadius: '12px', padding: '16px' }}>
-              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#5a7898', letterSpacing: '1.5px', marginBottom: '6px' }}>KONTRAKT</div>
+              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#5a7898', letterSpacing: '1.5px', marginBottom: '6px' }}>{t.riskContract}</div>
               <div style={{ fontFamily: 'monospace', fontSize: '26px', fontWeight: 700, color: slPts > 0 ? '#00e5b0' : '#3a5878', lineHeight: 1 }}>
                 {slPts > 0 ? contracts : '—'}
               </div>

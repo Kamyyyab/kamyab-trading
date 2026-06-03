@@ -153,6 +153,34 @@ export const T = {
     tvTipAction:   'Add Alert',
     tvTipSuffix:   'för inbyggda larm direkt i TradingView',
     alertNote:     'Aktier, index och krypto: auto-notis var 30s. Futures (MYM1! etc): använd TradingView-larmet istället.',
+
+    // Calendar
+    calNewTrade:   'NY TRADE',
+    calNoTrades:   'Inga trades på denna dag',
+    calAddFirst:   'Tryck + NY TRADE för att logga',
+    calEditTitle:  'REDIGERA TRADE',
+    calSave:       'SPARA TRADE',
+    calCancel:     'Avbryt',
+    calInstrument: 'INSTRUMENT',
+    calSetup:      'SETUP',
+    calTime:       'HANDLAD KL',
+    calPnl:        'P&L ($)',
+    calGrade:      'SETUP-KVALITET',
+    calOutcome:    'OUTCOME',
+    calEmotion:    'EMOTION',
+    calPsych:      'PSYKOLOGI',
+    calNotes:      'NOTES',
+    calChart:      '📷 CHART SCREENSHOT',
+
+    // RiskCalculator
+    riskTitle:     'RISK CALCULATOR',
+    riskAccount:   'KONTO',
+    riskCategory:  'KATEGORI',
+    riskContract:  'KONTRAKT',
+    riskPct:       'RISK %',
+    riskAccLabel:  'ACCOUNT ($)',
+    riskSl:        'STOP LOSS (POINTS)',
+    riskSlPh:      't.ex. 80',
   },
 
   en: {
@@ -303,5 +331,33 @@ export const T = {
     tvTipAction:   'Add Alert',
     tvTipSuffix:   'for built-in TradingView alerts',
     alertNote:     'Stocks, indices and crypto: auto-check every 30s. Futures (MYM1! etc): use TradingView alerts instead.',
+
+    // Calendar
+    calNewTrade:   'NEW TRADE',
+    calNoTrades:   'No trades on this day',
+    calAddFirst:   'Press + NEW TRADE to log',
+    calEditTitle:  'EDIT TRADE',
+    calSave:       'SAVE TRADE',
+    calCancel:     'Cancel',
+    calInstrument: 'INSTRUMENT',
+    calSetup:      'SETUP',
+    calTime:       'ENTRY TIME',
+    calPnl:        'P&L ($)',
+    calGrade:      'SETUP QUALITY',
+    calOutcome:    'OUTCOME',
+    calEmotion:    'EMOTION',
+    calPsych:      'PSYCHOLOGY',
+    calNotes:      'NOTES',
+    calChart:      '📷 CHART SCREENSHOT',
+
+    // RiskCalculator
+    riskTitle:     'RISK CALCULATOR',
+    riskAccount:   'ACCOUNT',
+    riskCategory:  'CATEGORY',
+    riskContract:  'CONTRACT',
+    riskPct:       'RISK %',
+    riskAccLabel:  'ACCOUNT ($)',
+    riskSl:        'STOP LOSS (POINTS)',
+    riskSlPh:      'e.g. 80',
   },
 }

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useT } from './lang.js'
 
 const M = "'JetBrains Mono', monospace"
 
@@ -35,6 +36,7 @@ const lbl = { fontFamily:M, fontSize:'9px', color:'#7a96b4', letterSpacing:'1.5p
 
 // ── EditForm ────────────────────────────────────────────────
 function EditForm({ initial = {}, onSave, onCancel }) {
+  const t = useT()
   const [result,    setResult]    = useState(initial.result     || '')
   const [instr,     setInstr]     = useState(initial.instrument || 'MYM')
   const [pnl,       setPnl]       = useState(initial.pnl        || '')
@@ -274,7 +276,7 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         }}
           onMouseEnter={e=>{e.currentTarget.style.borderColor='#3a5460';e.currentTarget.style.color='#dce8f5'}}
           onMouseLeave={e=>{e.currentTarget.style.borderColor='#1c2e4a';e.currentTarget.style.color='#7a96b4'}}
-        >Avbryt</button>
+        >{t.calCancel}</button>
         <button type="button" onClick={() => onSave({ result, instrument:instr, pnl:pnl||'0', note, emotion, setup, psychTags:tags, tradeTime, grade, image:image||null, audio:audioUrl||null })} style={{
           flex:1, background:'#00e5b0', color:'#020f08', fontFamily:M, fontSize:'12px', fontWeight:700,
           padding:'14px', borderRadius:'8px', border:'none', cursor:'pointer', letterSpacing:'1px',
@@ -282,7 +284,7 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         }}
           onMouseEnter={e=>e.currentTarget.style.background='#d97706'}
           onMouseLeave={e=>e.currentTarget.style.background='#f59e0b'}
-        >SPARA TRADE</button>
+        >{t.calSave}</button>
       </div>
     </div>
   )
@@ -297,7 +299,7 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
 
   if (isEd) return (
     <div style={{ background:'#08101c', border:'1px solid #1c2e4a', borderRadius:'10px', padding:'18px' }}>
-      <div style={{ fontFamily:M, fontSize:'9px', color:'#7a96b4', letterSpacing:'1.5px', marginBottom:'14px', fontWeight:600 }}>REDIGERA TRADE</div>
+      <div style={{ fontFamily:M, fontSize:'9px', color:'#7a96b4', letterSpacing:'1.5px', marginBottom:'14px', fontWeight:600 }}>{t.calEditTitle}</div>
       <EditForm initial={t} onSave={updated => onSaveEdit(ji, updated)} onCancel={onCancelEdit} />
     </div>
   )
@@ -714,7 +716,7 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
             }}>
               {showForm && (
                 <div style={{ background:'#08101c', border:'1px solid #1c2e4a', borderRadius:'10px', padding:'18px', marginBottom:'12px' }}>
-                  <div style={{ fontFamily:M, fontSize:'9px', color:'#00e5b0', letterSpacing:'1.5px', marginBottom:'14px', fontWeight:700 }}>NY TRADE</div>
+                  <div style={{ fontFamily:M, fontSize:'9px', color:'#00e5b0', letterSpacing:'1.5px', marginBottom:'14px', fontWeight:700 }}>{t.calNewTrade}</div>
                   <EditForm
                     onSave={trade => { onAddTrade({ date:sel, ...trade, timestamp:new Date().toISOString() }); setShowForm(false) }}
                     onCancel={() => setShowForm(false)}
@@ -739,8 +741,8 @@ export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEdit
               {filteredSelTrades.length===0 && !showForm && (
                 <div style={{ fontFamily:M, fontSize:'13px', color:'#6880a0', padding:'48px 0', textAlign:'center' }}>
                   <div style={{ fontSize:'32px', marginBottom:'10px', opacity:0.4 }}>—</div>
-                  <div>Inga trades på denna dag</div>
-                  <div style={{ fontSize:'10px', marginTop:'6px', color:'#3a5878' }}>Tryck + NY TRADE för att logga</div>
+                  <div>{t.calNoTrades}</div>
+                  <div style={{ fontSize:'10px', marginTop:'6px', color:'#3a5878' }}>{t.calAddFirst}</div>
                 </div>
               )}
 
