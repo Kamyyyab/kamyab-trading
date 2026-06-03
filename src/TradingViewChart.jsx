@@ -122,7 +122,8 @@ export default function TradingViewChart() {
   const [aPrice,    setAPrice]    = useState('')
   const [aLabel,    setALabel]    = useState('')
   const [prices,    setPrices]    = useState({})
-  const [lastCheck, setLastCheck] = useState(null)
+  const [lastCheck,    setLastCheck]    = useState(null)
+  const [chartUpdated, setChartUpdated] = useState(null)
   const [checking,  setChecking]  = useState(false)
   const [notifPerm, setNotifPerm] = useState(
     () => typeof Notification !== 'undefined' ? Notification.permission : 'unsupported'
@@ -182,19 +183,39 @@ export default function TradingViewChart() {
     setLivePrice(price)
     setChartData(cd)
     setChartOpen(open)
-    if (price) setAPrice(Math.round(price).toString())
+    if (price) { setAPrice(Math.round(price).toString()); setChartUpdated(new Date()) }
     setFetching(false)
   }
 
   // Re-fetch chart when timeframe changes (if symbol is loaded)
   const liveSymRef = useRef('')
+  const tfRef      = useRef(tf)
   useEffect(() => { liveSymRef.current = liveSymbol }, [liveSymbol])
+  useEffect(() => { tfRef.current = tf }, [tf])
   useEffect(() => {
     if (liveSymRef.current) {
       const tfObj = TFS.find(t => t.label === tf) || TFS[0]
       doLookup(liveSymRef.current, tfObj.interval, tfObj.range)
     }
   }, [tf])
+
+  // Auto-refresh chart every 60s — uses refs so always reads latest symbol/tf
+  useEffect(() => {
+    const refresh = async () => {
+      const sym = liveSymRef.current
+      if (!sym) return
+      const tfObj = TFS.find(t => t.label === tfRef.current) || TFS[0]
+      const { price, chartData: cd, open } = await fetchPriceAndChart(sym, tfObj.interval, tfObj.range)
+      if (price) {
+        setLivePrice(price)
+        setChartData(cd)
+        setChartOpen(open)
+        setChartUpdated(new Date())
+      }
+    }
+    const iv = setInterval(refresh, 60000)
+    return () => clearInterval(iv)
+  }, []) // stable — reads refs
 
   function addAlert() {
     if (!aSym || !aPrice) return
@@ -273,18 +294,31 @@ export default function TradingViewChart() {
               </div>
 
               {/* Chart */}
-              {/* Timeframe selector */}
-              <div style={{ display:'flex', gap:'4px', padding:'0 14px 8px' }}>
-                {TFS.map(({ label }) => (
-                  <button key={label} onClick={() => setTf(label)} style={{
-                    fontFamily:M, fontSize:'9px', padding:'4px 10px', borderRadius:'5px',
-                    border:`1px solid ${tf===label?'rgba(0,229,176,0.4)':'#162340'}`,
-                    background:tf===label?'#001810':'transparent',
-                    color:tf===label?'#00e5b0':'#6880a0', cursor:'pointer',
-                    WebkitTapHighlightColor:'transparent',
-                  }}>{label}</button>
-                ))}
-                {fetching && <span style={{ fontFamily:M, fontSize:'9px', color:'#f59e0b', alignSelf:'center', marginLeft:'4px' }}>↻</span>}
+              {/* Timeframe selector + last updated */}
+              <div style={{ display:'flex', gap:'4px', padding:'0 14px 8px', alignItems:'center', justifyContent:'space-between' }}>
+                <div style={{ display:'flex', gap:'4px' }}>
+                  {TFS.map(({ label }) => (
+                    <button key={label} onClick={() => setTf(label)} style={{
+                      fontFamily:M, fontSize:'9px', padding:'4px 10px', borderRadius:'5px',
+                      border:`1px solid ${tf===label?'rgba(0,229,176,0.4)':'#162340'}`,
+                      background:tf===label?'#001810':'transparent',
+                      color:tf===label?'#00e5b0':'#6880a0', cursor:'pointer',
+                      WebkitTapHighlightColor:'transparent',
+                    }}>{label}</button>
+                  ))}
+                  {fetching && <span style={{ fontFamily:M, fontSize:'9px', color:'#f59e0b', alignSelf:'center' }}>↻</span>}
+                </div>
+                <div style={{ display:'flex', alignItems:'center', gap:'6px' }}>
+                  {chartUpdated && (
+                    <span style={{ fontFamily:M, fontSize:'8px', color:'#3a5878' }}>
+                      upd {chartUpdated.toLocaleTimeString('sv-SE', { hour:'2-digit', minute:'2-digit', second:'2-digit' })}
+                    </span>
+                  )}
+                  <button onClick={() => { const tfObj=TFS.find(t=>t.label===tf)||TFS[0]; doLookup(liveSymbol, tfObj.interval, tfObj.range) }}
+                    style={{ background:'none', border:'1px solid #162340', borderRadius:'5px', color:'#6880a0', fontFamily:M, fontSize:'9px', padding:'3px 8px', cursor:'pointer' }}>
+                    ↻
+                  </button>
+                </div>
               </div>
 
               {chartData.length > 1 && (
