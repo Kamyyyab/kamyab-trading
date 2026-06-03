@@ -64,6 +64,18 @@ function parseChart(d, interval) {
       p: closes[i] ?? null,
     }))
     .filter(d => d.p !== null)
+
+  // Append current price as final point (bridges the ~15min data delay)
+  if (price && chartData.length > 0) {
+    const now = new Date().toLocaleTimeString('sv-SE', {
+      timeZone: 'Europe/Stockholm',
+      hour: '2-digit', minute: '2-digit', hour12: false,
+      ...(showDate ? { month:'short', day:'numeric' } : {}),
+    })
+    const last = chartData[chartData.length - 1]
+    if (last.t !== now) chartData.push({ t: now, p: price, current: true })
+  }
+
   return { price, open, chartData }
 }
 
@@ -341,7 +353,13 @@ export default function TradingViewChart() {
                         formatter={v => [fmtPrice(v), '']}
                         labelStyle={{ color:'#7a96b4' }}
                       />
-                      <Area type="monotone" dataKey="p" stroke={color} strokeWidth={1.5} fill="url(#cg)" dot={false} activeDot={{ r:3, fill:color, stroke:'#070a14', strokeWidth:2 }} />
+                      <Area type="monotone" dataKey="p" stroke={color} strokeWidth={1.5} fill="url(#cg)"
+                        dot={(props) => {
+                          const { cx, cy, payload } = props
+                          if (!payload?.current) return null
+                          return <circle key="now" cx={cx} cy={cy} r={4} fill={color} stroke="#070a14" strokeWidth={2} />
+                        }}
+                        activeDot={{ r:3, fill:color, stroke:'#070a14', strokeWidth:2 }} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
