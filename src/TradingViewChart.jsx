@@ -84,10 +84,10 @@ export default function TradingViewChart() {
         setPrices(p => ({ ...p, [a.symbol]: c }))
         const prev = prevPricesRef.current[a.symbol]
         prevPricesRef.current[a.symbol] = c
+        // Trigger only when price actually crosses the level — no tolerance buffer
         const crossed = prev !== undefined &&
           ((prev < a.price && c >= a.price) || (prev > a.price && c <= a.price))
-        const near = Math.abs(c - a.price) / a.price <= 0.005 // 0.5% tolerance
-        if (crossed || near) {
+        if (crossed) {
           setAlerts(prev2 => prev2.map(x =>
             x.id === a.id ? { ...x, triggered: true, triggeredPrice: c, triggeredAt: new Date().toISOString() } : x
           ))
@@ -103,7 +103,7 @@ export default function TradingViewChart() {
       setLastCheck(new Date())
     }
     check()
-    const iv = setInterval(check, 30000)
+    const iv = setInterval(check, 15000)
     return () => clearInterval(iv)
   }, [])
 
@@ -220,7 +220,7 @@ export default function TradingViewChart() {
         )}
         {notifPerm === 'granted' && (
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'12px' }}>
-            <div style={{ fontFamily:M, fontSize:'8px', color:'#00e5b0' }}>✓ Notiser aktiverade · kontroll var 30s</div>
+            <div style={{ fontFamily:M, fontSize:'8px', color:'#00e5b0' }}>✓ Notiser aktiverade · kontroll var 15s</div>
             <button onClick={() => new Notification('🔔 Test', { body:'Notiser fungerar!', icon:'/kamyab-trading/icon.svg' })}
               style={{ background:'none', border:'1px solid #162340', borderRadius:'5px', color:'#6880a0', fontFamily:M, fontSize:'8px', padding:'3px 8px', cursor:'pointer' }}>
               Testa
