@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
 
 const M = "'JetBrains Mono', monospace"
 
@@ -47,26 +48,43 @@ async function tryFetch(url) {
   return null
 }
 
-async function fetchPrice(raw) {
+function parseChart(d) {
+  const res = d?.chart?.result?.[0]
+  if (!res) return { price: null, chartData: [], open: null }
+  const price  = res.meta?.regularMarketPrice
+  const open   = res.meta?.chartPreviousClose || res.meta?.regularMarketOpen
+  const ts     = res.timestamp || []
+  const closes = res.indicators?.quote?.[0]?.close || []
+  const chartData = ts
+    .map((t, i) => ({
+      t: new Date(t * 1000).toLocaleTimeString('sv-SE', { timeZone:'Europe/Stockholm', hour:'2-digit', minute:'2-digit', hour12:false }),
+      p: closes[i] ?? null,
+    }))
+    .filter(d => d.p !== null)
+  return { price, open, chartData }
+}
+
+async function fetchPriceAndChart(raw) {
   const ticker = resolveSym(raw)
   const enc    = encodeURIComponent(ticker)
 
-  // Try 1: Yahoo Finance v8 chart (most reliable)
-  const d8 = await tryFetch(`https://query1.finance.yahoo.com/v8/finance/chart/${enc}?interval=1m&range=1d`)
-  const p8 = d8?.chart?.result?.[0]?.meta?.regularMarketPrice
-  if (p8 && p8 > 0) return p8
+  // Try v8 chart first (gives price + chart data in one call)
+  for (const base of ['https://query1.finance.yahoo.com', 'https://query2.finance.yahoo.com']) {
+    const d = await tryFetch(`${base}/v8/finance/chart/${enc}?interval=5m&range=1d`)
+    const parsed = parseChart(d)
+    if (parsed.price && parsed.price > 0) return parsed
+  }
 
-  // Try 2: Yahoo Finance v7 quote
+  // Fallback: v7 quote for price only
   const d7 = await tryFetch(`https://query1.finance.yahoo.com/v7/finance/quote?lang=en-US&region=US&symbols=${enc}`)
   const p7 = d7?.quoteResponse?.result?.[0]?.regularMarketPrice
-  if (p7 && p7 > 0) return p7
+  return { price: p7 || null, chartData: [], open: null }
+}
 
-  // Try 3: query2 instead of query1
-  const dq2 = await tryFetch(`https://query2.finance.yahoo.com/v8/finance/chart/${enc}?interval=1m&range=1d`)
-  const pq2 = dq2?.chart?.result?.[0]?.meta?.regularMarketPrice
-  if (pq2 && pq2 > 0) return pq2
-
-  return null
+// Used by the polling loop (price only, no chart overhead)
+async function fetchPrice(raw) {
+  const { price } = await fetchPriceAndChart(raw)
+  return price
 }
 
 function fmtPrice(p) {
@@ -78,6 +96,8 @@ export default function TradingViewChart() {
   const [lookup,     setLookup]     = useState('')
   const [livePrice,  setLivePrice]  = useState(null)
   const [liveSymbol, setLiveSymbol] = useState('')
+  const [chartData,  setChartData]  = useState([])
+  const [chartOpen,  setChartOpen]  = useState(null)
   const [fetching,   setFetching]   = useState(false)
 
   const [alerts,    setAlerts]    = useState(() => {
@@ -135,12 +155,14 @@ export default function TradingViewChart() {
 
   async function doLookup(sym) {
     if (!sym.trim()) return
-    setLivePrice(null)
+    setLivePrice(null); setChartData([]); setChartOpen(null)
     setLiveSymbol(sym.trim().toUpperCase())
     setFetching(true)
-    const p = await fetchPrice(sym)
-    setLivePrice(p)
-    if (p) setAPrice(Math.round(p).toString())
+    const { price, chartData: cd, open } = await fetchPriceAndChart(sym)
+    setLivePrice(price)
+    setChartData(cd)
+    setChartOpen(open)
+    if (price) setAPrice(Math.round(price).toString())
     setFetching(false)
   }
 
@@ -188,28 +210,66 @@ export default function TradingViewChart() {
           </button>
         </div>
 
-        {livePrice && (
-          <div style={{ marginTop:'12px', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 14px', background:'#0a1020', borderRadius:'8px', border:'1px solid #162340' }}>
-            <div>
-              <div style={{ fontFamily:M, fontSize:'11px', color:'#7a96b4', marginBottom:'2px' }}>
-                {liveSymbol}
-                {resolveSym(liveSymbol) !== liveSymbol && (
-                  <span style={{ color:'#3a5878', marginLeft:'6px' }}>→ {resolveSym(liveSymbol)}</span>
-                )}
+        {livePrice && (() => {
+          const isUp   = !chartOpen || livePrice >= chartOpen
+          const color  = isUp ? '#00e5b0' : '#ff4f6b'
+          const pctChg = chartOpen ? ((livePrice - chartOpen) / chartOpen * 100).toFixed(2) : null
+          const alertRef = aPrice ? parseFloat(aPrice) : null
+          return (
+            <div style={{ marginTop:'12px', background:'#0a1020', borderRadius:'10px', border:`1px solid ${isUp ? 'rgba(0,229,176,0.15)' : 'rgba(255,79,107,0.15)'}`, overflow:'hidden' }}>
+              {/* Price header */}
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 14px' }}>
+                <div>
+                  <div style={{ fontFamily:M, fontSize:'10px', color:'#7a96b4', marginBottom:'4px' }}>
+                    {liveSymbol}
+                    {resolveSym(liveSymbol) !== liveSymbol && (
+                      <span style={{ color:'#3a5878', marginLeft:'6px' }}>{resolveSym(liveSymbol)}</span>
+                    )}
+                  </div>
+                  <div style={{ display:'flex', alignItems:'baseline', gap:'8px' }}>
+                    <span style={{ fontFamily:M, fontSize:'30px', fontWeight:700, color, lineHeight:1 }}>{fmtPrice(livePrice)}</span>
+                    {pctChg && (
+                      <span style={{ fontFamily:M, fontSize:'11px', color, fontWeight:600 }}>
+                        {isUp ? '+' : ''}{pctChg}%
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <button onClick={() => { setASym(liveSymbol); setAPrice(Math.round(livePrice).toString()) }} style={{
+                  background:'#18100a', border:'1px solid rgba(245,158,11,0.3)', borderRadius:'7px',
+                  color:'#f59e0b', fontFamily:M, fontSize:'9px', fontWeight:700,
+                  padding:'8px 12px', cursor:'pointer',
+                }}>+ Sätt larm</button>
               </div>
-              <div style={{ fontFamily:M, fontSize:'28px', fontWeight:700, color:'#dce8f5', lineHeight:1 }}>
-                {fmtPrice(livePrice)}
-              </div>
+
+              {/* Chart */}
+              {chartData.length > 1 && (
+                <div style={{ paddingBottom:'4px' }}>
+                  <ResponsiveContainer width="100%" height={140}>
+                    <AreaChart data={chartData} margin={{ top:0, right:0, left:0, bottom:0 }}>
+                      <defs>
+                        <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%"  stopColor={color} stopOpacity={0.15} />
+                          <stop offset="95%" stopColor={color} stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <XAxis dataKey="t" tick={{ fill:'#4a6888', fontSize:8, fontFamily:M }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+                      <YAxis hide domain={['auto','auto']} />
+                      {chartOpen && <ReferenceLine y={chartOpen} stroke="#162340" strokeDasharray="3 3" />}
+                      {alertRef && <ReferenceLine y={alertRef} stroke="#f59e0b" strokeDasharray="4 4" strokeWidth={1.5} label={{ value:'larm', position:'right', fontSize:8, fill:'#f59e0b', fontFamily:M }} />}
+                      <Tooltip
+                        contentStyle={{ background:'#0f1828', border:'1px solid #162340', borderRadius:'6px', fontFamily:M, fontSize:10 }}
+                        formatter={v => [fmtPrice(v), '']}
+                        labelStyle={{ color:'#7a96b4' }}
+                      />
+                      <Area type="monotone" dataKey="p" stroke={color} strokeWidth={1.5} fill="url(#cg)" dot={false} activeDot={{ r:3, fill:color, stroke:'#070a14', strokeWidth:2 }} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
             </div>
-            <button onClick={() => { setASym(liveSymbol); setAPrice(Math.round(livePrice).toString()) }} style={{
-              background:'#18100a', border:'1px solid rgba(245,158,11,0.3)', borderRadius:'7px',
-              color:'#f59e0b', fontFamily:M, fontSize:'9px', fontWeight:700,
-              padding:'8px 12px', cursor:'pointer', letterSpacing:'0.5px',
-            }}>
-              + Sätt larm
-            </button>
-          </div>
-        )}
+          )
+        })()}
 
         {liveSymbol && !livePrice && !fetching && (
           <div style={{ marginTop:'10px', fontFamily:M, fontSize:'10px', color:'#7a3040' }}>
