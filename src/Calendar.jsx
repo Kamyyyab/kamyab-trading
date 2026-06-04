@@ -410,6 +410,7 @@ function TradeCard({ t, ji, isEd, onToggleEdit, onDelete, onSaveEdit, onCancelEd
 }
 
 export default function Calendar({ journal=[], onAddTrade, onDeleteTrade, onEditTrade }) {
+  const t      = useT()
   const mobile = useIsMobile()
   const [year,  setYear]  = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth())
