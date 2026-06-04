@@ -1,5 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
+import { supabase } from './supabase.js'
+
+// Replace this with your generated VAPID public key after setup
+// See SETUP.md or run: node scripts/generate-vapid.js
+const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || ''
+
+function urlB64ToUint8(b64) {
+  const pad = '='.repeat((4 - b64.length % 4) % 4)
+  const raw = atob((b64 + pad).replace(/-/g,'+').replace(/_/g,'/'))
+  return new Uint8Array([...raw].map(c => c.charCodeAt(0)))
+}
 
 const M = "'JetBrains Mono', monospace"
 
@@ -140,9 +151,7 @@ export default function TradingViewChart() {
     { label:'1H',  interval:'60m', range:'1mo' },
   ]
 
-  const [alerts,    setAlerts]    = useState(() => {
-    try { return JSON.parse(localStorage.getItem('price-alerts') || '[]') } catch { return [] }
-  })
+  const [alerts,    setAlerts]    = useState([])
   const [aSym,      setASym]      = useState('')
   const [aPrice,    setAPrice]    = useState('')
   const [aLabel,    setALabel]    = useState('')
@@ -153,11 +162,49 @@ export default function TradingViewChart() {
   const [notifPerm, setNotifPerm] = useState(
     () => typeof Notification !== 'undefined' ? Notification.permission : 'unsupported'
   )
+  const [loadingAlerts, setLoadingAlerts] = useState(true)
 
-  const alertsRef    = useRef(alerts)
+  const alertsRef     = useRef(alerts)
   const prevPricesRef = useRef({})
   useEffect(() => { alertsRef.current = alerts }, [alerts])
-  useEffect(() => { localStorage.setItem('price-alerts', JSON.stringify(alerts)) }, [alerts])
+
+  // ── Load alerts from Supabase on mount ──
+  useEffect(() => {
+    async function load() {
+      const { data } = await supabase.from('price_alerts').select('*').order('created_at', { ascending: false })
+      if (data) setAlerts(data.map(r => ({ ...r, id: r.id })))
+      setLoadingAlerts(false)
+    }
+    load()
+
+    // Realtime: listen for updates (e.g. when Edge Function triggers an alert)
+    const channel = supabase
+      .channel('price_alerts_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'price_alerts' }, payload => {
+        if (payload.eventType === 'UPDATE') {
+          setAlerts(prev => prev.map(a => a.id === payload.new.id ? { ...a, ...payload.new } : a))
+          // Show in-app notification if just triggered
+          if (payload.new.triggered && !payload.old?.triggered) {
+            const a = payload.new
+            if (Notification.permission === 'granted') {
+              new Notification(`🔔 ${a.symbol} @ ${fmtPrice(a.price)}!`, {
+                body: `Prisnivå nådd · Nu: ${fmtPrice(a.triggered_price)}`,
+                icon: '/kamyab-trading/icon.svg',
+              })
+            }
+          }
+        }
+        if (payload.eventType === 'INSERT') {
+          setAlerts(prev => [payload.new, ...prev])
+        }
+        if (payload.eventType === 'DELETE') {
+          setAlerts(prev => prev.filter(a => a.id !== payload.old.id))
+        }
+      })
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  }, [])
 
   // ── Stable price poll ──
   useEffect(() => {
@@ -250,19 +297,49 @@ export default function TradingViewChart() {
     return () => clearInterval(iv)
   }, []) // stable — reads refs
 
-  function addAlert() {
+  async function addAlert() {
     if (!aSym || !aPrice) return
-    const a = {
-      id:        Date.now(),
-      symbol:    aSym.trim().toUpperCase(),
-      price:     parseFloat(aPrice),
-      label:     aLabel.trim() || `${aSym.toUpperCase()} @ ${aPrice}`,
-      triggered: false,
-      createdAt: new Date().toISOString(),
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    const row = {
+      user_id: user.id,
+      symbol:  aSym.trim().toUpperCase(),
+      price:   parseFloat(aPrice),
+      label:   aLabel.trim() || `${aSym.toUpperCase()} @ ${aPrice}`,
     }
-    setAlerts(p => [a, ...p])
+    const { data, error } = await supabase.from('price_alerts').insert(row).select().single()
+    if (!error && data) setAlerts(p => [data, ...p])
     setASym(''); setAPrice(''); setALabel('')
-    if (Notification.permission === 'default') Notification.requestPermission().then(setNotifPerm)
+    if (Notification.permission === 'default') {
+      const perm = await Notification.requestPermission()
+      setNotifPerm(perm)
+      if (perm === 'granted') subscribeToPush()
+    }
+  }
+
+  async function removeAlert(id) {
+    await supabase.from('price_alerts').delete().eq('id', id)
+    setAlerts(p => p.filter(a => a.id !== id))
+  }
+
+  async function subscribeToPush() {
+    if (!VAPID_PUBLIC_KEY) return
+    try {
+      const reg = await navigator.serviceWorker.register('/kamyab-trading/sw.js')
+      await navigator.serviceWorker.ready
+      const existing = await reg.pushManager.getSubscription()
+      const sub = existing || await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlB64ToUint8(VAPID_PUBLIC_KEY),
+      })
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        await supabase.from('push_subscriptions').upsert(
+          { user_id: user.id, subscription: sub.toJSON() },
+          { onConflict: 'user_id,(subscription->>\'endpoint\')' }
+        )
+      }
+    } catch (e) { console.warn('Push subscribe failed:', e) }
   }
 
   const inp = {
@@ -416,7 +493,7 @@ export default function TradingViewChart() {
               <div style={{ fontFamily:M, fontSize:'9px', color:'#f59e0b', fontWeight:700, marginBottom:'2px' }}>AKTIVERA NOTISER</div>
               <div style={{ fontFamily:M, fontSize:'8px', color:'#7a6030', lineHeight:1.4 }}>Tillåt för att få ping när priset nås</div>
             </div>
-            <button onClick={async () => { const p = await Notification.requestPermission(); setNotifPerm(p) }}
+            <button onClick={async () => { const p = await Notification.requestPermission(); setNotifPerm(p); if (p==='granted') subscribeToPush() }}
               style={{ background:'#f59e0b', border:'none', borderRadius:'6px', color:'#0a0700', fontFamily:M, fontSize:'9px', fontWeight:700, padding:'6px 12px', cursor:'pointer', flexShrink:0 }}>
               Tillåt
             </button>
@@ -464,7 +541,7 @@ export default function TradingViewChart() {
         {/* Alert list */}
         {alerts.length === 0 && (
           <div style={{ fontFamily:M, fontSize:'10px', color:'#2a3c50', textAlign:'center', padding:'20px 0' }}>
-            Inga aktiva larm — hämta ett pris ovan och tryck "Sätt larm"
+            {loadingAlerts ? 'Laddar larm...' : 'Inga aktiva larm — hämta ett pris ovan och tryck "Sätt larm"'}
           </div>
         )}
         {alerts.map(a => {
@@ -504,7 +581,7 @@ export default function TradingViewChart() {
                         : checking ? 'Hämtar...' : 'Väntar på nästa kontroll...'}
                 </div>
               </div>
-              <button onClick={() => setAlerts(p => p.filter(x => x.id !== a.id))}
+              <button onClick={() => removeAlert(a.id)}
                 style={{ background:'none', border:'none', color:'#3a5878', cursor:'pointer', fontSize:'18px', padding:'0 2px', flexShrink:0 }}>×</button>
             </div>
           )
