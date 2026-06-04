@@ -1,8 +1,22 @@
 import { useState, useEffect } from 'react'
 
 const M = "'JetBrains Mono', monospace"
-const API_KEY = 'd86pfmhr01qurhv774f0d86pfmhr01qurhv774fg'
-const PROXY   = 'https://corsproxy.io/?'
+const API_KEY  = 'd86pfmhr01qurhv774f0d86pfmhr01qurhv774fg'
+
+// Try both proxies in parallel — use whichever responds first
+async function proxyFetch(url) {
+  const proxies = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  ]
+  try {
+    return await Promise.any(
+      proxies.map(p => fetch(p, { signal: AbortSignal.timeout(8000) })
+        .then(r => { if (!r.ok) throw 0; return r })
+      )
+    )
+  } catch { throw new Error('Proxy fel') }
+}
 const IS_MOB  = typeof window !== 'undefined' && window.innerWidth < 768
 
 // ── CME Futures market closure schedule ───────────────────────
@@ -182,8 +196,8 @@ export default function EconomicCalendar() {
       const td=new Date(now.getFullYear(),now.getMonth(),now.getDate()+7)
       const to=`${td.getFullYear()}-${pad(td.getMonth()+1)}-${pad(td.getDate())}`
       const [er,ar]=await Promise.all([
-        fetch(`${PROXY}${encodeURIComponent(`https://finnhub.io/api/v1/calendar/economic?from=${from}&to=${to}&token=${API_KEY}`)}`),
-        fetch(`${PROXY}${encodeURIComponent(`https://finnhub.io/api/v1/calendar/earnings?from=${from}&to=${to}&token=${API_KEY}`)}`),
+        proxyFetch(`https://finnhub.io/api/v1/calendar/economic?from=${from}&to=${to}&token=${API_KEY}`),
+        proxyFetch(`https://finnhub.io/api/v1/calendar/earnings?from=${from}&to=${to}&token=${API_KEY}`),
       ])
       const ed=await er.json(), ad=await ar.json()
       setEvents((ed.economicCalendar||[]).filter(e=>e.impact==='high'&&e.country==='US').sort((a,b)=>new Date(a.time)-new Date(b.time)))
@@ -195,7 +209,7 @@ export default function EconomicCalendar() {
   async function fetchNews(cat) {
     setNewsLoading(true)
     try {
-      const res=await fetch(`${PROXY}${encodeURIComponent(`https://finnhub.io/api/v1/news?category=${cat}&minId=0&token=${API_KEY}`)}`)
+      const res=await proxyFetch(`https://finnhub.io/api/v1/news?category=${cat}&minId=0&token=${API_KEY}`)
       const data=await res.json()
       setNews(Array.isArray(data)?data.slice(0,40):[])
     } catch { setNews([]) }

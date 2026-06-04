@@ -140,7 +140,7 @@ function Icon({ path, color }) {
 
 export default function App() {
   const [user, setUser]                   = useState(null)
-  const [loading, setLoading]             = useState(true)
+  const [loading, setLoading]             = useState(false)
   const [journal, setJournal]             = useState([])
   const [streakLogs, setStreakLogs]       = useState({})
   const [biasLogs, setBiasLogs]           = useState({})
