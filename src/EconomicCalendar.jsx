@@ -24,26 +24,26 @@ const CME_HOLIDAYS = [
   { date:'2025-01-01', name:"New Year's Day",          type:'closed' },
   { date:'2025-01-20', name:'MLK Day',                 type:'closed' },
   { date:'2025-02-17', name:"Presidents' Day",         type:'closed' },
-  { date:'2025-04-18', name:'Good Friday',             type:'early',  note:'Stänger 12:00 ET / 18:00 CET' },
+  { date:'2025-04-18', name:'Good Friday',             type:'early',  note:'Closes 12:00 ET / 18:00 CET' },
   { date:'2025-05-26', name:'Memorial Day',            type:'closed' },
   { date:'2025-06-19', name:'Juneteenth',              type:'closed' },
   { date:'2025-07-04', name:'Independence Day',        type:'closed' },
   { date:'2025-09-01', name:'Labor Day',               type:'closed' },
   { date:'2025-11-27', name:'Thanksgiving',            type:'closed' },
-  { date:'2025-11-28', name:'Day after Thanksgiving',  type:'early',  note:'Stänger 12:00 ET / 18:00 CET' },
-  { date:'2025-12-24', name:'Christmas Eve',           type:'early',  note:'Stänger 12:00 ET / 18:00 CET' },
+  { date:'2025-11-28', name:'Day after Thanksgiving',  type:'early',  note:'Closes 12:00 ET / 18:00 CET' },
+  { date:'2025-12-24', name:'Christmas Eve',           type:'early',  note:'Closes 12:00 ET / 18:00 CET' },
   { date:'2025-12-25', name:'Christmas Day',           type:'closed' },
   { date:'2026-01-01', name:"New Year's Day",          type:'closed' },
   { date:'2026-01-19', name:'MLK Day',                 type:'closed' },
   { date:'2026-02-16', name:"Presidents' Day",         type:'closed' },
-  { date:'2026-04-03', name:'Good Friday',             type:'early',  note:'Stänger 12:00 ET / 18:00 CET' },
+  { date:'2026-04-03', name:'Good Friday',             type:'early',  note:'Closes 12:00 ET / 18:00 CET' },
   { date:'2026-05-25', name:'Memorial Day',            type:'closed' },
   { date:'2026-06-19', name:'Juneteenth',              type:'closed' },
   { date:'2026-07-03', name:'Independence Day (obs.)', type:'closed' },
   { date:'2026-09-07', name:'Labor Day',               type:'closed' },
   { date:'2026-11-26', name:'Thanksgiving',            type:'closed' },
-  { date:'2026-11-27', name:'Day after Thanksgiving',  type:'early',  note:'Stänger 12:00 ET / 18:00 CET' },
-  { date:'2026-12-24', name:'Christmas Eve',           type:'early',  note:'Stänger 12:00 ET / 18:00 CET' },
+  { date:'2026-11-27', name:'Day after Thanksgiving',  type:'early',  note:'Closes 12:00 ET / 18:00 CET' },
+  { date:'2026-12-24', name:'Christmas Eve',           type:'early',  note:'Closes 12:00 ET / 18:00 CET' },
   { date:'2026-12-25', name:'Christmas Day',           type:'closed' },
 ]
 
@@ -94,7 +94,7 @@ function EconEvent({ e }) {
     <div style={{ display:'flex',alignItems:'center',gap:'10px',background:'#0a1020',border:'1px solid #7a1f2e',borderRadius:'10px',padding:'12px 14px',marginBottom:'6px' }}>
       <div style={{ fontFamily:M,fontSize:'11px',color:'#7a96b4',minWidth:'36px',flexShrink:0 }}>{fmtTime(e.time)}</div>
       <div style={{ fontFamily:M,fontSize:'13px',color:'#dce8f5',flex:1,lineHeight:1.3 }}>{e.event}</div>
-      <div style={{ fontFamily:M,fontSize:'9px',color:'#ff4f6b',background:'#3d0f1a',border:'1px solid #7a1f2e',borderRadius:'5px',padding:'3px 7px',whiteSpace:'nowrap',flexShrink:0 }}>HÖG</div>
+      <div style={{ fontFamily:M,fontSize:'9px',color:'#ff4f6b',background:'#3d0f1a',border:'1px solid #7a1f2e',borderRadius:'5px',padding:'3px 7px',whiteSpace:'nowrap',flexShrink:0 }}>HIGH</div>
     </div>
   )
 }
@@ -168,7 +168,7 @@ function HolidayRow({ h, todayStr }) {
           :{color:'#ffc030',background:'#1a1000',border:'1px solid rgba(255,192,48,0.2)'}
         )
       }}>
-        {h.type==='closed'?'STÄNGD':'TIDIG'}
+        {h.type==='closed'?'CLOSED':'EARLY'}
       </span>
     </div>
   )
@@ -202,7 +202,7 @@ export default function EconomicCalendar() {
       const ed=await er.json(), ad=await ar.json()
       setEvents((ed.economicCalendar||[]).filter(e=>e.impact==='high'&&e.country==='US').sort((a,b)=>new Date(a.time)-new Date(b.time)))
       setEarnings((ad.earningsCalendar||[]).filter(e=>e.symbol&&MAJOR_TICKERS.has(e.symbol)).sort((a,b)=>a.date.localeCompare(b.date)))
-    } catch { setError('Kunde inte ladda data') }
+    } catch { setError('Could not load data') }
     finally { setLoading(false) }
   }
 
@@ -308,7 +308,7 @@ export default function EconomicCalendar() {
           <span style={{ fontSize:'14px',flexShrink:0 }}>{nextHol.date===todayStr?'🔴':'🟡'}</span>
           <div>
             <div style={{ fontFamily:M,fontSize:'10px',fontWeight:700,color:nextHol.date===todayStr?'#ff4f6b':'#ffc030' }}>
-              {nextHol.date===todayStr?'CME STÄNGD IDAG':'CME STÄNGER IMORGON'}
+              {nextHol.date===todayStr?'CME CLOSED TODAY':'CME CLOSES TOMORROW'}
             </div>
             <div style={{ fontFamily:M,fontSize:'9px',color:'#7a96b4',marginTop:'2px' }}>
               {nextHol.name}{nextHol.note?` — ${nextHol.note}`:''}
@@ -317,7 +317,7 @@ export default function EconomicCalendar() {
         </div>
       )}
 
-      {loading&&<div style={{ color:'#7a96b4',fontFamily:M,fontSize:'12px',padding:'24px 0',textAlign:'center' }}>Laddar...</div>}
+      {loading&&<div style={{ color:'#7a96b4',fontFamily:M,fontSize:'12px',padding:'24px 0',textAlign:'center' }}>Loading...</div>}
       {error&&<div style={{ color:'#ff4f6b',fontFamily:M,fontSize:'12px',padding:'12px 0' }}>{error}</div>}
 
       {!loading&&!error&&(
@@ -325,7 +325,7 @@ export default function EconomicCalendar() {
           // ── MOBILE: 4 tabs ──
           <div>
             <div style={{ display:'grid',gridTemplateColumns:'repeat(4,1fr)',background:'#0a1020',border:'1px solid #162340',borderRadius:'10px',padding:'3px',gap:'2px',marginBottom:'16px' }}>
-              {[['econ','Makro'],['earnings','Earnings'],['news','News'],['holidays','Helgdagar']].map(([id,label])=>(
+              {[['econ','Macro'],['earnings','Earnings'],['news','News'],['holidays','Holidays']].map(([id,label])=>(
                 <button key={id} onClick={()=>setTab(id)} style={{
                   background:tab===id?'#1c2f34':'none',
                   border:tab===id?'1px solid #1c2e4a':'1px solid transparent',

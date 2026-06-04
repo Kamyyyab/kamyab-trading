@@ -183,14 +183,14 @@ export default function Playbook({ playbook = [], onSaveSetup, onDeleteSetup, jo
         <button type="button" onClick={()=>{setShowForm(true);setEditId(null)}} style={{ background:'#00e5b0', color:'#020f08', fontFamily:M, fontSize:'10px', fontWeight:700, padding:'9px 16px', borderRadius:'8px', border:'none', cursor:'pointer', letterSpacing:'1px' }}
           onMouseEnter={e=>e.currentTarget.style.background='#00c49a'}
           onMouseLeave={e=>e.currentTarget.style.background='#00e5b0'}>
-          + NYTT SETUP
+          + NEW SETUP
         </button>
       </div>
 
       {/* Add form */}
       {showForm && !editId && (
         <div style={{ background:'#111820', border:'1px solid #263840', borderRadius:'12px', padding:'18px' }}>
-          <div style={{ fontFamily:M, fontSize:'9px', color:'#85a4ad', letterSpacing:'2px', marginBottom:'14px' }}>NYTT SETUP</div>
+          <div style={{ fontFamily:M, fontSize:'9px', color:'#85a4ad', letterSpacing:'2px', marginBottom:'14px' }}>NEW SETUP</div>
           <SetupForm onSave={s=>{onSaveSetup(s);setShowForm(false)}} onCancel={()=>setShowForm(false)} />
         </div>
       )}
@@ -341,7 +341,7 @@ export default function Playbook({ playbook = [], onSaveSetup, onDeleteSetup, jo
             {/* Edit form */}
             {isEdit && (
               <div style={{ borderTop:'1px solid #263840', padding:'16px' }}>
-                <div style={{ fontFamily:M, fontSize:'9px', color:'#85a4ad', letterSpacing:'2px', marginBottom:'14px' }}>REDIGERA SETUP</div>
+                <div style={{ fontFamily:M, fontSize:'9px', color:'#85a4ad', letterSpacing:'2px', marginBottom:'14px' }}>EDIT SETUP</div>
                 <SetupForm
                   initial={editSetup}
                   onSave={s=>{onSaveSetup(s);setEditId(null)}}

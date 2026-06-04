@@ -71,10 +71,10 @@ export default function StreakHistory({ journal=[], onSaveStreakLog, streakLogs=
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'12px'}}>
         <div style={{display:'flex',alignItems:'baseline',gap:'4px'}}>
           <span style={{fontFamily:M,fontSize:'28px',fontWeight:700,color:currentStreak>0?'#00e5b0':'#1c2e4a',lineHeight:1}}>{currentStreak}</span>
-          <span style={{fontFamily:M,fontSize:'9px',color:'#7a96b4'}}>dagars streak</span>
+          <span style={{fontFamily:M,fontSize:'9px',color:'#7a96b4'}}>day streak</span>
         </div>
         <div style={{display:'flex',gap:'14px'}}>
-          {[{label:'LÄNGSTA',v:longestStreak,c:'#00e5b0'},{label:'CLEAN',v:cleanDays,c:'#00e5b0'},{label:'VIOLATIONS',v:violationDays,c:'#ff4f6b'}].map((s,i)=>(
+          {[{label:'LONGEST',v:longestStreak,c:'#00e5b0'},{label:'CLEAN',v:cleanDays,c:'#00e5b0'},{label:'VIOLATIONS',v:violationDays,c:'#ff4f6b'}].map((s,i)=>(
             <div key={i} style={{textAlign:'center'}}>
               <div style={{fontFamily:M,fontSize:'8px',color:'#7a96b4',letterSpacing:'1px',marginBottom:'1px'}}>{s.label}</div>
               <div style={{fontFamily:M,fontSize:'14px',fontWeight:700,color:s.c}}>{s.v}</div>
