@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from './supabase.js'
 import Auth from './Auth.jsx'
 import RiskCalculator from './RiskCalculator.jsx'
@@ -151,6 +151,7 @@ function writeCache(data) {
 
 export default function App() {
   const cache = readCache()
+  const lastSaveRef = useRef(0) // timestamp of last user-initiated save
   const [user, setUser]                   = useState(null)
   const [loading, setLoading]             = useState(false)
   const [journal, setJournal]             = useState(cache?.journal || [])
@@ -178,7 +179,10 @@ export default function App() {
   }, [])
 
   async function fetchData(uid) {
+    const fetchStart = Date.now()
     const { data } = await supabase.from('trading_data').select('data').eq('user_id', uid).maybeSingle()
+    // If user saved something while we were fetching, don't overwrite it
+    if (lastSaveRef.current > fetchStart) return
     if (!data?.data) return
     const d = data.data
     const j  = Array.isArray(d.journal) ? d.journal : []
@@ -191,10 +195,10 @@ export default function App() {
     setJournal(j); setStreakLogs(sl); setBiasLogs(bl)
     setPlaybook(pb); setWeeklyReviews(wr); setSettings(se); setSessionNotes(sn)
     writeCache({ journal:j, streakLogs:sl, biasLogs:bl, playbook:pb, weeklyReviews:wr, settings:se, sessionNotes:sn })
-    if (data?.data?.sessionNotes)  setSessionNotes(data.data.sessionNotes || {})
   }
 
   async function saveData(nj, ns) {
+    lastSaveRef.current = Date.now()
     const j = nj ?? journal
     const s = ns ?? streakLogs
     if (nj) setJournal(nj)
@@ -205,18 +209,30 @@ export default function App() {
     )
   }
 
-  function handleSaveSetup(setup) {
+  async function handleSaveSetup(setup) {
+    if (!user?.id) return
+    lastSaveRef.current = Date.now()
     const np = setup.id
       ? playbook.map(s => s.id === setup.id ? setup : s)
       : [{ ...setup, id: String(Date.now()), createdAt: new Date().toISOString() }, ...playbook]
     setPlaybook(np)
-    supabase.from('trading_data').upsert({ user_id: user.id, data: { journal, streakLogs, biasLogs, playbook: np, weeklyReviews, settings, sessionNotes }, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
+    writeCache({ journal, streakLogs, biasLogs, playbook: np, weeklyReviews, settings, sessionNotes })
+    const { error } = await supabase.from('trading_data').upsert(
+      { user_id: user.id, data: { journal, streakLogs, biasLogs, playbook: np, weeklyReviews, settings, sessionNotes }, updated_at: new Date().toISOString() },
+      { onConflict: 'user_id' }
+    )
+    if (error) console.error('Playbook save failed:', error)
   }
 
-  function handleDeleteSetup(id) {
+  async function handleDeleteSetup(id) {
+    if (!user?.id) return
     const np = playbook.filter(s => s.id !== id)
     setPlaybook(np)
-    supabase.from('trading_data').upsert({ user_id: user.id, data: { journal, streakLogs, biasLogs, playbook: np, weeklyReviews, settings, sessionNotes }, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
+    writeCache({ journal, streakLogs, biasLogs, playbook: np, weeklyReviews, settings, sessionNotes })
+    await supabase.from('trading_data').upsert(
+      { user_id: user.id, data: { journal, streakLogs, biasLogs, playbook: np, weeklyReviews, settings, sessionNotes }, updated_at: new Date().toISOString() },
+      { onConflict: 'user_id' }
+    )
   }
 
   function handleSaveWeeklyReview(weekStart, review) {
