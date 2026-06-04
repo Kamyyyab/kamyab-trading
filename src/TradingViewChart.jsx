@@ -40,20 +40,31 @@ const ALIASES = {
 
 const resolveSym = s => ALIASES[s.trim().toUpperCase()] || s.trim().toUpperCase()
 
-// Multiple proxies and endpoints — tries until one works
-const PROXIES = [
-  s => `https://api.allorigins.win/raw?url=${encodeURIComponent(s)}`,
-  s => `https://corsproxy.io/?${encodeURIComponent(s)}`,
-]
+// Supabase Edge Function URL — server-side fetch, no CORS proxy needed
+const EDGE_URL  = 'https://tgzgndyxfwnoqvtbetns.supabase.co/functions/v1/get-price'
+const ANON_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRnemduZHl4Zndub3F2dGJldG5zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NzMxMjcsImV4cCI6MjA5MDM0OTEyN30.GCNzqE0otgAdHSEDk_ipfL_g2_tmyoOaHoDDnSw8PcA'
 
-// Parallel proxy fetch — uses whichever proxy responds first
-async function tryFetch(url) {
-  const attempts = PROXIES.map(proxy =>
-    fetch(proxy(url), { signal: AbortSignal.timeout(5000) })
-      .then(r => { if (!r.ok) throw 0; return r.text() })
-      .then(txt => { if (!txt || txt.startsWith('<')) throw 0; return JSON.parse(txt) })
-  )
-  try { return await Promise.any(attempts) } catch { return null }
+async function edgeFetch(symbol, interval = '5m', range = '1d') {
+  const params = new URLSearchParams({ symbol, interval, range })
+  try {
+    const r = await fetch(`${EDGE_URL}?${params}`, {
+      headers: { Authorization: `Bearer ${ANON_KEY}` },
+      signal: AbortSignal.timeout(6000),
+    })
+    if (!r.ok) return null
+    return await r.json()
+  } catch { return null }
+}
+
+// Fallback: direct CORS proxy (used only if Edge Function fails)
+async function proxyFetch(url) {
+  try {
+    const r = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`, { signal: AbortSignal.timeout(6000) })
+    if (!r.ok) return null
+    const txt = await r.text()
+    if (!txt || txt.startsWith('<')) return null
+    return JSON.parse(txt)
+  } catch { return null }
 }
 
 function parseChart(d, interval) {
@@ -90,36 +101,35 @@ function parseChart(d, interval) {
   return { price, open, chartData }
 }
 
-// Both query1 and query2 in parallel → fastest wins
+// Primary: Edge Function (server-side, fast). Fallback: direct proxy
 async function fetchPriceAndChart(raw, interval = '5m', range = '1d') {
+  // Try Edge Function first
+  const d = await edgeFetch(raw, interval, range)
+  const parsed = parseChart(d, interval)
+  if (parsed.price && parsed.price > 0) return parsed
+
+  // Fallback: CORS proxy
   const ticker = resolveSym(raw)
   const enc    = encodeURIComponent(ticker)
+  const d2 = await proxyFetch(`https://query1.finance.yahoo.com/v8/finance/chart/${enc}?interval=${interval}&range=${range}`)
+  const p2 = parseChart(d2, interval)
+  if (p2.price && p2.price > 0) return p2
 
-  const results = await Promise.allSettled([
-    tryFetch(`https://query1.finance.yahoo.com/v8/finance/chart/${enc}?interval=${interval}&range=${range}`),
-    tryFetch(`https://query2.finance.yahoo.com/v8/finance/chart/${enc}?interval=${interval}&range=${range}`),
-  ])
-  for (const r of results) {
-    if (r.status === 'fulfilled') {
-      const parsed = parseChart(r.value, interval)
-      if (parsed.price && parsed.price > 0) return parsed
-    }
-  }
-
-  // Fallback: v7 quote for price only
-  const d7 = await tryFetch(`https://query1.finance.yahoo.com/v7/finance/quote?lang=en-US&region=US&symbols=${enc}`)
-  const p7 = d7?.quoteResponse?.result?.[0]?.regularMarketPrice
-  return { price: p7 || null, chartData: [], open: null }
+  return { price: null, chartData: [], open: null }
 }
 
-// Lightweight price-only fetch for polling — uses v7 quote (no chart data overhead)
+// Lightweight price-only fetch for alert polling
 async function fetchPrice(raw) {
+  // Try Edge Function first
+  const d = await edgeFetch(raw, '1m', '1d')
+  const p = d?.chart?.result?.[0]?.meta?.regularMarketPrice
+  if (p && p > 0) return p
+
+  // Fallback: proxy
   const ticker = resolveSym(raw)
   const enc    = encodeURIComponent(ticker)
-  // Try v7 quote from both hosts in parallel
   const results = await Promise.allSettled([
-    tryFetch(`https://query1.finance.yahoo.com/v7/finance/quote?lang=en-US&region=US&symbols=${enc}`),
-    tryFetch(`https://query2.finance.yahoo.com/v7/finance/quote?lang=en-US&region=US&symbols=${enc}`),
+    proxyFetch(`https://query1.finance.yahoo.com/v7/finance/quote?lang=en-US&region=US&symbols=${enc}`),
   ])
   for (const r of results) {
     const p = r.value?.quoteResponse?.result?.[0]?.regularMarketPrice
