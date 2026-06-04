@@ -67,7 +67,7 @@ const RESULTS = [
 // Outcomes that count as real trades (require bias)
 const REAL_RESULTS = new Set(['tp1','tp2','tp3','win','win2','loss','be'])
 
-function QuickForm({ onSave, onFull, onCancel, hasBias, isSecondTrade, firstTradeWon, realTradeCount }) {
+function QuickForm({ onSave, onFull, onCancel, hasBias, isSecondTrade, firstTradeWon, realTradeCount, hasAdvancedContent }) {
   const t = useT()
   const [result, setResult] = useState('')
   const [pnl,    setPnl]    = useState('')
@@ -91,6 +91,12 @@ function QuickForm({ onSave, onFull, onCancel, hasBias, isSecondTrade, firstTrad
 
   return (
     <div style={{ marginTop:'12px', background:'#08101c', border:'1px solid #1c2e4a', borderRadius:'10px', padding:'14px', display:'flex', flexDirection:'column', gap:'10px' }}>
+      {hasAdvancedContent && (
+        <div style={{ background:'#1a1000', border:'1px solid rgba(255,192,48,0.35)', borderRadius:'7px', padding:'9px 12px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:'8px' }}>
+          <span style={{ fontFamily:M, fontSize:'9px', color:'#ffc030' }}>⚠ Du har ett röstmemo — använd Full för att spara det</span>
+          <button type="button" onClick={onFull} style={{ background:'#ffc030', border:'none', borderRadius:'5px', color:'#0a0700', fontFamily:M, fontSize:'9px', fontWeight:700, padding:'4px 10px', cursor:'pointer', flexShrink:0 }}>Öppna Full</button>
+        </div>
+      )}
       {err && (
         <div style={{ fontFamily:M, fontSize:'9px', color:'#ff4f6b', background:'#1a0610', border:'1px solid rgba(255,79,107,0.3)', borderRadius:'6px', padding:'7px 10px' }}>
           🚫 {t.biasError}
@@ -655,20 +661,12 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
           {isLockedOut ? (
             <button type="button" disabled style={{ background:'#1a0610', color:'#5a3040', fontFamily:M, fontSize:'10px', fontWeight:700, padding:'8px 14px', borderRadius:'8px', border:'none', cursor:'not-allowed', opacity:0.5 }}>🔒 LOCKOUT</button>
           ) : (
-            <div style={{ display:'flex', gap:'5px', flexShrink:0 }}>
-              <button type="button" onClick={() => { setQuickMode(true); setShowForm(!showForm) }}
-                style={{ background:'#f59e0b', color:'#0a0700', fontFamily:M, fontSize:'10px', fontWeight:700, padding:'8px 12px', borderRadius:'8px', border:'none', cursor:'pointer', transition:'background 0.15s' }}
-                onMouseEnter={e=>e.currentTarget.style.background='#d97706'}
-                onMouseLeave={e=>e.currentTarget.style.background='#f59e0b'}>
-                ⚡ Snabb
-              </button>
-              <button type="button" onClick={() => { setQuickMode(false); setShowForm(!showForm) }}
-                style={{ background:'#0a1020', color:'#7a96b4', fontFamily:M, fontSize:'10px', fontWeight:700, padding:'8px 12px', borderRadius:'8px', border:'1px solid #162340', cursor:'pointer', transition:'all 0.15s' }}
-                onMouseEnter={e=>{e.currentTarget.style.background='#0f1828';e.currentTarget.style.color='#dce8f5'}}
-                onMouseLeave={e=>{e.currentTarget.style.background='#0a1020';e.currentTarget.style.color='#7a96b4'}}>
-                + Full
-              </button>
-            </div>
+            <button type="button" onClick={() => { setQuickMode(false); setShowForm(!showForm) }}
+              style={{ background:'#f59e0b', color:'#0a0700', fontFamily:M, fontSize:'10px', fontWeight:700, padding:'8px 14px', borderRadius:'8px', border:'none', cursor:'pointer', transition:'background 0.15s', flexShrink:0 }}
+              onMouseEnter={e=>e.currentTarget.style.background='#d97706'}
+              onMouseLeave={e=>e.currentTarget.style.background='#f59e0b'}>
+              {t.logBtn}
+            </button>
           )}
         </div>
 
