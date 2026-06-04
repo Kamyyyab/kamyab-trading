@@ -138,18 +138,30 @@ function Icon({ path, color }) {
   )
 }
 
+// Read cache synchronously — app shows instantly with last-known data
+function readCache() {
+  try {
+    const c = localStorage.getItem('trading-cache')
+    return c ? JSON.parse(c) : null
+  } catch { return null }
+}
+function writeCache(data) {
+  try { localStorage.setItem('trading-cache', JSON.stringify(data)) } catch {}
+}
+
 export default function App() {
+  const cache = readCache()
   const [user, setUser]                   = useState(null)
   const [loading, setLoading]             = useState(false)
-  const [journal, setJournal]             = useState([])
-  const [streakLogs, setStreakLogs]       = useState({})
-  const [biasLogs, setBiasLogs]           = useState({})
-  const [playbook, setPlaybook]           = useState([])
-  const [weeklyReviews, setWeeklyReviews]   = useState({})
-  const [settings, setSettings]             = useState({})
-  const [sessionNotes, setSessionNotes]     = useState({})
+  const [journal, setJournal]             = useState(cache?.journal || [])
+  const [streakLogs, setStreakLogs]       = useState(cache?.streakLogs || {})
+  const [biasLogs, setBiasLogs]           = useState(cache?.biasLogs || {})
+  const [playbook, setPlaybook]           = useState(cache?.playbook || [])
+  const [weeklyReviews, setWeeklyReviews]   = useState(cache?.weeklyReviews || {})
+  const [settings, setSettings]             = useState(cache?.settings || {})
+  const [sessionNotes, setSessionNotes]     = useState(cache?.sessionNotes || {})
   const [page, setPage]                     = useState('home')
-  const lang = (settings.language || 'sv')
+  const lang = (settings.language || 'en')
   const t    = T[lang]
   const MOBILE = useIsMobile()
 
@@ -167,12 +179,18 @@ export default function App() {
 
   async function fetchData(uid) {
     const { data } = await supabase.from('trading_data').select('data').eq('user_id', uid).maybeSingle()
-    if (data?.data?.journal)       setJournal(Array.isArray(data.data.journal) ? data.data.journal : [])
-    if (data?.data?.streakLogs)    setStreakLogs(data.data.streakLogs)
-    if (data?.data?.biasLogs)      setBiasLogs(data.data.biasLogs)
-    if (data?.data?.playbook)      setPlaybook(Array.isArray(data.data.playbook) ? data.data.playbook : [])
-    if (data?.data?.weeklyReviews) setWeeklyReviews(data.data.weeklyReviews || {})
-    if (data?.data?.settings)      setSettings(data.data.settings || {})
+    if (!data?.data) return
+    const d = data.data
+    const j  = Array.isArray(d.journal) ? d.journal : []
+    const sl = d.streakLogs || {}
+    const bl = d.biasLogs   || {}
+    const pb = Array.isArray(d.playbook) ? d.playbook : []
+    const wr = d.weeklyReviews || {}
+    const se = d.settings || {}
+    const sn = d.sessionNotes || {}
+    setJournal(j); setStreakLogs(sl); setBiasLogs(bl)
+    setPlaybook(pb); setWeeklyReviews(wr); setSettings(se); setSessionNotes(sn)
+    writeCache({ journal:j, streakLogs:sl, biasLogs:bl, playbook:pb, weeklyReviews:wr, settings:se, sessionNotes:sn })
     if (data?.data?.sessionNotes)  setSessionNotes(data.data.sessionNotes || {})
   }
 
@@ -324,7 +342,7 @@ export default function App() {
           <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
             <SessionStatusMobile />
             <LangBtn />
-            <button type="button" onClick={() => supabase.auth.signOut()} style={{ background:'none', border:'1px solid #131e38', borderRadius:'7px', color:'#6880a0', fontSize:'13px', width:'30px', height:'30px', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>↩</button>
+            <button type="button" onClick={() => { localStorage.removeItem('trading-cache'); supabase.auth.signOut() }} style={{ background:'none', border:'1px solid #131e38', borderRadius:'7px', color:'#6880a0', fontSize:'13px', width:'30px', height:'30px', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>↩</button>
           </div>
         </nav>
       ) : (
@@ -350,7 +368,7 @@ export default function App() {
             <SessionStatusDesktop />
             <div style={{ width:'1px', height:'16px', background:'#131e38' }} />
             <LangBtn />
-            <button type="button" onClick={() => supabase.auth.signOut()} style={{ fontFamily:M, fontSize:'9px', color:'#5a7898', background:'none', border:'none', cursor:'pointer', letterSpacing:'0.5px', transition:'color 0.15s' }}
+            <button type="button" onClick={() => { localStorage.removeItem('trading-cache'); supabase.auth.signOut() }} style={{ fontFamily:M, fontSize:'9px', color:'#5a7898', background:'none', border:'none', cursor:'pointer', letterSpacing:'0.5px', transition:'color 0.15s' }}
               onMouseEnter={e=>e.currentTarget.style.color='#a0c0ca'}
               onMouseLeave={e=>e.currentTarget.style.color='#5a7898'}>{t.logout}</button>
           </div>

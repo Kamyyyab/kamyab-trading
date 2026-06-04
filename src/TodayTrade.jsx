@@ -586,6 +586,9 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
   const ws = new Date(now); ws.setDate(now.getDate()-((now.getDay()+6)%7)); ws.setHours(0,0,0,0)
   const weekPnl  = trades.filter(t => new Date(t.date)>=ws).reduce((s,t) => s+parseFloat(t.pnl||0), 0)
   const todayPnl = todayTrades.filter(t => REAL_RESULTS.has(t.result)).reduce((s,t) => s+parseFloat(t.pnl||0), 0)
+  // Cache translation refs before map loops shadow `t`
+  const tPsych = t.psych
+  const tRuleLabels = { bias:t.checklist.bias, aplus:t.checklist.aplus, window:t.checklist.window, risk:t.checklist.risk, max2:t.checklist.maxtrades, afterwin:t.checklist.afterwin }
 
   function card(label, value, color, sub) {
     return (
@@ -768,10 +771,10 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
                   {t.violatedRules?.length > 0 && (
                     <div style={{ padding:'8px 12px 4px', display:'flex', flexWrap:'wrap', gap:'4px' }}>
                       {t.violatedRules.map(rId => {
-                        const rule = RULE_LABELS[rId]
-                        return rule ? (
+                        const rule = tRuleLabels[rId] || rId
+                        return (
                           <span key={rId} style={{ fontFamily:M, fontSize:'7px', color:'#ff4f6b', background:'#1a0610', border:'1px solid rgba(255,79,107,0.2)', borderRadius:'3px', padding:'2px 6px' }}>✗ {rule}</span>
-                        ) : null
+                        )
                       })}
                     </div>
                   )}
@@ -801,7 +804,7 @@ export default function TodayTrade({ journal=[], onAddTrade, onEditTrade, streak
                     <div style={{ padding:'6px 12px 8px', display:'flex', gap:'4px', flexWrap:'wrap' }}>
                       {t.psychTags.map(id => {
                         const tag=PSYCH.find(p=>p.id===id)
-                        return tag?<span key={id} style={{ fontFamily:M, fontSize:'8px', color:tag.c, background:tag.bg, border:`1px solid ${tag.c}22`, borderRadius:'4px', padding:'2px 7px' }}>{t.psych[id]||tag.label}</span>:null
+                        return tag?<span key={id} style={{ fontFamily:M, fontSize:'8px', color:tag.c, background:tag.bg, border:`1px solid ${tag.c}22`, borderRadius:'4px', padding:'2px 7px' }}>{tPsych[id]||tag.label}</span>:null
                       })}
                     </div>
                   )}
