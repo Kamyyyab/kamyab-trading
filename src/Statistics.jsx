@@ -843,6 +843,27 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
           </div>
         )
       })()}
+
+      {section('WIN RATE PER VECKODAG',
+        <>
+          <div style={{fontFamily:M,fontSize:'9px',color:'#6880a0',marginBottom:'12px'}}>Gråa = under 3 trades</div>
+          <div style={{display:'flex',gap:'8px',alignItems:'flex-end',height:'100px'}}>
+            {dayStats.map((d,i)=>{
+              const c  = d.total===0?'#0f1828':!d.reliable?'#1a2428':d.wr>=50?'#007d5e':'#7a1020'
+              const tc = d.total===0?'#1c2e4a':!d.reliable?'#7a96b4':d.wr>=50?'#00e5b0':'#ff4f6b'
+              const h  = d.total===0?'5px':`${Math.max(d.wr,5)}%`
+              return (
+                <div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:'4px',height:'100%',justifyContent:'flex-end'}}>
+                  <div style={{fontFamily:M,fontSize:'9px',color:tc}}>{d.total===0?'—':`${d.wr}%`}</div>
+                  <div style={{width:'100%',height:h,background:c,borderRadius:'3px 3px 0 0',transition:'height 0.3s ease'}} />
+                  <div style={{fontFamily:M,fontSize:'9px',color:'#8aabb8'}}>{d.day.slice(0,3)}</div>
+                  <div style={{fontFamily:M,fontSize:'8px',color:'#6880a0'}}>{d.total}t</div>
+                </div>
+              )
+            })}
+          </div>
+        </>
+      )}
       </>)}
 
       {statsTab === 'journal' && (() => {
@@ -986,26 +1007,6 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
         )}
       </div>
 
-      {section('WIN RATE PER VECKODAG',
-        <>
-          <div style={{fontFamily:M,fontSize:'9px',color:'#6880a0',marginBottom:'12px'}}>Gråa = under 3 trades</div>
-          <div style={{display:'flex',gap:'8px',alignItems:'flex-end',height:'100px'}}>
-            {dayStats.map((d,i)=>{
-              const c  = d.total===0?'#0f1828':!d.reliable?'#1a2428':d.wr>=50?'#007d5e':'#7a1020'
-              const tc = d.total===0?'#1c2e4a':!d.reliable?'#7a96b4':d.wr>=50?'#00e5b0':'#ff4f6b'
-              const h  = d.total===0?'5px':`${Math.max(d.wr,5)}%`
-              return (
-                <div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:'4px',height:'100%',justifyContent:'flex-end'}}>
-                  <div style={{fontFamily:M,fontSize:'9px',color:tc}}>{d.total===0?'—':`${d.wr}%`}</div>
-                  <div style={{width:'100%',height:h,background:c,borderRadius:'3px 3px 0 0',transition:'height 0.3s ease'}} />
-                  <div style={{fontFamily:M,fontSize:'9px',color:'#8aabb8'}}>{d.day.slice(0,3)}</div>
-                  <div style={{fontFamily:M,fontSize:'8px',color:'#6880a0'}}>{d.total}t</div>
-                </div>
-              )
-            })}
-          </div>
-        </>
-      )}
       </>)}
     </div>
   )
