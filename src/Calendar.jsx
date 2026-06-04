@@ -44,8 +44,12 @@ function EditForm({ initial = {}, onSave, onCancel }) {
   const [emotion,   setEmotion]   = useState(initial.emotion    || '3')
   const [setup,     setSetup]     = useState(initial.setup      || '')
   const [tags,      setTags]      = useState(initial.psychTags  || [])
-  const [tradeTime, setTradeTime] = useState(initial.tradeTime  || '')
-  const [grade,     setGrade]     = useState(initial.grade      || '')
+  const [tradeTime,  setTradeTime]  = useState(initial.tradeTime  || '')
+  const [exitTime,   setExitTime]   = useState(initial.exitTime   || '')
+  const [grade,      setGrade]      = useState(initial.grade      || '')
+  const [entryPrice, setEntryPrice] = useState(initial.entryPrice ? String(initial.entryPrice) : '')
+  const [slPrice,    setSlPrice]    = useState(initial.slPrice    ? String(initial.slPrice)    : '')
+  const [tpPrice,    setTpPrice]    = useState(initial.tpPrice    ? String(initial.tpPrice)    : '')
   const [image,    setImage]    = useState(initial.image  || null)
   const [imgPrev,  setImgPrev]  = useState(initial.image  || null)
   const [audioUrl, setAudioUrl] = useState(initial.audio  || null)
@@ -167,8 +171,8 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         </div>
       </div>
 
-      {/* INSTRUMENT + P&L + SETUP + HANDLAD KL */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr', gap:'10px' }}>
+      {/* INSTRUMENT + P&L + SETUP + TIDER */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr 1fr', gap:'8px' }}>
         <div>
           <span style={lbl}>INSTRUMENT</span>
           <input value={instr} onChange={e => setInstr(e.target.value)} style={inp} />
@@ -182,8 +186,12 @@ function EditForm({ initial = {}, onSave, onCancel }) {
           <input value={setup} onChange={e => setSetup(e.target.value)} placeholder="BTB" style={inp} />
         </div>
         <div>
-          <span style={lbl}>HANDLAD KL</span>
+          <span style={lbl}>ENTRY KL</span>
           <input type="time" value={tradeTime} onChange={e => setTradeTime(e.target.value)} style={{ ...inp, colorScheme:'dark' }} />
+        </div>
+        <div>
+          <span style={lbl}>EXIT KL</span>
+          <input type="time" value={exitTime} onChange={e => setExitTime(e.target.value)} style={{ ...inp, colorScheme:'dark' }} />
         </div>
       </div>
 
@@ -267,6 +275,31 @@ function EditForm({ initial = {}, onSave, onCancel }) {
         </div>
       </div>
 
+      {/* ENTRY / SL / TP */}
+      {(() => {
+        const ep = parseFloat(entryPrice), sl = parseFloat(slPrice), tp = parseFloat(tpPrice)
+        const riskPts   = ep && sl ? Math.abs(ep - sl).toFixed(1) : null
+        const rewardPts = ep && tp ? Math.abs(tp - ep).toFixed(1) : null
+        const rr        = riskPts && rewardPts ? (parseFloat(rewardPts)/parseFloat(riskPts)).toFixed(2) : null
+        return (
+          <div style={{ background:'#0a1020', border:'1px solid #162340', borderRadius:'8px', padding:'10px 12px' }}>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'8px' }}>
+              <span style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4', letterSpacing:'1.5px' }}>ENTRY / SL / TP</span>
+              {rr && <span style={{ fontFamily:M, fontSize:'9px', fontWeight:700, color:parseFloat(rr)>=2?'#00e5b0':parseFloat(rr)>=1?'#ffc030':'#ff4f6b' }}>R:R {rr} · Risk {riskPts}pts · TP {rewardPts}pts</span>}
+            </div>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'6px' }}>
+              {[['Entry',entryPrice,setEntryPrice,'#7a96b4'],['SL',slPrice,setSlPrice,'#ff4f6b'],['TP',tpPrice,setTpPrice,'#00e5b0']].map(([label,val,setter,color])=>(
+                <div key={label}>
+                  <span style={{ fontFamily:M, fontSize:'7px', color, letterSpacing:'1px', display:'block', marginBottom:'3px' }}>{label}</span>
+                  <input type="number" inputMode="decimal" value={val} onChange={e=>setter(e.target.value)}
+                    style={{ ...inp, padding:'7px 10px', fontSize:'13px', border:`1px solid ${val?color+'44':'#1c2e4a'}` }} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
+
       {/* ACTIONS */}
       <div style={{ display:'flex', gap:'8px', position:'sticky', bottom:0, background:'#0c1422', paddingTop:'10px', marginTop:'-4px' }}>
         <button type="button" onClick={onCancel} style={{
@@ -277,7 +310,7 @@ function EditForm({ initial = {}, onSave, onCancel }) {
           onMouseEnter={e=>{e.currentTarget.style.borderColor='#3a5460';e.currentTarget.style.color='#dce8f5'}}
           onMouseLeave={e=>{e.currentTarget.style.borderColor='#1c2e4a';e.currentTarget.style.color='#7a96b4'}}
         >{t.calCancel}</button>
-        <button type="button" onClick={() => onSave({ result, instrument:instr, pnl:pnl||'0', note, emotion, setup, psychTags:tags, tradeTime, grade, image:image||null, audio:audioUrl||null })} style={{
+        <button type="button" onClick={() => onSave({ result, instrument:instr, pnl:pnl||'0', note, emotion, setup, psychTags:tags, tradeTime, exitTime:exitTime||null, grade, entryPrice:parseFloat(entryPrice)||null, slPrice:parseFloat(slPrice)||null, tpPrice:parseFloat(tpPrice)||null, image:image||null, audio:audioUrl||null })} style={{
           flex:1, background:'#00e5b0', color:'#020f08', fontFamily:M, fontSize:'12px', fontWeight:700,
           padding:'14px', borderRadius:'8px', border:'none', cursor:'pointer', letterSpacing:'1px',
           transition:'background 0.15s',
