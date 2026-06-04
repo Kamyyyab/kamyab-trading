@@ -327,6 +327,51 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
         {card('MAX DRAWDOWN', `-$${Math.round(maxDD)}`,                         '#ff4f6b')}
       </div>
 
+      {/* ── VECKJÄMFÖRELSE ── */}
+      {(() => {
+        const now  = new Date()
+        const dow  = (now.getDay() + 6) % 7
+        const ws   = new Date(now); ws.setDate(now.getDate() - dow); ws.setHours(0,0,0,0)
+        const lws  = new Date(ws); lws.setDate(ws.getDate() - 7)
+        const lwe  = new Date(ws)
+
+        const thisW = trades.filter(t => new Date(t.date) >= ws)
+        const lastW = trades.filter(t => { const d = new Date(t.date); return d >= lws && d < lwe })
+        if (thisW.length === 0 && lastW.length === 0) return null
+
+        const wStats = arr => ({
+          pnl: arr.reduce((s,t)=>s+parseFloat(t.pnl||0),0),
+          wr:  arr.length > 0 ? Math.round(arr.filter(t=>WIN_RESULTS.has(t.result)).length/arr.length*100) : 0,
+          n:   arr.length,
+        })
+        const tw = wStats(thisW), lw = wStats(lastW)
+        const pnlUp = tw.pnl >= lw.pnl
+        const wrUp  = tw.wr  >= lw.wr
+
+        return (
+          <div style={{background:'#0f1828',border:'1px solid #162340',borderRadius:'12px',padding:'14px'}}>
+            <div style={{fontFamily:M,fontSize:'9px',color:'#8aabb8',letterSpacing:'2px',marginBottom:'12px'}}>VECKJÄMFÖRELSE</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr auto 1fr',gap:'12px',alignItems:'center'}}>
+              <div>
+                <div style={{fontFamily:M,fontSize:'8px',color:'#6880a0',marginBottom:'6px'}}>DENNA VECKA</div>
+                <div style={{fontFamily:M,fontSize:'22px',fontWeight:700,color:tw.pnl>=0?'#00e5b0':'#ff4f6b',lineHeight:1}}>{tw.pnl>=0?'+':''}${Math.round(tw.pnl)}</div>
+                <div style={{fontFamily:M,fontSize:'10px',color:tw.wr>=50?'#00e5b0':'#ff4f6b',marginTop:'3px'}}>{tw.wr}% WR · {tw.n}t</div>
+              </div>
+              <div style={{textAlign:'center'}}>
+                <div style={{fontFamily:M,fontSize:'18px',color: pnlUp?'#00e5b0':'#ff4f6b'}}>{pnlUp?'↑':'↓'}</div>
+                <div style={{fontFamily:M,fontSize:'8px',color:'#4a6888',marginTop:'2px'}}>
+                  {tw.pnl >= lw.pnl ? '+' : ''}{Math.round(tw.pnl - lw.pnl)}
+                </div>
+              </div>
+              <div style={{textAlign:'right'}}>
+                <div style={{fontFamily:M,fontSize:'8px',color:'#6880a0',marginBottom:'6px'}}>FÖRRA VECKAN</div>
+                <div style={{fontFamily:M,fontSize:'22px',fontWeight:700,color:'#4a6888',lineHeight:1}}>{lw.pnl>=0?'+':''}${Math.round(lw.pnl)}</div>
+                <div style={{fontFamily:M,fontSize:'10px',color:'#4a6888',marginTop:'3px'}}>{lw.wr}% WR · {lw.n}t</div>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
 
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
         {section('R-BREAKDOWN',
@@ -743,6 +788,61 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
           )
         })()
       )}
+      {/* ── R:R ANALYS ── */}
+      {(() => {
+        const priced = viewTrades.filter(t => t.entryPrice && t.slPrice)
+        if (priced.length < 2) return null
+        const planned  = priced.map(t => Math.abs(t.tpPrice - t.entryPrice) / Math.abs(t.entryPrice - t.slPrice)).filter(r => r > 0 && isFinite(r))
+        const avgPlan  = planned.length > 0 ? (planned.reduce((a,b)=>a+b,0) / planned.length).toFixed(2) : null
+        const wins     = priced.filter(t => WIN_RESULTS.has(t.result))
+        const avgActWin = wins.length > 0 ? (wins.reduce((s,t)=>s+parseFloat(t.pnl||0),0) / wins.length).toFixed(0) : null
+        const losses2  = priced.filter(t => t.result === 'loss')
+        const avgActLoss = losses2.length > 0 ? Math.abs(losses2.reduce((s,t)=>s+parseFloat(t.pnl||0),0) / losses2.length).toFixed(0) : null
+        return section('R:R ANALYS',
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'10px'}}>
+            {[
+              { label:'PLANERAT R:R',  val: avgPlan ? `${avgPlan}R` : '—',        color:'#7a96b4', sub:`${priced.length} trades med priser` },
+              { label:'SNITT VINST',   val: avgActWin ? `+$${avgActWin}` : '—',    color:'#00e5b0', sub:`${wins.length} vinster` },
+              { label:'SNITT FÖRLUST', val: avgActLoss ? `-$${avgActLoss}` : '—',  color:'#ff4f6b', sub:`${losses2.length} förluster` },
+            ].map(({label,val,color,sub}) => (
+              <div key={label} style={{background:'#0a1020',border:'1px solid #162340',borderRadius:'9px',padding:'12px'}}>
+                <div style={{fontFamily:M,fontSize:'8px',color:'#6880a0',letterSpacing:'1px',marginBottom:'5px'}}>{label}</div>
+                <div style={{fontFamily:M,fontSize:'22px',fontWeight:700,color,lineHeight:1}}>{val}</div>
+                <div style={{fontFamily:M,fontSize:'8px',color:'#4a6888',marginTop:'3px'}}>{sub}</div>
+              </div>
+            ))}
+          </div>
+        )
+      })()}
+
+      {/* ── TRADE DURATION ── */}
+      {(() => {
+        const timed = viewTrades.filter(t => t.tradeTime && t.exitTime)
+        if (timed.length < 2) return null
+        const getDur = t => {
+          const [eh,em] = t.tradeTime.split(':').map(Number)
+          const [xh,xm] = t.exitTime.split(':').map(Number)
+          return (xh*60+xm)-(eh*60+em)
+        }
+        const wins   = timed.filter(t => WIN_RESULTS.has(t.result))
+        const losses2 = timed.filter(t => t.result === 'loss')
+        const avg    = arr => arr.length > 0 ? Math.round(arr.reduce((s,t)=>s+getDur(t),0)/arr.length) : null
+        const fmtDur = m => m == null ? '—' : m >= 60 ? `${Math.floor(m/60)}h ${m%60}min` : `${m}min`
+        return section('HÅLLTID',
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'10px'}}>
+            {[
+              { label:'SNITT ALLA',    val: fmtDur(avg(timed)),   color:'#7a96b4' },
+              { label:'SNITT VINSTER', val: fmtDur(avg(wins)),    color:'#00e5b0' },
+              { label:'SNITT FÖRLUST', val: fmtDur(avg(losses2)), color:'#ff4f6b' },
+            ].map(({label,val,color}) => (
+              <div key={label} style={{background:'#0a1020',border:'1px solid #162340',borderRadius:'9px',padding:'12px'}}>
+                <div style={{fontFamily:M,fontSize:'8px',color:'#6880a0',letterSpacing:'1px',marginBottom:'5px'}}>{label}</div>
+                <div style={{fontFamily:M,fontSize:'20px',fontWeight:700,color,lineHeight:1}}>{val}</div>
+              </div>
+            ))}
+          </div>
+        )
+      })()}
       </>)}
 
       {statsTab === 'journal' && (() => {

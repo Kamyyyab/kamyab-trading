@@ -146,6 +146,10 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
   const [grade,      setGrade]      = useState(initial.grade      || '')
   const [biasError,  setBiasError]  = useState(false)
   const [tradeTime,  setTradeTime]  = useState(initial.tradeTime  || (() => new Date().toLocaleTimeString('sv-SE', { timeZone:'Europe/Stockholm', hour:'2-digit', minute:'2-digit', hour12:false }))())
+  const [exitTime,   setExitTime]   = useState(initial.exitTime   || '')
+  const [entryPrice, setEntryPrice] = useState(initial.entryPrice || '')
+  const [slPrice,    setSlPrice]    = useState(initial.slPrice     || '')
+  const [tpPrice,    setTpPrice]    = useState(initial.tpPrice     || '')
   const [checkAplus,    setCheckAplus]    = useState(false)
   const [checkRisk,     setCheckRisk]     = useState(false)
   const [showAdvanced,  setShowAdvanced]  = useState(!!(initial.image || initial.audio))
@@ -217,6 +221,20 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
   const checklistViolation = violatedRules.length > 0
   const ruleLabels = { bias:t.checklist.bias, aplus:t.checklist.aplus, window:t.checklist.window, risk:t.checklist.risk, max2:t.checklist.maxtrades, afterwin:t.checklist.afterwin }
 
+  // R:R beräkning
+  const ep = parseFloat(entryPrice), sl = parseFloat(slPrice), tp = parseFloat(tpPrice)
+  const riskPts     = ep && sl ? Math.abs(ep - sl).toFixed(1) : null
+  const rewardPts   = ep && tp ? Math.abs(tp - ep).toFixed(1) : null
+  const plannedRR   = riskPts && rewardPts ? (parseFloat(rewardPts) / parseFloat(riskPts)).toFixed(2) : null
+  // Duration
+  const durationMins = (() => {
+    if (!tradeTime || !exitTime) return null
+    const [eh, em] = tradeTime.split(':').map(Number)
+    const [xh, xm] = exitTime.split(':').map(Number)
+    const diff = (xh * 60 + xm) - (eh * 60 + em)
+    return diff > 0 ? diff : null
+  })()
+
   function save() {
     if (!result) return
     if (REAL_RESULTS.has(result) && !hasBias) {
@@ -224,7 +242,7 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
       return
     }
     setBiasError(false)
-    onSave({ result, instrument, pnl: pnl || '0', note, emotion, setup, psychTags, checklistViolation, violatedRules, brokenRules: violatedRules, tradeTime, grade, image: image || null, audio: audioUrl || null })
+    onSave({ result, instrument, pnl: pnl || '0', note, emotion, setup, psychTags, checklistViolation, violatedRules, brokenRules: violatedRules, tradeTime, exitTime: exitTime||null, entryPrice: ep||null, slPrice: sl||null, tpPrice: tp||null, grade, image: image || null, audio: audioUrl || null })
   }
 
   return (
@@ -372,7 +390,7 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
           onFocus={e=>e.target.style.borderColor='#4a6888'} onBlur={e=>e.target.style.borderColor='#1c2e4a'} />
       </div>
 
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'8px' }}>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr', gap:'8px' }}>
         <div>
           <span style={lbl}>P&L ($)</span>
           <input type="number" inputMode="decimal" value={pnl} onChange={e => setPnl(e.target.value)} placeholder="450" style={inp}
@@ -387,6 +405,34 @@ function TradeForm({ initial = {}, onSave, onCancel, hasBias, isSecondTrade, fir
           <span style={lbl}>{t.tradedAt}</span>
           <input type="time" value={tradeTime} onChange={e => setTradeTime(e.target.value)} style={{ ...inp, colorScheme:'dark' }}
             onFocus={e=>e.target.style.borderColor='#4a6888'} onBlur={e=>e.target.style.borderColor='#1c2e4a'} />
+        </div>
+        <div>
+          <span style={lbl}>EXIT KL {durationMins && <span style={{ color:'#6880a0' }}>· {durationMins}min</span>}</span>
+          <input type="time" value={exitTime} onChange={e => setExitTime(e.target.value)} style={{ ...inp, colorScheme:'dark' }}
+            onFocus={e=>e.target.style.borderColor='#4a6888'} onBlur={e=>e.target.style.borderColor='#1c2e4a'} />
+        </div>
+      </div>
+
+      {/* Entry / SL / TP — med live R:R */}
+      <div style={{ background:'#0a1020', border:'1px solid #162340', borderRadius:'8px', padding:'10px 12px' }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'8px' }}>
+          <span style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4', letterSpacing:'1.5px' }}>ENTRY / SL / TP</span>
+          {plannedRR && (
+            <span style={{ fontFamily:M, fontSize:'10px', fontWeight:700, color: parseFloat(plannedRR) >= 2 ? '#00e5b0' : parseFloat(plannedRR) >= 1 ? '#ffc030' : '#ff4f6b' }}>
+              R:R {plannedRR} · Risk {riskPts}pts · TP {rewardPts}pts
+            </span>
+          )}
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'6px' }}>
+          {[['Entry', entryPrice, setEntryPrice,'#7a96b4'],['SL', slPrice, setSlPrice,'#ff4f6b'],['TP', tpPrice, setTpPrice,'#00e5b0']].map(([label, val, setter, color]) => (
+            <div key={label}>
+              <span style={{ fontFamily:M, fontSize:'7px', color, letterSpacing:'1px', display:'block', marginBottom:'3px' }}>{label}</span>
+              <input type="number" inputMode="decimal" value={val} onChange={e => setter(e.target.value)}
+                placeholder={label === 'Entry' ? '44250' : label === 'SL' ? '44200' : '44350'}
+                style={{ ...inp, padding:'7px 10px', fontSize:'13px', border:`1px solid ${val ? color+'44' : '#1c2e4a'}` }}
+                onFocus={e=>e.target.style.borderColor=color+'88'} onBlur={e=>e.target.style.borderColor=val?color+'44':'#1c2e4a'} />
+            </div>
+          ))}
         </div>
       </div>
 
