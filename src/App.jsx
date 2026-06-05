@@ -149,10 +149,25 @@ function writeCache(data) {
   try { localStorage.setItem('trading-cache', JSON.stringify(data)) } catch {}
 }
 
+// Read Supabase session synchronously from localStorage — eliminates Auth flash
+function readCachedUser() {
+  try {
+    const key = Object.keys(localStorage).find(k => k.startsWith('sb-') && k.endsWith('-auth-token'))
+    if (!key) return null
+    const raw = localStorage.getItem(key)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    const session = parsed?.currentSession || parsed?.session || parsed
+    if (!session?.access_token) return null
+    if (session.expires_at && Math.floor(Date.now() / 1000) > session.expires_at) return null
+    return session.user || null
+  } catch { return null }
+}
+
 export default function App() {
   const cache = readCache()
   const lastSaveRef = useRef(0) // timestamp of last user-initiated save
-  const [user, setUser]                   = useState(null)
+  const [user, setUser]                   = useState(() => readCachedUser())
   const [loading, setLoading]             = useState(false)
   const [journal, setJournal]             = useState(cache?.journal || [])
   const [streakLogs, setStreakLogs]       = useState(cache?.streakLogs || {})
@@ -235,13 +250,13 @@ export default function App() {
     )
   }
 
-  function handleSaveWeeklyReview(weekStart, review) {
+  function handleSaveWeeklyReview(weekStart, review) { lastSaveRef.current = Date.now()
     const nr = { ...weeklyReviews, [weekStart]: review }
     setWeeklyReviews(nr)
     supabase.from('trading_data').upsert({ user_id: user.id, data: { journal, streakLogs, biasLogs, playbook, weeklyReviews: nr, settings, sessionNotes }, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
   }
 
-  function handleSaveSettings(updates) {
+  function handleSaveSettings(updates) { lastSaveRef.current = Date.now()
     const ns = { ...settings, ...updates }
     setSettings(ns)
     supabase.from('trading_data').upsert({ user_id: user.id, data: { journal, streakLogs, biasLogs, playbook, weeklyReviews, settings: ns, sessionNotes }, updated_at: new Date().toISOString() }, { onConflict: 'user_id' })
@@ -266,7 +281,7 @@ export default function App() {
     saveData(nj, null)
   }
 
-  function handleSaveBias(date, bias) {
+  function handleSaveBias(date, bias) { lastSaveRef.current = Date.now()
     const u = { ...biasLogs }
     if (bias === null) delete u[date]; else u[date] = bias
     setBiasLogs(u)
@@ -276,7 +291,7 @@ export default function App() {
     )
   }
 
-  function handleSaveSessionNote(date, note) {
+  function handleSaveSessionNote(date, note) { lastSaveRef.current = Date.now()
     const u = { ...sessionNotes, [date]: note }
     if (!note) delete u[date]
     setSessionNotes(u)

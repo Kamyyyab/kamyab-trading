@@ -41,13 +41,13 @@ function SetupForm({ initial = {}, onSave, onCancel }) {
     <div style={{ display:'flex', flexDirection:'column', gap:'14px' }}>
 
       <div>
-        <span style={lbl}>NAMN *</span>
+        <span style={lbl}>NAME *</span>
         <input value={name} onChange={e=>setName(e.target.value)} placeholder="t.ex. BTB Setup" style={inp}
           onFocus={e=>e.target.style.borderColor='#5a7a84'} onBlur={e=>e.target.style.borderColor='#263840'} />
       </div>
 
       <div>
-        <span style={lbl}>BESKRIVNING</span>
+        <span style={lbl}>DESCRIPTION</span>
         <textarea value={description} onChange={e=>setDescription(e.target.value)} placeholder="Kort beskrivning av setuppet..."
           style={{...inp,resize:'vertical',minHeight:'70px',lineHeight:1.6}}
           onFocus={e=>e.target.style.borderColor='#5a7a84'} onBlur={e=>e.target.style.borderColor='#263840'} />
@@ -73,7 +73,7 @@ function SetupForm({ initial = {}, onSave, onCancel }) {
       </div>
 
       <div>
-        <span style={lbl}>INVALIDERING</span>
+        <span style={lbl}>INVALIDATION</span>
         <input value={invalidation} onChange={e=>setInvalidation(e.target.value)} placeholder="Setuppet är ogiltigt om..."
           style={inp} onFocus={e=>e.target.style.borderColor='#5a7a84'} onBlur={e=>e.target.style.borderColor='#263840'} />
       </div>
@@ -114,7 +114,7 @@ function SetupForm({ initial = {}, onSave, onCancel }) {
       </div>
 
       <div>
-        <span style={lbl}>ANTECKNINGAR</span>
+        <span style={lbl}>NOTES</span>
         <textarea value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Extra info, kontext, tips..."
           style={{...inp,resize:'vertical',minHeight:'80px',lineHeight:1.6}}
           onFocus={e=>e.target.style.borderColor='#5a7a84'} onBlur={e=>e.target.style.borderColor='#263840'} />
@@ -126,7 +126,7 @@ function SetupForm({ initial = {}, onSave, onCancel }) {
           onMouseLeave={e=>e.currentTarget.style.background='#00e5b0'}>
           {initial.id ? 'SPARA ÄNDRINGAR' : 'SKAPA SETUP'}
         </button>
-        <button type="button" onClick={onCancel} style={{ background:'transparent', color:'#85a4ad', fontFamily:M, fontSize:'10px', padding:'12px 16px', borderRadius:'8px', border:'1px solid #1e2c32', cursor:'pointer' }}>Avbryt</button>
+        <button type="button" onClick={onCancel} style={{ background:'transparent', color:'#85a4ad', fontFamily:M, fontSize:'10px', padding:'12px 16px', borderRadius:'8px', border:'1px solid #1e2c32', cursor:'pointer' }}>Cancel</button>
       </div>
     </div>
   )
@@ -286,7 +286,7 @@ export default function Playbook({ playbook = [], onSaveSetup, onDeleteSetup, jo
                 {/* Invalidation */}
                 {setup.invalidation && (
                   <div style={{ padding:'12px 16px', borderBottom:'1px solid #161e24' }}>
-                    <div style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'2px', marginBottom:'6px' }}>INVALIDERING</div>
+                    <div style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'2px', marginBottom:'6px' }}>INVALIDATION</div>
                     <div style={{ display:'flex', gap:'8px', alignItems:'flex-start' }}>
                       <span style={{ fontFamily:M, fontSize:'10px', color:'#ff4f6b', flexShrink:0, marginTop:'1px' }}>✗</span>
                       <span style={{ fontSize:'13px', color:'#a0c0ca', lineHeight:1.5 }}>{setup.invalidation}</span>
@@ -297,7 +297,7 @@ export default function Playbook({ playbook = [], onSaveSetup, onDeleteSetup, jo
                 {/* Notes */}
                 {setup.notes && (
                   <div style={{ padding:'12px 16px', borderBottom:'1px solid #161e24' }}>
-                    <div style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'2px', marginBottom:'6px' }}>ANTECKNINGAR</div>
+                    <div style={{ fontFamily:M, fontSize:'8px', color:'#85a4ad', letterSpacing:'2px', marginBottom:'6px' }}>NOTES</div>
                     <div style={{ fontSize:'13px', color:'#88a8ae', lineHeight:1.7, whiteSpace:'pre-wrap', borderLeft:'2px solid #1e2c32', paddingLeft:'10px' }}>{setup.notes}</div>
                   </div>
                 )}
@@ -329,7 +329,7 @@ export default function Playbook({ playbook = [], onSaveSetup, onDeleteSetup, jo
                   {confirmDel === setup.id ? (
                     <>
                       <button type="button" onClick={()=>{onDeleteSetup(setup.id);setConfirmDel(null);setExpandId(null)}} style={{ background:'#1a0610', border:'1px solid rgba(255,79,107,0.4)', borderRadius:'6px', color:'#ff4f6b', fontFamily:M, fontSize:'9px', padding:'6px 14px', cursor:'pointer' }}>Ja, radera</button>
-                      <button type="button" onClick={()=>setConfirmDel(null)} style={{ background:'none', border:'1px solid #1e2c32', borderRadius:'6px', color:'#85a4ad', fontFamily:M, fontSize:'9px', padding:'6px 12px', cursor:'pointer' }}>Avbryt</button>
+                      <button type="button" onClick={()=>setConfirmDel(null)} style={{ background:'none', border:'1px solid #1e2c32', borderRadius:'6px', color:'#85a4ad', fontFamily:M, fontSize:'9px', padding:'6px 12px', cursor:'pointer' }}>Cancel</button>
                     </>
                   ) : (
                     <button type="button" onClick={()=>setConfirmDel(setup.id)} style={{ background:'none', border:'none', color:'#5a7a84', fontFamily:M, fontSize:'9px', padding:'6px', cursor:'pointer' }}>Radera</button>
