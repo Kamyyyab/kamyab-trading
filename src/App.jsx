@@ -46,7 +46,7 @@ function computeLockout(streakLogs) {
   if (violations.length >= 2) {
     return {
       isLockedOut: true,
-      lockoutReason: `${violations.length} violations denna vecka (${violations.join(', ')}). Ingen trading resten av veckan. Granska reglerna och återvänd måndag.`,
+      lockoutReason: `${violations.length} violations this week (${violations.join(', ')}). No trading for the rest of the week. Review your rules and return Monday.`,
     }
   }
 
@@ -309,6 +309,12 @@ export default function App() {
 
   const { isLockedOut, lockoutReason } = computeLockout(streakLogs)
 
+  // Preferences from settings
+  const dateFormat = settings.dateFormat || 'DD/MM'   // DD/MM | MM/DD | YYYY-MM-DD
+  const currency   = settings.currency   || '$'
+
+  const [showPrefs, setShowPrefs] = useState(false)
+
   const NAV = [
     { id:'home',       label: t.home,     path: NAV_PATHS.home },
     { id:'calendar',   label: t.calendar, path: NAV_PATHS.calendar },
@@ -346,6 +352,67 @@ export default function App() {
     </button>
   )
 
+  const PrefsModal = () => showPrefs ? (
+    <div onClick={() => setShowPrefs(false)} style={{ position:'fixed', inset:0, zIndex:200, background:'rgba(0,0,0,0.6)', backdropFilter:'blur(4px)', display:'flex', alignItems:'flex-start', justifyContent:'flex-end', padding:'70px 16px 0' }}>
+      <div onClick={e => e.stopPropagation()} style={{ background:'#0c1422', border:'1px solid #162340', borderRadius:'14px', padding:'18px', width:'240px', display:'flex', flexDirection:'column', gap:'14px' }}>
+        <div style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4', letterSpacing:'2px' }}>PREFERENCES</div>
+
+        {/* Date format */}
+        <div>
+          <div style={{ fontFamily:M, fontSize:'8px', color:'#6880a0', letterSpacing:'1px', marginBottom:'6px' }}>DATE FORMAT</div>
+          <div style={{ display:'flex', gap:'4px' }}>
+            {[['DD/MM','5 Jun'],['MM/DD','Jun 5'],['YYYY-MM-DD','2026-06-05']].map(([v,ex]) => (
+              <button key={v} onClick={() => handleSaveSettings({ dateFormat: v })} style={{
+                flex:1, fontFamily:M, fontSize:'8px', padding:'5px 4px', borderRadius:'5px', cursor:'pointer',
+                border:`1px solid ${dateFormat===v?'rgba(245,158,11,0.4)':'#162340'}`,
+                background:dateFormat===v?'#18100a':'transparent',
+                color:dateFormat===v?'#f59e0b':'#6880a0',
+              }}>{ex}</button>
+            ))}
+          </div>
+        </div>
+
+        {/* Currency */}
+        <div>
+          <div style={{ fontFamily:M, fontSize:'8px', color:'#6880a0', letterSpacing:'1px', marginBottom:'6px' }}>CURRENCY</div>
+          <div style={{ display:'flex', gap:'4px' }}>
+            {['$','€','£','kr'].map(c => (
+              <button key={c} onClick={() => handleSaveSettings({ currency: c })} style={{
+                flex:1, fontFamily:M, fontSize:'12px', padding:'5px 0', borderRadius:'5px', cursor:'pointer',
+                border:`1px solid ${currency===c?'rgba(245,158,11,0.4)':'#162340'}`,
+                background:currency===c?'#18100a':'transparent',
+                color:currency===c?'#f59e0b':'#6880a0',
+              }}>{c}</button>
+            ))}
+          </div>
+        </div>
+
+        {/* Language */}
+        <div>
+          <div style={{ fontFamily:M, fontSize:'8px', color:'#6880a0', letterSpacing:'1px', marginBottom:'6px' }}>LANGUAGE</div>
+          <div style={{ display:'flex', gap:'4px' }}>
+            {[['en','English'],['sv','Svenska']].map(([v,l]) => (
+              <button key={v} onClick={() => handleSaveSettings({ language: v })} style={{
+                flex:1, fontFamily:M, fontSize:'9px', padding:'5px 4px', borderRadius:'5px', cursor:'pointer',
+                border:`1px solid ${lang===v?'rgba(245,158,11,0.4)':'#162340'}`,
+                background:lang===v?'#18100a':'transparent',
+                color:lang===v?'#f59e0b':'#6880a0',
+              }}>{l}</button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  ) : null
+
+  const SettingsBtn = () => (
+    <button type="button" onClick={() => setShowPrefs(p => !p)} style={{ background:'none', border:'1px solid #131e38', borderRadius:'6px', color:'#6880a0', width:'28px', height:'28px', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'14px', transition:'all 0.15s' }}
+      onMouseEnter={e=>{e.currentTarget.style.borderColor='#3a5460';e.currentTarget.style.color='#dce8f5'}}
+      onMouseLeave={e=>{e.currentTarget.style.borderColor='#131e38';e.currentTarget.style.color='#6880a0'}}>
+      ⚙
+    </button>
+  )
+
   const Logo = () => (
     <div style={{ display:'flex', alignItems:'center', gap:'9px' }}>
       <div style={{ width:'30px', height:'30px', background:'#18100a', border:'1px solid rgba(245,158,11,0.3)', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center' }}>
@@ -366,13 +433,14 @@ export default function App() {
   return (
     <LangCtx.Provider value={lang}>
     <div style={{ background:'#070a14', minHeight:'100dvh', color:'#dce8f5' }}>
+    <PrefsModal />
 
       {MOBILE ? (
         <nav style={navH}>
           <Logo />
-          <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:'6px' }}>
             <SessionStatusMobile />
-            <LangBtn />
+            <SettingsBtn />
             <button type="button" onClick={() => { localStorage.removeItem('trading-cache'); supabase.auth.signOut() }} style={{ background:'none', border:'1px solid #131e38', borderRadius:'7px', color:'#6880a0', fontSize:'13px', width:'30px', height:'30px', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>↩</button>
           </div>
         </nav>
@@ -398,7 +466,7 @@ export default function App() {
           <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
             <SessionStatusDesktop />
             <div style={{ width:'1px', height:'16px', background:'#131e38' }} />
-            <LangBtn />
+            <SettingsBtn />
             <button type="button" onClick={() => { localStorage.removeItem('trading-cache'); supabase.auth.signOut() }} style={{ fontFamily:M, fontSize:'9px', color:'#5a7898', background:'none', border:'none', cursor:'pointer', letterSpacing:'0.5px', transition:'color 0.15s' }}
               onMouseEnter={e=>e.currentTarget.style.color='#a0c0ca'}
               onMouseLeave={e=>e.currentTarget.style.color='#5a7898'}>{t.logout}</button>
