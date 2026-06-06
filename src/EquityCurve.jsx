@@ -33,7 +33,7 @@ export default function EquityCurve({ journal = [] }) {
       <div style={{ background:'#0f1828', border:'1px solid #1c2e4a', borderRadius:'8px', padding:'10px 14px' }}>
         <div style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4', marginBottom:'4px', letterSpacing:'1px' }}>{d.date}</div>
         <div style={{ fontFamily:M, fontSize:'14px', fontWeight:700, color:d.pnl>=0?'#00e5b0':'#ff4f6b' }}>{d.pnl>=0?'+':''}${d.pnl}</div>
-        <div style={{ fontFamily:M, fontSize:'10px', color:'#7a96b4', marginTop:'2px' }}>Totalt: ${d.equity}</div>
+        <div style={{ fontFamily:M, fontSize:'10px', color:'#7a96b4', marginTop:'2px' }}>Total: ${d.equity}</div>
       </div>
     )
   }
@@ -47,14 +47,14 @@ export default function EquityCurve({ journal = [] }) {
           <div style={{ fontFamily:M, fontSize:'8px', color:'#7a96b4', letterSpacing:'2px', marginBottom:'6px' }}>EQUITY CURVE</div>
           <div style={{ display:'flex', alignItems:'baseline', gap:'6px' }}>
             <span style={{ fontFamily:M, fontSize:'36px', fontWeight:700, color, lineHeight:1 }}>{totalPnl>=0?'+':''}${Math.round(totalPnl)}</span>
-            <span style={{ fontSize:'12px', color:'#7a96b4' }}>totalt</span>
+            <span style={{ fontSize:'12px', color:'#7a96b4' }}>total</span>
           </div>
         </div>
         <div style={{ display:'flex', gap:'20px' }}>
           {[
-            { label:'BÄSTA DAG',  value:`+$${Math.round(bestDay)}`,           color:'#00e5b0' },
-            { label:'SÄMSTA DAG', value:`-$${Math.abs(Math.round(worstDay))}`, color:'#ff4f6b' },
-            { label:'WIN STREAK', value:`${winStreak}d`,                       color:'#00e5b0' },
+            { label:'BEST DAY',  value:`+$${Math.round(bestDay)}`,           color:'#00e5b0' },
+            { label:'WORST DAY', value:`-$${Math.abs(Math.round(worstDay))}`, color:'#ff4f6b' },
+            { label:'WIN STREAK', value:`${winStreak}d`,                      color:'#00e5b0' },
           ].map((s,i)=>(
             <div key={i} style={{ textAlign:'right' }}>
               <div style={{ fontFamily:M, fontSize:'7px', color:'#7a96b4', letterSpacing:'1.5px', marginBottom:'3px' }}>{s.label}</div>

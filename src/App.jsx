@@ -401,6 +401,34 @@ export default function App() {
             ))}
           </div>
         </div>
+
+        {/* Trading window */}
+        <div style={{ borderTop:'1px solid #162340', paddingTop:'14px' }}>
+          <div style={{ fontFamily:M, fontSize:'8px', color:'#f59e0b', letterSpacing:'2px', marginBottom:'10px' }}>TRADING RULES</div>
+          <div style={{ fontFamily:M, fontSize:'8px', color:'#6880a0', letterSpacing:'1px', marginBottom:'6px' }}>TIME WINDOW (CET)</div>
+          <div style={{ display:'flex', gap:'6px', alignItems:'center' }}>
+            <input type="time" value={settings.windowStart||'15:30'} onChange={e=>handleSaveSettings({windowStart:e.target.value})}
+              style={{ flex:1, background:'#08101c', border:'1px solid #1c2e4a', borderRadius:'6px', color:'#dce8f5', fontFamily:M, fontSize:'11px', padding:'5px 8px', outline:'none', colorScheme:'dark' }} />
+            <span style={{ color:'#4a6888', fontFamily:M, fontSize:'10px' }}>–</span>
+            <input type="time" value={settings.windowEnd||'17:30'} onChange={e=>handleSaveSettings({windowEnd:e.target.value})}
+              style={{ flex:1, background:'#08101c', border:'1px solid #1c2e4a', borderRadius:'6px', color:'#dce8f5', fontFamily:M, fontSize:'11px', padding:'5px 8px', outline:'none', colorScheme:'dark' }} />
+          </div>
+        </div>
+
+        {/* Max trades */}
+        <div>
+          <div style={{ fontFamily:M, fontSize:'8px', color:'#6880a0', letterSpacing:'1px', marginBottom:'6px' }}>MAX TRADES PER DAY</div>
+          <div style={{ display:'flex', gap:'4px' }}>
+            {[1,2,3,4,5].map(n => (
+              <button key={n} onClick={() => handleSaveSettings({ maxTrades: n })} style={{
+                flex:1, fontFamily:M, fontSize:'11px', fontWeight:700, padding:'5px 0', borderRadius:'5px', cursor:'pointer',
+                border:`1px solid ${(settings.maxTrades||2)===n?'rgba(245,158,11,0.4)':'#162340'}`,
+                background:(settings.maxTrades||2)===n?'#18100a':'transparent',
+                color:(settings.maxTrades||2)===n?'#f59e0b':'#6880a0',
+              }}>{n}</button>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   ) : null
@@ -488,6 +516,9 @@ export default function App() {
               lockoutReason={lockoutReason}
               sessionNotes={sessionNotes}
               onSaveSessionNote={handleSaveSessionNote}
+              windowStart={settings.windowStart||'15:30'}
+              windowEnd={settings.windowEnd||'17:30'}
+              maxTradesPerDay={settings.maxTrades||2}
             />
             {MOBILE ? (
               <>

@@ -418,14 +418,20 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
 
       {section('EQUITY CURVE',
         <>
-          <ResponsiveContainer width="100%" height={160}>
-            <LineChart data={eqData}>
+          <ResponsiveContainer width="100%" height={180}>
+            <AreaChart data={eqData} margin={{top:4,right:0,left:0,bottom:0}}>
+              <defs>
+                <linearGradient id="eqGradStat" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%"  stopColor={eqPos?'#00e5b0':'#ff4f6b'} stopOpacity={0.18}/>
+                  <stop offset="95%" stopColor={eqPos?'#00e5b0':'#ff4f6b'} stopOpacity={0}/>
+                </linearGradient>
+              </defs>
               <XAxis dataKey="date" stroke="#162340" tick={{fill:'#7a96b4',fontSize:8,fontFamily:M}} interval="preserveStartEnd" />
               <YAxis stroke="#162340" tick={{fill:'#7a96b4',fontSize:8,fontFamily:M}} width={42} />
-              <Tooltip contentStyle={{background:'#0f1828',border:'1px solid #1c2e4a',color:'#dce8f5',fontFamily:M,fontSize:'11px'}} formatter={v=>[`$${v}`,'P&L']} />
+              <Tooltip contentStyle={{background:'#0f1828',border:'1px solid #1c2e4a',color:'#dce8f5',fontFamily:M,fontSize:'11px'}} formatter={v=>[`$${v}`,'Equity']} labelStyle={{color:'#7a96b4',fontSize:'9px',marginBottom:'2px'}} />
               <ReferenceLine y={0} stroke="#1c2e4a" strokeDasharray="4 4" />
-              <Line type="monotone" dataKey="pnl" stroke={eqPos?'#00e5b0':'#ff4f6b'} dot={false} strokeWidth={2} />
-            </LineChart>
+              <Area type="monotone" dataKey="pnl" stroke={eqPos?'#00e5b0':'#ff4f6b'} strokeWidth={2} fill="url(#eqGradStat)" dot={false} activeDot={{r:4,fill:eqPos?'#00e5b0':'#ff4f6b',stroke:'#070a14',strokeWidth:2}} />
+            </AreaChart>
           </ResponsiveContainer>
           {maxDD > 0 && (
             <>
@@ -472,7 +478,7 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
               <YAxis hide />
               <ReferenceLine y={0} stroke="#1c2e4a" strokeDasharray="3 3" />
               <Tooltip content={<MonthTooltip />} cursor={{fill:'rgba(255,255,255,0.03)'}} />
-              <Bar dataKey={monthView} radius={[3,3,0,0]}>
+              <Bar dataKey={monthView} radius={[3,3,0,0]} minPointSize={4}>
                 {monthlyData.map((m,i) => {
                   const val = m[monthView]
                   const color = monthView==='wr'
@@ -845,24 +851,40 @@ export default function Statistics({ journal = [], weeklyReviews = {}, onSaveWee
       })()}
 
       {section('WIN RATE PER VECKODAG',
-        <>
-          <div style={{fontFamily:M,fontSize:'9px',color:'#6880a0',marginBottom:'12px'}}>Gråa = under 3 trades</div>
-          <div style={{display:'flex',gap:'8px',alignItems:'flex-end',height:'100px'}}>
-            {dayStats.map((d,i)=>{
-              const c  = d.total===0?'#0f1828':!d.reliable?'#1a2428':d.wr>=50?'#007d5e':'#7a1020'
-              const tc = d.total===0?'#1c2e4a':!d.reliable?'#7a96b4':d.wr>=50?'#00e5b0':'#ff4f6b'
-              const h  = d.total===0?'5px':`${Math.max(d.wr,5)}%`
-              return (
-                <div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:'4px',height:'100%',justifyContent:'flex-end'}}>
-                  <div style={{fontFamily:M,fontSize:'9px',color:tc}}>{d.total===0?'—':`${d.wr}%`}</div>
-                  <div style={{width:'100%',height:h,background:c,borderRadius:'3px 3px 0 0',transition:'height 0.3s ease'}} />
-                  <div style={{fontFamily:M,fontSize:'9px',color:'#8aabb8'}}>{d.day.slice(0,3)}</div>
-                  <div style={{fontFamily:M,fontSize:'8px',color:'#6880a0'}}>{d.total}t</div>
+        (() => {
+          const reliable = dayStats.filter(d => d.reliable)
+          const maxWr    = reliable.length > 0 ? Math.max(...reliable.map(d => d.wr), 1) : 100
+          const bestDay  = reliable.length > 0 ? reliable.reduce((b, d) => d.wr > b.wr ? d : b, reliable[0]) : null
+          return (
+            <>
+              <div style={{fontFamily:M,fontSize:'9px',color:'#6880a0',marginBottom:'12px'}}>Gråa = under 3 trades</div>
+              <div style={{position:'relative'}}>
+                {/* 50% threshold line */}
+                <div style={{position:'absolute',left:0,right:0,bottom:`calc(${(50/100)*80}% + 28px)`,borderTop:'1px dashed rgba(255,192,48,0.25)',textAlign:'right',zIndex:1}}>
+                  <span style={{fontFamily:M,fontSize:'7px',color:'rgba(255,192,48,0.45)',paddingRight:'4px'}}>50%</span>
                 </div>
-              )
-            })}
-          </div>
-        </>
+                <div style={{display:'flex',gap:'8px',alignItems:'flex-end',height:'120px'}}>
+                  {dayStats.map((d,i)=>{
+                    const isBest = bestDay && d === bestDay
+                    const opacity = d.reliable ? 0.35 + (d.wr / maxWr) * 0.65 : 0.15
+                    const c  = d.total===0?'#0f1828':!d.reliable?'#1a2428':d.wr>=50?'#007d5e':'#7a1020'
+                    const tc = d.total===0?'#1c2e4a':!d.reliable?'#7a96b4':d.wr>=50?'#00e5b0':'#ff4f6b'
+                    const h  = d.total===0?'3px':d.reliable?`${Math.max((d.wr/100)*80,5)}%`:`${Math.max(d.wr,2)}%`
+                    return (
+                      <div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:'4px',height:'100%',justifyContent:'flex-end'}}>
+                        <div style={{fontFamily:M,fontSize:'9px',color:tc,fontWeight:isBest?700:'normal'}}>{d.total===0?'—':`${d.wr}%`}</div>
+                        <div style={{width:'100%',height:h,background:c,borderRadius:'3px 3px 0 0',opacity,transition:'height 0.3s ease',
+                          boxShadow:isBest?'0 0 10px 2px #00e5b0':undefined}} />
+                        <div style={{fontFamily:M,fontSize:'9px',color:isBest?'#00e5b0':'#8aabb8',fontWeight:isBest?700:'normal'}}>{d.day.slice(0,3)}</div>
+                        <div style={{fontFamily:M,fontSize:'8px',color:'#6880a0'}}>{d.total}t</div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </>
+          )
+        })()
       )}
       </>)}
 
